@@ -1,0 +1,85 @@
+<% layout("layouts/boilerplate") -%>
+<body>
+  <div class="row">
+    <div class="col-8 offset-2">
+      <br /><br />
+      <h2>CREATE NEW LISTING</h2>
+
+      <form
+        method="POST"
+        action="/listings"
+        novalidate
+        class="needs-validation"
+      >
+        <div class="mb-3">
+          <label for="title" class="form-label"><b>TITLE</b></label>
+          <input
+            type="text"
+            name="listing[title]"
+            placeholder="title"
+            required
+            class="form-control"
+          />
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label"><b>DESCRIPTION</b></label>
+          <textarea
+            name="listing[description]"
+            placeholder="description"
+            class="form-control"
+            required
+          ></textarea>
+        </div>
+        <div class="row">
+          <div class="mb-3 col-md-4">
+            <label for="price" class="form-label"><b>PRICE</b></label>
+            <input
+              type="number"
+              name="listing[price]"
+              placeholder="price"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3 col-md-8">
+            <label for="country" class="form-label"><b>COUNTRY</b></label>
+            <input
+              type="text"
+              name="listing[country]"
+              placeholder="country"
+              class="form-control"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="location" class="form-label"><b>LOCATION</b></label>
+          <input
+            type="text"
+            name="listing[location]"
+            placeholder="location"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="image" class="form-label"><b>IMAGE</b></label>
+          <input
+            type="text"
+            name="listing[image]"
+            placeholder="image url"
+            class="form-control"
+            required
+          />
+        </div>
+        <br />
+
+        <button class="btn btn-dark add-btn" type="submit">
+          create listing
+        </button>
+      </form>
+      <br /><br />
+    </div>
+  </div>
+</body>
