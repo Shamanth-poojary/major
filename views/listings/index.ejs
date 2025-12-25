@@ -6,7 +6,7 @@
   >
     <% for (let listing of alllistings) {%>
     <a
-      href=" /listings/<%=listing._id%>"
+      href="/listings/<%=listing._id%>"
       style="text-decoration: none; color: black"
       ><div class="card col">
         <img
@@ -17,8 +17,9 @@
         <div class="card-img-overlay"></div>
         <div class="card-body">
           <p class="card-text">
-            <b><%= listing.title %></b> <br />&#8377;<%=
-            listing.price.toLocaleString("en-in") %>/night
+            <b><%= listing.title %></b> <br />
+            &#8377;<%= listing.price ? listing.price.toLocaleString("en-in") :
+            'N/A' %>/night
           </p>
         </div>
       </div></a

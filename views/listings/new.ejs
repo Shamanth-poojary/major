@@ -1,86 +1,101 @@
 <% layout("layouts/boilerplate") -%>
-<body>
-  <div class="row">
-    <div class="col-8 offset-2">
-      <br /><br />
-      <h2>CREATE NEW LISTING</h2>
 
-      <form
-        method="POST"
-        action="/listings"
-        novalidate
-        class="needs-validation"
-      >
-        //fixing validation issue
-        <div class="mb-3">
-          <label for="title" class="form-label"><b>TITLE</b></label>
+<div class="row">
+  <div class="col-8 offset-2">
+    <h2 class="mb-4 mt-4">CREATE NEW LISTING</h2>
+
+    <form method="POST" action="/listings" novalidate class="needs-validation">
+      <!-- TITLE -->
+      <div class="mb-3">
+        <label for="title" class="form-label"><b>Title</b></label>
+        <input
+          type="text"
+          id="title"
+          name="listing[title]"
+          placeholder="Enter title"
+          class="form-control"
+          required
+          value="<%= typeof listing !== 'undefined' ? listing.title || '' : '' %>"
+        />
+        <div class="invalid-feedback">Please enter a title.</div>
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="mb-3">
+        <label for="description" class="form-label"><b>Description</b></label>
+        <textarea
+          id="description"
+          name="listing[description]"
+          placeholder="Enter description"
+          class="form-control"
+          required
+        >
+<%= typeof listing !== 'undefined' ? listing.description || '' : '' %></textarea
+        >
+        <div class="invalid-feedback">Please enter a description.</div>
+      </div>
+
+      <div class="row">
+        <!-- PRICE -->
+        <div class="mb-3 col-md-4">
+          <label for="price" class="form-label"><b>Price</b></label>
           <input
-            type="text"
-            name="listing[title]"
-            placeholder="title"
-            required
+            type="number"
+            id="price"
+            name="listing[price]"
+            placeholder="Enter price"
             class="form-control"
+            required
+            value="<%= typeof listing !== 'undefined' ? listing.price || '' : '' %>"
           />
-        </div>
-        <div class="mb-3">
-          <label for="description" class="form-label"><b>DESCRIPTION</b></label>
-          <textarea
-            name="listing[description]"
-            placeholder="description"
-            class="form-control"
-            required
-          ></textarea>
-        </div>
-        <div class="row">
-          <div class="mb-3 col-md-4">
-            <label for="price" class="form-label"><b>PRICE</b></label>
-            <input
-              type="number"
-              name="listing[price]"
-              placeholder="price"
-              class="form-control"
-              required
-            />
-          </div>
-          <div class="mb-3 col-md-8">
-            <label for="country" class="form-label"><b>COUNTRY</b></label>
-            <input
-              type="text"
-              name="listing[country]"
-              placeholder="country"
-              class="form-control"
-              required
-            />
-          </div>
+          <div class="invalid-feedback">Please enter a price.</div>
         </div>
 
-        <div class="mb-3">
-          <label for="location" class="form-label"><b>LOCATION</b></label>
+        <!-- COUNTRY -->
+        <div class="mb-3 col-md-8">
+          <label for="country" class="form-label"><b>Country</b></label>
           <input
             type="text"
-            name="listing[location]"
-            placeholder="location"
+            id="country"
+            name="listing[country]"
+            placeholder="Enter country"
             class="form-control"
             required
+            value="<%= typeof listing !== 'undefined' ? listing.country || '' : '' %>"
           />
+          <div class="invalid-feedback">Please enter a country.</div>
         </div>
-        <div class="mb-3">
-          <label for="image" class="form-label"><b>IMAGE</b></label>
-          <input
-            type="text"
-            name="listing[image]"
-            placeholder="image url"
-            class="form-control"
-            required
-          />
-        </div>
-        <br />
+      </div>
 
-        <button class="btn btn-dark add-btn" type="submit">
-          create listing
-        </button>
-      </form>
-      <br /><br />
-    </div>
+      <!-- LOCATION -->
+      <div class="mb-3">
+        <label for="location" class="form-label"><b>Location</b></label>
+        <input
+          type="text"
+          id="location"
+          name="listing[location]"
+          placeholder="Enter location"
+          class="form-control"
+          required
+          value="<%= typeof listing !== 'undefined' ? listing.location || '' : '' %>"
+        />
+        <div class="invalid-feedback">Please enter a location.</div>
+      </div>
+
+      <!-- IMAGE -->
+      <div class="mb-3">
+        <label for="image" class="form-label"><b>Image URL</b></label>
+        <input
+          type="text"
+          id="image"
+          name="listing[image]"
+          placeholder="Enter image URL"
+          class="form-control"
+          value="<%= typeof listing !== 'undefined' ? listing.image || '' : '' %>"
+        />
+      </div>
+
+      <button class="btn btn-dark mt-3" type="submit">Create Listing</button>
+    </form>
   </div>
-</body>
+</div>
