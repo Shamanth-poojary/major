@@ -46,6 +46,8 @@
             placeholder="Enter price"
             class="form-control"
             required
+            min="0"
+            step="0.01"
             value="<%= typeof listing !== 'undefined' ? listing.price || '' : '' %>"
           />
           <div class="invalid-feedback">Please enter a price.</div>

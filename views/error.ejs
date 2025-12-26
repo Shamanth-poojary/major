@@ -1,0 +1,14 @@
+<% layout("layouts/boilerplate") -%>
+<div class="row">
+  <div class="alert alert-danger col-5 offset-3" role="alert">
+    <h4 class="alert-heading">
+      Error <%= typeof statusCode !== 'undefined' ? statusCode : (err &&
+      err.statusCode) %>
+    </h4>
+    <p>
+      <%= typeof message !== 'undefined' ? message : (err && err.message) %>
+    </p>
+    <hr />
+    <a href="/listings" class="btn btn-outline-danger">Go Back to Listings</a>
+  </div>
+</div>

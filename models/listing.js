@@ -19,7 +19,12 @@ const listingSchema = new Schema({
         ? "https://cdn.pixabay.com/photo/2025/09/10/14/35/mushroom-9826526_1280.jpg"
         : v,
   },
-  price: Number,
+  price: {
+    type: Number,
+    required: true,
+    min: [0, "Price cannot be negative"],
+    set: (v) => Math.round(v * 100) / 100,
+  },
   location: String,
   country: String,
 });
