@@ -6,6 +6,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError");
 const wrapAsync = require("./utils/wrapAsync");
+const validateListing = require("./utils/validateListing");
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
 app.use(express.json());
@@ -41,29 +42,15 @@ app.get(
   })
 );
 //post route
-app.post("/listings", async (req, res) => {
-  try {
+app.post(
+  "/listings",
+  validateListing,
+  wrapAsync(async (req, res) => {
     const newlisting = new Listing(req.body.listing);
     await newlisting.save();
     res.redirect("/listings");
-  } catch (err) {
-    next(err);
-    // If validation error, re-render the form with submitted data and error messages
-    if (err.name === "ValidationError") {
-      // build a simple errors object mapping field -> message
-      const errors = {};
-      for (let field in err.errors) {
-        // Use the original Mongoose message
-        errors[field] = err.errors[field].message;
-      }
-      return res
-        .status(400)
-        .render("listings/new.ejs", { listing: req.body.listing, errors });
-    }
-    // otherwise rethrow
-    throw err;
-  }
-});
+  })
+);
 //edit route
 app.get(
   "/listings/:id/edit",
@@ -76,6 +63,7 @@ app.get(
 //update route
 app.put(
   "/listings/:id",
+  validateListing,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
     const listing = await Listing.findByIdAndUpdate(id, {

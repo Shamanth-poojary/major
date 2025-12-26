@@ -85,16 +85,17 @@
       </div>
 
       <!-- IMAGE -->
-      <div class="mb-3">
-        <label for="image" class="form-label"><b>Image URL</b></label>
-        <input
-          type="text"
-          id="image"
-          name="listing[image]"
-          placeholder="Enter image URL"
-          class="form-control"
-          value="<%= typeof listing !== 'undefined' ? listing.image || '' : '' %>"
-        />
+      <input
+        type="url"
+        id="image"
+        name="listing[image]"
+        placeholder="Enter image URL"
+        class="form-control"
+        pattern="https?://.*"
+        value="<%= typeof listing !== 'undefined' ? listing.image || '' : '' %>"
+      />
+      <div class="invalid-feedback">
+        Please enter a valid image URL (starting with http:// or https://)
       </div>
 
       <button class="btn btn-dark mt-3" type="submit">Create Listing</button>
