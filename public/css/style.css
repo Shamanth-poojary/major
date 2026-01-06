@@ -62,7 +62,7 @@ body {
   align-items: center;
 }
 /* cards */
-.card {
+.listing-card {
   border: none !important;
   border-radius: 0;
 }

@@ -7,6 +7,8 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError");
 const wrapAsync = require("./utils/wrapAsync");
 const validateListing = require("./utils/validateListing");
+const Review = require("./models/review");
+const validateReview = require("./utils/validateReview");
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
 app.use(express.json());
@@ -32,15 +34,22 @@ app.get("/listings/new", (req, res) => {
   res.render("listings/new.ejs");
 });
 
-//show route
+// show route
 app.get(
   "/listings/:id",
   wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    const listing = await Listing.findById(id);
+    const { id } = req.params;
+
+    const listing = await Listing.findById(id).populate("reviews");
+
+    if (!listing) {
+      throw new ExpressError(404, "Listing not found");
+    }
+
     res.render("listings/show.ejs", { listing });
   })
 );
+
 //post route
 app.post(
   "/listings",
@@ -81,6 +90,26 @@ app.delete(
     res.redirect("/listings");
   })
 );
+
+//review sectiond
+//post route
+app.post(
+  "/listings/:id/reviews",
+  validateReview,
+  wrapAsync(async (req, res) => {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) throw new ExpressError(404, "Listing not found");
+
+    const newReview = new Review(req.body.review);
+    await newReview.save();
+
+    listing.reviews.push(newReview._id);
+    await listing.save();
+
+    res.redirect(`/listings/${listing._id}`);
+  })
+);
+
 // invalid page error
 app.use((req, res, next) => {
   next(new ExpressError(404, "Page not found"));
