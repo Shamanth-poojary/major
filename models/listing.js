@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const review = require("./review");
-const { ref } = require("joi");
+const Review = require("./review"); // FIX: capital R
 const Schema = mongoose.Schema;
 
 const listingSchema = new Schema({
@@ -12,6 +11,7 @@ const listingSchema = new Schema({
   description: {
     type: String,
   },
+
   image: {
     type: String,
     default:
@@ -21,14 +21,17 @@ const listingSchema = new Schema({
         ? "https://cdn.pixabay.com/photo/2025/09/10/14/35/mushroom-9826526_1280.jpg"
         : v,
   },
+
   price: {
     type: Number,
     required: true,
     min: [0, "Price cannot be negative"],
     set: (v) => Math.round(v * 100) / 100,
   },
+
   location: String,
   country: String,
+
   reviews: [
     {
       type: Schema.Types.ObjectId,
@@ -36,5 +39,15 @@ const listingSchema = new Schema({
     },
   ],
 });
+
+/* Review deletion  middleware */
+listingSchema.post("findOneAndDelete", async function (listing) {
+  if (listing) {
+    await Review.deleteMany({
+      _id: { $in: listing.reviews },
+    });
+  }
+});
+
 const Listing = mongoose.model("Listing", listingSchema);
 module.exports = Listing;
