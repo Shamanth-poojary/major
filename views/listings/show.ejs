@@ -17,7 +17,10 @@
     />
 
     <div class="card-body">
-      <p><%= listing.description %></p>
+      <p class="card-text">
+        <b>Owned by:<%=listing.owner.username%></b>
+      </p>
+      <p class="card-text"><%= listing.description %></p>
 
       <ul class="list-unstyled">
         <li>₹ <%= listing.price.toLocaleString("en-IN") %></li>
@@ -26,7 +29,8 @@
       </ul>
     </div>
   </div>
-
+  <% if (typeof currentUser !== 'undefined' && currentUser &&
+  currentUser._id.toString() === listing.owner._id.toString()) { %>
   <!-- EDIT / DELETE BUTTONS -->
   <div class="row mt-3">
     <div class="col-auto offset-2">
@@ -51,7 +55,7 @@
       </form>
     </div>
   </div>
-
+  <% } %>
   <!-- ADD REVIEW FORM -->
   <div class="row mt-4">
     <div class="col-6 offset-2">
@@ -115,7 +119,7 @@
 
         <div class="card col-5 mb-3 ms-3">
           <div class="card-body">
-            <h6 class="card-title">John</h6>
+            <h6 class="card-title mt-1"><%=review.owner.username%></h6>
 
             <p class="card-text"><%= review.comment %></p>
 
@@ -134,6 +138,8 @@
             action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE"
             id="deleteForm-<%= review._id %>"
           >
+            <% if (typeof currentUser !== 'undefined' && currentUser &&
+            currentUser._id.toString() === review.owner._id.toString()) { %>
             <button
               class="btn btn-dark mt-3 mb-2"
               onclick="confirmDelete('<%=review._id%>')"
@@ -141,6 +147,7 @@
             >
               Delete
             </button>
+            <% } %>
           </form>
         </div>
 

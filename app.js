@@ -47,17 +47,17 @@ passport.deserializeUser(User.deserializeUser());
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
-
+  res.locals.currentUser = req.user;
   next();
 });
-app.get("/fakeUser", (req, res) => {
-  const user = new User({
-    email: "student111@gmail.com",
-    username: "student222",
-  });
-  let registeredUser = User.register(user, "helloworld");
-  res.send(registeredUser);
-});
+// app.get("/fakeUser", (req, res) => {
+//   const user = new User({
+//     email: "student111@gmail.com",
+//     username: "student222",
+//   });
+//   let registeredUser = User.register(user, "helloworld");
+//   res.send(registeredUser);
+// });
 
 //listing routes
 const listingRoutes = require("./routes/listing");
