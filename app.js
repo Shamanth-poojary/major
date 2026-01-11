@@ -17,6 +17,7 @@ const path = require("path");
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
 app.use(express.static(path.join(__dirname, "public")));
+
 main()
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
@@ -50,15 +51,6 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.user;
   next();
 });
-// app.get("/fakeUser", (req, res) => {
-//   const user = new User({
-//     email: "student111@gmail.com",
-//     username: "student222",
-//   });
-//   let registeredUser = User.register(user, "helloworld");
-//   res.send(registeredUser);
-// });
-
 //listing routes
 const listingRoutes = require("./routes/listing");
 app.use("/listings", listingRoutes);
