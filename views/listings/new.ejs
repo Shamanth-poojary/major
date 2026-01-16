@@ -4,7 +4,13 @@
   <div class="col-8 offset-2">
     <h2 class="mb-4 mt-4">CREATE NEW LISTING</h2>
 
-    <form method="POST" action="/listings" novalidate class="needs-validation">
+    <form
+      method="POST"
+      action="/listings"
+      novalidate
+      class="needs-validation"
+      enctype="multipart/form-data"
+    >
       <!-- TITLE -->
       <div class="mb-3">
         <label for="title" class="form-label"><b>Title</b></label>
@@ -85,18 +91,24 @@
       </div>
 
       <!-- IMAGE -->
-      <input
-        type="url"
+      <!-- <input
+        type="file"
         id="image"
         name="listing[image]"
-        placeholder="Enter image URL"
+        placeholder="select the file to be uploaded"
         class="form-control"
         pattern="https?://.*"
         value="<%= typeof listing !== 'undefined' ? listing.image || '' : '' %>"
       />
       <div class="invalid-feedback">
         Please enter a valid image URL (starting with http:// or https://)
-      </div>
+      </div> -->
+      <input
+        type="file"
+        name="image"
+        placeholder="select the file to be uploaded"
+        class="form-control"
+      />
 
       <button class="btn btn-dark mt-3" type="submit">Create Listing</button>
     </form>

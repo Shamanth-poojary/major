@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const Review = require("./review"); // FIX: capital R
+const Review = require("./review");
+const { string } = require("joi");
 const Schema = mongoose.Schema;
 
 const listingSchema = new Schema({
@@ -13,13 +14,8 @@ const listingSchema = new Schema({
   },
 
   image: {
-    type: String,
-    default:
-      "https://cdn.pixabay.com/photo/2025/09/10/14/35/mushroom-9826526_1280.jpg",
-    set: (v) =>
-      v === ""
-        ? "https://cdn.pixabay.com/photo/2025/09/10/14/35/mushroom-9826526_1280.jpg"
-        : v,
+    url: String,
+    filename: String,
   },
 
   price: {
