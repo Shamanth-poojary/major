@@ -1,6 +1,10 @@
 <% layout("layouts/boilerplate") -%>
+<script>
+  let mapToken = "<%= process.env.MAP_TOKEN %>";
+ const coordinates = JSON.parse('<%- JSON.stringify(listing.geometry.coordinates) %>');
+</script>
 
-<body>
+
   <!-- LISTING TITLE -->
   <h3 class="mt-3">
     <p class="card-text offset-2">
@@ -207,7 +211,37 @@
 
       <% } %>
     </div>
-  </div>
+   <div class="col-6 offset-2 mb-3">
+  <h3>Where you will be</h3>
+
+  <% if (
+    listing.geometry &&
+    listing.geometry.coordinates &&
+    listing.geometry.coordinates.length === 2
+  ) { %>
+
+    <!-- Map Available -->
+    <button id="loadMapBtn" class="btn btn-dark mb-3">
+      Load Map 📍
+    </button>
+
+    <div
+      id="map"
+      data-token="<%= process.env.MAP_TOKEN %>"
+      data-coordinates='<%- JSON.stringify(listing.geometry.coordinates) %>'
+      style="display: none;"
+    ></div>
+
+  <% } else { %>
+
+    <!-- No Map -->
+    <div class="alert alert-secondary">
+      📍 No map added yet for this listing.
+    </div>
+
+  <% } %>
+</div>
+
 
   <!-- DELETE CONFIRMATION -->
   <script>
@@ -217,4 +251,4 @@
       }
     }
   </script>
-</body>
+  

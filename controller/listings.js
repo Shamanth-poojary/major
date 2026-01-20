@@ -1,4 +1,7 @@
 const Listing = require("../models/listing");
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const mapToken = process.env.MAP_TOKEN;
+const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 // =======================
 // INDEX
@@ -45,12 +48,19 @@ module.exports.postListing = async (req, res) => {
     req.flash("error", "Image upload failed!");
     return res.redirect("/listings/new");
   }
+  let response = await geocodingClient
+    .forwardGeocode({
+      query: req.body.listing.location,
+      limit: 1,
+    })
+    .send();
 
   const { path: url, filename } = req.file;
 
   const newlisting = new Listing(req.body.listing);
   newlisting.owner = req.user._id;
   newlisting.image = { url, filename };
+  newlisting.geometry = response.body.features[0].geometry; //mapbox
 
   await newlisting.save();
 
@@ -82,7 +92,7 @@ module.exports.updateListing = async (req, res) => {
   const listing = await Listing.findByIdAndUpdate(
     id,
     { ...req.body.listing },
-    { new: true }
+    { new: true },
   );
 
   // If user uploaded a new image
