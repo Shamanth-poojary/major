@@ -1,14 +1,42 @@
-<footer>
-  <div class="f-info">
-    <div class="f-info-socials">
-      <a href="#"><i class="fa-brands fa-square-instagram"></i></a>
-      <a href="#"><i class="fa-brands fa-square-linkedin"></i></a>
-      <a href="#"><i class="fa-brands fa-square-whatsapp"></i></a>
+<footer class="wl-footer">
+  <div class="wl-container wl-footer-inner">
+    <!-- Left: Logo & Copyright -->
+    <div class="d-flex align-items-center flex-wrap gap-3">
+      <a class="d-flex align-items-center gap-2 text-white fw-bold text-decoration-none" href="/">
+        <svg width="28" height="20" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3L23 22H1L12 3Z" fill="#1C8387" />
+          <path d="M22 8L31 22H13L22 8Z" fill="#137580" fill-opacity="0.9" />
+          <path d="M7 13L13 22H1L7 13Z" fill="#0F515F" fill-opacity="0.8" />
+        </svg>
+        <span>WanderLust</span>
+      </a>
+      <span class="text-white-50 small">
+        &copy; <%= new Date().getFullYear() %> WanderLust Private Limited. All rights reserved.
+      </span>
     </div>
-    <div>&copy;wanderlust private limited</div>
-    <div class="f-info-links">
-      <a href="/privacy">privacy</a>
-      <a href="/terms">terms</a>
+
+    <!-- Right: Links & Socials -->
+    <div class="d-flex align-items-center flex-wrap gap-4 small">
+      <div class="d-flex align-items-center gap-3">
+        <a href="/privacy" class="text-white-50 text-decoration-none">Privacy Policy</a>
+        <span class="text-white-50">&middot;</span>
+        <a href="/terms" class="text-white-50 text-decoration-none">Terms of Service</a>
+      </div>
+
+      <div class="d-flex align-items-center gap-3 text-white-50 fs-6">
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="text-white-50" aria-label="Instagram">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="text-white-50" aria-label="Facebook">
+          <i class="fa-brands fa-facebook"></i>
+        </a>
+        <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="text-white-50" aria-label="YouTube">
+          <i class="fa-brands fa-youtube"></i>
+        </a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="text-white-50" aria-label="LinkedIn">
+          <i class="fa-brands fa-linkedin"></i>
+        </a>
+      </div>
     </div>
   </div>
 </footer>

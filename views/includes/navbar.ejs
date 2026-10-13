@@ -1,9 +1,17 @@
-<nav class="navbar navbar-expand-lg bg-light border-bottom sticky-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/"><i class="fa-solid fa-compass"></i></a>
+<nav class="navbar navbar-expand-lg wl-navbar sticky-top">
+  <div class="wl-container d-flex align-items-center justify-content-between">
+    <!-- Brand Logo -->
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <svg class="wl-brand-logo" width="34" height="24" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="WanderLust Logo">
+        <path d="M12 3L23 22H1L12 3Z" fill="#1C8387" />
+        <path d="M22 8L31 22H13L22 8Z" fill="#137580" fill-opacity="0.9" />
+        <path d="M7 13L13 22H1L7 13Z" fill="#0F515F" fill-opacity="0.8" />
+      </svg>
+      <span>WanderLust</span>
+    </a>
 
     <button
-      class="navbar-toggler"
+      class="navbar-toggler border-0 p-1"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#navbarNavAltMarkup"
@@ -11,66 +19,111 @@
       aria-expanded="false"
       aria-label="Toggle navigation"
     >
-      <span class="navbar-toggler-icon"></span>
+      <i class="fa-solid fa-bars text-dark fs-5"></i>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <!-- Left Links -->
-      <div class="navbar-nav">
-        <a class="nav-link active" aria-current="page" href="/listings">Home</a>
+      <!-- Left Navigation Links -->
+      <div class="navbar-nav me-auto align-items-lg-center ms-lg-3 gap-lg-1">
+        <a class="nav-link" href="/listings">Home</a>
+
         <% if (typeof canManageListings !== "undefined" && canManageListings) { %>
-        <a class="nav-link" href="/listings/new">Add New Listings</a>
+          <a class="nav-link" href="/listings/new">Add New Listing</a>
         <% } %>
+
         <% if (typeof currentUser !== "undefined" && currentUser) { %>
-        <a class="nav-link" href="/dashboard"><i class="fa-solid fa-gauge me-1"></i>Dashboard</a>
+          <a class="nav-link" href="/dashboard">Dashboard</a>
         <% } %>
+
         <% if (typeof currentUser !== "undefined" && currentUser && currentUser.role === "owner") { %>
-        <%
-          const statusKey = currentUser.ownerStatus || "none";
-          const statusLabels = {
-            pending:  "Pending approval",
-            approved: "Approved",
-            rejected: "Not approved",
-            none:     "Application not submitted",
-          };
-          const badgeClasses = {
-            pending:  "bg-warning text-dark",
-            approved: "bg-success",
-            rejected: "bg-danger",
-            none:     "bg-secondary",
-          };
-        %>
-        <a class="nav-link" href="/owner/status">
-          Owner Status <span class="badge <%= badgeClasses[statusKey] || 'bg-secondary' %> ms-1"><%= statusLabels[statusKey] || statusKey %></span>
-        </a>
+          <%
+            const statusKey = currentUser.ownerStatus || "none";
+            const pillClasses = {
+              pending:  "wl-pill-pending",
+              approved: "wl-pill-approved",
+              rejected: "wl-pill-rejected",
+              none:     "bg-light text-muted",
+            };
+            const statusLabels = {
+              pending:  "Pending approval",
+              approved: "Approved",
+              rejected: "Not approved",
+              none:     "Application not submitted",
+            };
+          %>
+          <a class="nav-link d-inline-flex align-items-center gap-2" href="/owner/status">
+            <span>Owner Status</span>
+            <span class="wl-pill <%= pillClasses[statusKey] || 'wl-pill-pending' %>">
+              <span class="wl-pill-dot"></span>
+              <%= statusLabels[statusKey] || statusKey %>
+            </span>
+          </a>
         <% } %>
+
         <% if (typeof currentUser !== "undefined" && currentUser && currentUser.role === "admin") { %>
-        <a class="nav-link" href="/dashboard/approvals">
-          Owner Applications<% if (typeof pendingOwnerCount === "number" && pendingOwnerCount > 0) { %> <span class="badge bg-danger ms-1"><%= pendingOwnerCount %></span><% } %>
-        </a>
+          <a class="nav-link d-inline-flex align-items-center gap-2" href="/dashboard/approvals">
+            <span>Owner Applications</span>
+            <% if (typeof pendingOwnerCount === "number" && pendingOwnerCount > 0) { %>
+              <span class="wl-pill-count bg-danger text-white"><%= pendingOwnerCount %></span>
+            <% } %>
+          </a>
         <% } %>
       </div>
 
-      <!-- Right Links -->
-      <div class="navbar-nav ms-auto align-items-center">
+      <!-- Right Navigation Actions -->
+      <div class="navbar-nav ms-auto align-items-lg-center gap-2 mt-3 mt-lg-0">
         <% if (typeof currentUser === "undefined" || !currentUser) { %>
-        <a class="nav-link" href="/signup">Register</a>
-        <a class="nav-link" href="/login">Login</a>
+          <a class="nav-link fw-semibold px-3" href="/signup">Register</a>
+          <a class="btn wl-btn-primary px-3" href="/login">Login</a>
         <% } else { %>
-        <span class="navbar-text me-3 d-flex align-items-center">
-          <% if (currentUser.profilePictureUrl) { %>
-            <img
-              src="<%= currentUser.profilePictureUrl %>"
-              alt="<%= currentUser.username %>"
-              class="rounded-circle me-2 border"
-              style="width: 26px; height: 26px; object-fit: cover;"
-            />
-          <% } %>
-          <span>Hello, <%= currentUser.username %>!</span>
-          <% const roleLabels = { customer: "Customer", owner: "Property / Venue Owner", admin: "Admin" }; %>
-          <span class="badge bg-secondary ms-1"><%= roleLabels[currentUser.role] || currentUser.role %></span>
-        </span>
-        <a class="nav-link" href="/logout">Logout</a>
+          <div class="dropdown">
+            <div
+              class="wl-user-menu"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              role="button"
+            >
+              <% if (currentUser.profilePictureUrl) { %>
+                <img
+                  src="<%= currentUser.profilePictureUrl %>"
+                  alt="<%= currentUser.username %>"
+                  class="rounded-circle"
+                  style="width: 28px; height: 28px; object-fit: cover;"
+                />
+              <% } else { %>
+                <div
+                  class="rounded-circle text-white d-flex align-items-center justify-content-center"
+                  style="width: 28px; height: 28px; background-color: var(--wl-teal-500); font-size: 0.82rem; font-weight: 700;"
+                >
+                  <%= currentUser.username.charAt(0).toUpperCase() %>
+                </div>
+              <% } %>
+
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-semibold text-dark fs-6"><%= currentUser.username %></span>
+                <%
+                  const roleBadgeClass = {
+                    customer: 'bg-info-subtle text-info-emphasis',
+                    owner:    'bg-primary-subtle text-primary-emphasis',
+                    admin:    'bg-danger-subtle text-danger-emphasis'
+                  };
+                  const roleLabel = { customer: 'Traveller', owner: 'Owner', admin: 'Admin' };
+                %>
+                <span class="badge <%= roleBadgeClass[currentUser.role] || 'bg-light text-dark' %> rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                  <%= roleLabel[currentUser.role] || currentUser.role %>
+                </span>
+              </div>
+              <i class="fa-solid fa-chevron-down text-muted" style="font-size: 0.7rem; margin-left: 4px;"></i>
+            </div>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2" style="border-radius: var(--wl-radius-md);">
+              <li><a class="dropdown-item py-2" href="/dashboard/profile"><i class="fa-regular fa-user me-2 text-muted"></i>My Profile</a></li>
+              <li><a class="dropdown-item py-2" href="/dashboard"><i class="fa-solid fa-gauge me-2 text-muted"></i>Dashboard</a></li>
+              <li><a class="dropdown-item py-2" href="/dashboard/wishlist"><i class="fa-regular fa-heart me-2 text-muted"></i>Wishlist</a></li>
+              <li><hr class="dropdown-divider" /></li>
+              <li><a class="dropdown-item py-2 text-danger" href="/logout"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</a></li>
+            </ul>
+          </div>
         <% } %>
       </div>
     </div>

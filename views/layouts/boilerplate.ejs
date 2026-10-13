@@ -3,15 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>wander lust</title>
+    <title>WanderLust — Find your next stay or venue</title>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap"
       rel="stylesheet"
     />
 
@@ -23,33 +21,41 @@
       crossorigin="anonymous"
     />
 
-    <!-- Custom CSS (after Bootstrap!) -->
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- WanderLust Design System Tokens & Components -->
+    <link rel="stylesheet" href="/css/theme.css" />
+    <!-- Legacy Custom CSS -->
     <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- mapboxjs -->
+    <!-- Mapbox GL JS -->
     <link
       href="https://api.mapbox.com/mapbox-gl-js/v3.18.0/mapbox-gl.css"
       rel="stylesheet"
     />
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.18.0/mapbox-gl.js"></script>
 
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
+    <!-- Rating CSS -->
     <link href="/css/rating.css" rel="stylesheet" />
   </head>
 
   <body>
-    <!-- Navbar -->
-    <%- include("../includes/navbar.ejs") %> <%-
-    include("../includes/flash.ejs") %>
-    <!-- Main Content -->
-    <main class="container mt-5"><%- body %></main>
+    <!-- Header / Navbar -->
+    <%- include("../includes/navbar.ejs") %>
+
+    <div class="page-wrapper">
+      <!-- Flash Messages -->
+      <%- include("../includes/flash.ejs") %>
+
+      <!-- Main Content -->
+      <main class="flex-grow-1"><%- body %></main>
+    </div>
 
     <!-- Footer -->
     <%- include("../includes/footer.ejs") %>
@@ -61,9 +67,11 @@
       crossorigin="anonymous"
     ></script>
 
-    <!-- Custom JS -->
+    <!-- Client Validation & Logic -->
     <script src="/js/script.js"></script>
-    <!-- custom mapbox js -->
+    <!-- Modern UI Interactions -->
+    <script src="/js/ui.js"></script>
+    <!-- Mapbox Logic -->
     <script src="/js/map.js"></script>
   </body>
 </html>

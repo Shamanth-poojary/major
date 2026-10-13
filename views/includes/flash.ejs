@@ -1,40 +1,52 @@
-<%if(success && success.length){%>
-<div
-  class="alert alert-success alert-dismissible fade show col-6 offset-3"
-  role="alert"
->
-  <%= success %>
-  <button
-    type="button"
-    class="btn-close"
-    data-bs-dismiss="alert"
-    aria-label="Close"
-  ></button>
+<div class="wl-container mt-3">
+  <% if (success && success.length) { %>
+    <div class="wl-banner wl-banner-info alert alert-dismissible fade show border-0 shadow-sm" role="alert">
+      <div class="wl-banner-icon text-success">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="flex-grow-1 fw-medium">
+        <%= success %>
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  <% } %>
+
+  <% if (error && error.length) { %>
+    <div class="wl-banner alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="background-color: var(--wl-danger-bg); color: var(--wl-danger-text);">
+      <div class="wl-banner-icon text-danger">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="flex-grow-1 fw-medium">
+        <%= error %>
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  <% } %>
+
+  <% if (typeof info !== 'undefined' && info && info.length) { %>
+    <div class="wl-banner wl-banner-info alert alert-dismissible fade show border-0 shadow-sm" role="alert">
+      <div class="wl-banner-icon text-primary">
+        <i class="fa-solid fa-circle-info"></i>
+      </div>
+      <div class="flex-grow-1 fw-medium">
+        <%= info %>
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  <% } %>
 </div>
-<%}%> <%if(error && error.length){%>
-<div
-  class="alert alert-danger alert-dismissible fade show col-6 offset-3"
-  role="alert"
->
-  <%= error %>
-  <button
-    type="button"
-    class="btn-close"
-    data-bs-dismiss="alert"
-    aria-label="Close"
-  ></button>
-</div>
-<%}%> <%if(typeof info !== 'undefined' && info && info.length){%>
-<div
-  class="alert alert-info alert-dismissible fade show col-6 offset-3"
-  role="alert"
->
-  <%= info %>
-  <button
-    type="button"
-    class="btn-close"
-    data-bs-dismiss="alert"
-    aria-label="Close"
-  ></button>
-</div>
-<%}%>
