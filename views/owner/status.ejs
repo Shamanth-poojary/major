@@ -1,68 +1,211 @@
 <% layout("layouts/boilerplate") -%>
 
-<div class="row">
-  <div class="col-8 offset-2 mt-4">
-    <h2 class="mb-4">Owner Application Status</h2>
+<%
+  const isApproved = status === "approved";
+  const isPending  = status === "pending";
+  const isRejected = status === "rejected";
 
-    <%
-      const badgeClass = {
-        pending:  "bg-warning text-dark",
-        approved: "bg-success",
-        rejected: "bg-danger",
-        none:     "bg-secondary",
-      }[status] || "bg-secondary";
-      const statusLabel = OWNER_STATUS_LABELS[status] || status;
-    %>
+  const statusClass = {
+    pending:  "wl-pill-pending",
+    approved: "wl-pill-approved",
+    rejected: "wl-pill-rejected",
+    none:     "bg-light text-muted",
+  }[status] || "wl-pill-pending";
 
-    <div class="card mb-4">
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <span class="fw-semibold">Application Status</span>
-        <span class="badge <%= badgeClass %>"><%= statusLabel %></span>
-      </div>
+  const statusLabel = (typeof OWNER_STATUS_LABELS !== "undefined" && OWNER_STATUS_LABELS[status]) || status;
+  const bizType = profile && profile.businessType
+    ? ((typeof BUSINESS_TYPES !== "undefined" && BUSINESS_TYPES[profile.businessType]) || profile.businessType)
+    : "N/A";
+%>
 
-      <% if (status === "approved") { %>
-      <div class="card-body">
-        <p class="mb-1"><strong>Business:</strong> <%= profile.businessName %></p>
-        <p class="mb-1"><strong>Type:</strong> <%= BUSINESS_TYPES[profile.businessType] || profile.businessType %></p>
-        <p class="mb-1"><strong>Phone:</strong> <%= profile.phone || "N/A" %></p>
-        <p class="mb-3 text-success">Your account is approved. You can manage listings.</p>
-        <a href="/listings/new" class="btn btn-primary">Add New Listing</a>
-      </div>
+<div class="wl-container py-5">
+  <div style="max-width: 760px; margin: 0 auto;">
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+      <h1 class="h3 fw-bold text-dark mb-0">Owner Application Status</h1>
+      <span class="wl-pill <%= statusClass %> px-3 py-1">
+        <span class="wl-pill-dot"></span>
+        <%= statusLabel %>
+      </span>
+    </div>
 
-      <% } else if (status === "pending") { %>
-      <div class="card-body">
-        <p class="mb-1"><strong>Business:</strong> <%= profile.businessName %></p>
-        <p class="mb-1"><strong>Type:</strong> <%= BUSINESS_TYPES[profile.businessType] || profile.businessType %></p>
-        <p class="mb-1"><strong>Phone:</strong> <%= profile.phone || "N/A" %></p>
-        <p class="mt-2 text-muted">The admin has been notified of your application. You will be able to add listings once it is approved.</p>
-      </div>
+    <p class="text-muted mb-4">
+      Thanks for applying to join WanderLust as an owner. Here's the current status of your application.
+    </p>
 
-      <% } else { %>
-      <%/* status === "none" or "rejected" - show form */%>
-      <div class="card-body">
+    <!-- 3-Step Tracker (Mockup Ref 10) -->
+    <div class="wl-card p-4 mb-4">
+      <ol class="list-unstyled d-flex align-items-center justify-content-between m-0 position-relative" aria-label="Application Progress">
+        <!-- Step 1: Applied -->
+        <li class="d-flex flex-column align-items-center text-center position-relative" style="z-index: 2; width: 33.33%;">
+          <div
+            class="rounded-circle d-flex align-items-center justify-content-center text-white mb-2 shadow-sm"
+            style="width: 44px; height: 44px; background-color: var(--wl-teal-500); font-size: 1.1rem;"
+          >
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <span class="small fw-bold text-dark">Applied</span>
+          <span class="text-muted" style="font-size: 0.75rem;">Submitted</span>
+        </li>
 
-        <% if (status === "rejected") { %>
-        <div class="alert alert-danger">
-          <strong>Your application was not approved.</strong>
-          <% if (profile && profile.rejectionReason) { %>
-          <p class="mb-0 mt-1">Reason: <%= profile.rejectionReason %></p>
+        <!-- Step 2: Under Review -->
+        <li class="d-flex flex-column align-items-center text-center position-relative" style="z-index: 2; width: 33.33%;">
+          <% if (isPending) { %>
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-white mb-2 shadow-sm"
+              style="width: 44px; height: 44px; background-color: #F59E0B; font-size: 1.1rem; box-shadow: 0 0 0 4px var(--wl-warning-bg) !important;"
+              aria-current="step"
+            >
+              <i class="fa-regular fa-clock"></i>
+            </div>
+            <span class="small fw-bold text-dark">Under Review</span>
+            <span class="text-warning fw-medium" style="font-size: 0.75rem;">In Progress</span>
+          <% } else if (isApproved) { %>
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-white mb-2 shadow-sm"
+              style="width: 44px; height: 44px; background-color: var(--wl-teal-500); font-size: 1.1rem;"
+            >
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <span class="small fw-bold text-dark">Reviewed</span>
+            <span class="text-muted" style="font-size: 0.75rem;">Complete</span>
+          <% } else if (isRejected) { %>
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-white mb-2 shadow-sm"
+              style="width: 44px; height: 44px; background-color: var(--wl-danger-text); font-size: 1.1rem;"
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </div>
+            <span class="small fw-bold text-danger">Declined</span>
+            <span class="text-danger" style="font-size: 0.75rem;">Feedback provided</span>
+          <% } else { %>
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-muted mb-2 border bg-light"
+              style="width: 44px; height: 44px; font-size: 1.1rem;"
+            >
+              2
+            </div>
+            <span class="small fw-medium text-muted">Review</span>
           <% } %>
-          <p class="mb-0 mt-1">You may update your details and re-apply below.</p>
+        </li>
+
+        <!-- Step 3: Approved -->
+        <li class="d-flex flex-column align-items-center text-center position-relative" style="z-index: 2; width: 33.33%;">
+          <% if (isApproved) { %>
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-white mb-2 shadow-sm"
+              style="width: 44px; height: 44px; background-color: var(--wl-success-text); font-size: 1.1rem;"
+            >
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <span class="small fw-bold text-success">Approved</span>
+            <span class="text-success" style="font-size: 0.75rem;">Live</span>
+          <% } else { %>
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-muted mb-2 border bg-light"
+              style="width: 44px; height: 44px; font-size: 1rem; font-weight: 600;"
+            >
+              3
+            </div>
+            <span class="small fw-medium text-muted">Approved</span>
+          <% } %>
+        </li>
+      </ol>
+    </div>
+
+    <!-- Application Details Card (Mockup Ref 10) -->
+    <% if (profile && (isPending || isApproved)) { %>
+      <div class="wl-card p-4 mb-4">
+        <h2 class="h6 fw-bold text-dark mb-3">Application Details</h2>
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <div class="p-3 rounded-3 bg-light border">
+              <div class="text-muted small mb-1">
+                <i class="fa-solid fa-briefcase me-1 text-muted"></i>Business
+              </div>
+              <div class="fw-bold text-dark text-truncate"><%= profile.businessName %></div>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="p-3 rounded-3 bg-light border">
+              <div class="text-muted small mb-1">
+                <i class="fa-solid fa-tag me-1 text-muted"></i>Type
+              </div>
+              <div class="fw-bold text-dark text-truncate"><%= bizType %></div>
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="p-3 rounded-3 bg-light border">
+              <div class="text-muted small mb-1">
+                <i class="fa-solid fa-phone me-1 text-muted"></i>Phone
+              </div>
+              <div class="fw-bold text-dark text-truncate"><%= profile.phone || "N/A" %></div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <% if (isPending) { %>
+        <!-- Info Banner (Ref 10) -->
+        <div class="wl-banner wl-banner-info shadow-sm mb-4">
+          <div class="wl-banner-icon text-primary">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div>
+            <div class="fw-bold text-dark">The admin has been notified.</div>
+            <div class="small text-muted">
+              We'll update you when your application is reviewed. You will be able to add listings once it is approved.
+            </div>
+          </div>
+        </div>
+      <% } else if (isApproved) { %>
+        <!-- Approved Success Banner -->
+        <div class="wl-banner wl-banner-info shadow-sm mb-4" style="background-color: var(--wl-success-bg); border-color: #B4EFCE;">
+          <div class="wl-banner-icon text-success">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2">
+            <div>
+              <div class="fw-bold text-success">Your account is fully approved!</div>
+              <div class="small" style="color: #0F7B3F;">You can now publish and manage your hotel and venue listings on WanderLust.</div>
+            </div>
+            <a href="/listings/new" class="btn wl-btn-primary btn-sm px-3">
+              Add New Listing
+            </a>
+          </div>
+        </div>
+      <% } %>
+    <% } %>
+
+    <!-- Re-apply / Submission Form if Rejected or None -->
+    <% if (status === "none" || status === "rejected") { %>
+      <div class="wl-card p-4">
+        <% if (status === "rejected") { %>
+          <div class="wl-banner shadow-sm mb-4" style="background-color: var(--wl-danger-bg); color: var(--wl-danger-text);">
+            <div class="wl-banner-icon text-danger">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <div class="fw-bold">Your application was not approved.</div>
+              <% if (profile && profile.rejectionReason) { %>
+                <div class="small mt-1"><strong>Feedback:</strong> <%= profile.rejectionReason %></div>
+              <% } %>
+              <div class="small mt-1">You may update your business information below and re-apply.</div>
+            </div>
+          </div>
         <% } else { %>
-        <p class="text-muted">Please fill in your business details to apply for owner approval.</p>
+          <p class="text-muted small mb-4">Please fill in your business details to apply for owner approval.</p>
         <% } %>
 
         <form action="/owner/application" method="POST" novalidate class="needs-validation">
-
           <div class="mb-3">
-            <label for="business_name" class="form-label"><b>Business Name</b></label>
+            <label for="business_name" class="form-label">Business Name</label>
             <input
               type="text"
               id="business_name"
               name="business_name"
               class="form-control"
-              placeholder="Your business name"
+              placeholder="Your business or property name"
               value="<%= profile ? profile.businessName : '' %>"
               required
               minlength="2"
@@ -72,26 +215,28 @@
           </div>
 
           <div class="mb-3">
-            <label for="business_type" class="form-label"><b>Business Type</b></label>
+            <label for="business_type" class="form-label">Business Type</label>
             <select id="business_type" name="business_type" class="form-select" required>
               <option value="">Select type...</option>
-              <% for (const [val, label] of Object.entries(BUSINESS_TYPES)) { %>
-              <option value="<%= val %>" <%= (profile && profile.businessType === val) ? "selected" : "" %>>
-                <%= label %>
-              </option>
+              <% if (typeof BUSINESS_TYPES !== "undefined") { %>
+                <% for (const [val, label] of Object.entries(BUSINESS_TYPES)) { %>
+                  <option value="<%= val %>" <%= (profile && profile.businessType === val) ? "selected" : "" %>>
+                    <%= label %>
+                  </option>
+                <% } %>
               <% } %>
             </select>
             <div class="invalid-feedback">Please select a business type.</div>
           </div>
 
-          <div class="mb-3">
-            <label for="phone" class="form-label"><b>Phone Number</b></label>
+          <div class="mb-4">
+            <label for="phone" class="form-label">Phone Number</label>
             <input
               type="tel"
               id="phone"
               name="phone"
               class="form-control"
-              placeholder="+91XXXXXXXXXX"
+              placeholder="+91 98765 43210"
               value="<%= profile ? (profile.phone || '') : '' %>"
               required
               pattern="^\+?[0-9]{10,15}$"
@@ -99,12 +244,11 @@
             <div class="invalid-feedback">Please enter a valid phone number (10-15 digits).</div>
           </div>
 
-          <button type="submit" class="btn btn-primary">
-            <%= status === "rejected" ? "Re-apply" : "Submit Application" %>
+          <button type="submit" class="btn wl-btn-primary px-4">
+            <%= status === "rejected" ? "Re-apply for Approval" : "Submit Application" %>
           </button>
         </form>
       </div>
-      <% } %>
-    </div>
+    <% } %>
   </div>
 </div>
