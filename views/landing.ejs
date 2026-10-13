@@ -1,67 +1,243 @@
 <% layout("layouts/boilerplate") -%>
 
-<div class="container py-5">
+<!-- Hero Section with Scenic Panorama -->
+<section
+  class="position-relative text-white py-5 d-flex align-items-center"
+  style="
+    min-height: 460px;
+    background: linear-gradient(180deg, rgba(14, 56, 66, 0.72) 0%, rgba(11, 47, 58, 0.85) 100%),
+      url('/images/landing_hero.jpg') center / cover no-repeat;
+  "
+>
+  <div class="wl-container py-4">
+    <div class="row">
+      <div class="col-12 col-lg-8">
+        <h1 class="display-4 fw-bold text-white mb-3" style="letter-spacing: -0.02em;">
+          Find your next stay or venue
+        </h1>
+        <p class="fs-5 text-white text-opacity-90 mb-4 fw-normal" style="max-width: 620px;">
+          WanderLust connects customers with verified hotel owners and event planners.
+        </p>
 
-  <!-- Hero -->
-  <div class="text-center py-5">
-    <h1 class="display-4 fw-bold mb-3">Find your next stay or venue</h1>
-    <p class="lead text-muted mb-4">
-      WanderLust connects customers with verified hotel owners and event planners.
-    </p>
-    <div class="d-flex justify-content-center gap-3">
-      <a id="btn-login" href="/login" class="btn btn-primary btn-lg px-4">
-        <i class="fa-solid fa-right-to-bracket me-2"></i>Login
-      </a>
-      <a id="btn-register" href="/signup" class="btn btn-outline-primary btn-lg px-4">
-        <i class="fa-solid fa-user-plus me-2"></i>Register
-      </a>
+        <!-- CTA Buttons -->
+        <div class="d-flex flex-wrap gap-3 mb-4 pb-2">
+          <a id="btn-login" href="/login" class="btn wl-btn-primary px-4 py-2" style="height: 46px;">
+            Login
+          </a>
+          <a
+            id="btn-register"
+            href="/signup"
+            class="btn wl-btn-outline px-4 py-2"
+            style="height: 46px; background-color: rgba(255, 255, 255, 0.12) !important; color: #FFFFFF !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important;"
+          >
+            Register
+          </a>
+        </div>
+
+        <!-- Trust Badges Row -->
+        <div class="d-flex flex-wrap gap-4 text-white text-opacity-90 pt-3 border-top border-white border-opacity-25 small">
+          <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-teal-100"></i>
+            <span>Verified Listings</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-users text-teal-100"></i>
+            <span>Trusted Community</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-tag text-teal-100"></i>
+            <span>Memorable Experiences</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- Two cards -->
-  <div class="row g-4 mt-2">
-
-    <!-- Customer card -->
+<!-- Main Container -->
+<div class="wl-container py-5">
+  <!-- Dual Role Cards (Customer & Owner) -->
+  <div class="row g-4 mb-5">
+    <!-- Customer Card -->
     <div class="col-12 col-md-6">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h2 class="card-title h5 fw-semibold mb-2">
-            <i class="fa-solid fa-user me-2 text-primary"></i>For Customers
-          </h2>
-          <p class="card-text text-muted flex-grow-1">
-            Browse listings, check availability, make bookings and share reviews.
-          </p>
-          <a id="btn-register-customer" href="/signup?role=customer" class="btn btn-primary mt-3">
-            Register as Customer
-          </a>
+      <div class="wl-card h-100 shadow-sm border" style="border-radius: var(--wl-radius-lg); overflow: hidden;">
+        <div class="row g-0 h-100">
+          <div class="col-sm-5" style="min-height: 200px;">
+            <img
+              src="/images/customer_card.jpg"
+              alt="Discover stays"
+              class="w-100 h-100"
+              style="object-fit: cover;"
+              loading="lazy"
+            />
+          </div>
+          <div class="col-sm-7 p-4 d-flex flex-direction-column flex-column justify-content-between">
+            <div>
+              <div class="text-uppercase fw-bold text-muted small mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                FOR CUSTOMERS
+              </div>
+              <h2 class="h5 fw-bold text-dark mb-2">
+                Discover amazing stays and event venues
+              </h2>
+              <p class="text-muted small mb-3">
+                Find and book unique hotels, holiday homes, and stunning venues for your special moments.
+              </p>
+            </div>
+            <div>
+              <a
+                id="btn-register-customer"
+                href="/signup?role=customer"
+                class="btn wl-btn-primary"
+              >
+                Register as Customer
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Owner card -->
+    <!-- Owner Card -->
     <div class="col-12 col-md-6">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body d-flex flex-column">
-          <h2 class="card-title h5 fw-semibold mb-2">
-            <i class="fa-solid fa-building me-2 text-primary"></i>For Property and Venue Owners
-          </h2>
-          <p class="card-text text-muted flex-grow-1">
-            List hotels, properties and event venues and manage them in one place.
-            <span class="d-block mt-1">Owner accounts are approved by an admin before you can add listings.</span>
-          </p>
-          <a id="btn-register-owner" href="/signup?role=owner" class="btn btn-primary mt-3">
-            Register as Owner
-          </a>
+      <div class="wl-card h-100 shadow-sm border" style="border-radius: var(--wl-radius-lg); overflow: hidden;">
+        <div class="row g-0 h-100">
+          <div class="col-sm-5" style="min-height: 200px;">
+            <img
+              src="/images/owner_card.jpg"
+              alt="List property"
+              class="w-100 h-100"
+              style="object-fit: cover;"
+              loading="lazy"
+            />
+          </div>
+          <div class="col-sm-7 p-4 d-flex flex-direction-column flex-column justify-content-between">
+            <div>
+              <div class="text-uppercase fw-bold text-muted small mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                FOR PROPERTY AND VENUE OWNERS
+              </div>
+              <h2 class="h5 fw-bold text-dark mb-2">
+                List your property or venue
+              </h2>
+              <p class="text-muted small mb-3">
+                Reach thousands of travelers and event planners. Grow your business with WanderLust.
+                <span class="d-block mt-1 fst-italic">Owner accounts are approved by an admin before you can add listings.</span>
+              </p>
+            </div>
+            <div>
+              <a
+                id="btn-register-owner"
+                href="/signup?role=owner"
+                class="btn wl-btn-primary"
+              >
+                Register as Owner
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 
-  <!-- Already have an account -->
-  <p class="text-center mt-5 text-muted">
-    Already have an account?
-    <a href="/login">Login</a>
-  </p>
+  <!-- Featured Stays Row -->
+  <div class="mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="h4 fw-bold text-dark mb-0">Featured Stays</h2>
+      <a href="/listings" class="fw-semibold text-decoration-none d-flex align-items-center gap-1" style="color: var(--wl-teal-600);">
+        <span>View all stays</span>
+        <i class="fa-solid fa-arrow-right small"></i>
+      </a>
+    </div>
 
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <!-- Stay 1 -->
+      <div class="col">
+        <a href="/listings" class="text-decoration-none">
+          <div class="wl-listing-card">
+            <div class="wl-listing-img-wrap">
+              <img
+                src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80"
+                alt="The Pinewood Chalet"
+                class="wl-listing-img"
+                loading="lazy"
+              />
+              <span class="wl-heart-btn" aria-hidden="true">
+                <i class="fa-regular fa-heart"></i>
+              </span>
+            </div>
+            <div class="wl-listing-body">
+              <div class="wl-listing-title text-truncate">The Pinewood Chalet</div>
+              <div class="wl-listing-location">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>Manali, Himachal Pradesh</span>
+              </div>
+              <div class="wl-listing-footer">
+                <span class="wl-listing-price">&#8377;8,500</span>
+                <span class="wl-listing-unit">/ night</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Stay 2 -->
+      <div class="col">
+        <a href="/listings" class="text-decoration-none">
+          <div class="wl-listing-card">
+            <div class="wl-listing-img-wrap">
+              <img
+                src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
+                alt="Seabreeze Villa"
+                class="wl-listing-img"
+                loading="lazy"
+              />
+              <span class="wl-heart-btn" aria-hidden="true">
+                <i class="fa-regular fa-heart"></i>
+              </span>
+            </div>
+            <div class="wl-listing-body">
+              <div class="wl-listing-title text-truncate">Seabreeze Villa</div>
+              <div class="wl-listing-location">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>Goa, India</span>
+              </div>
+              <div class="wl-listing-footer">
+                <span class="wl-listing-price">&#8377;12,000</span>
+                <span class="wl-listing-unit">/ night</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Stay 3 -->
+      <div class="col">
+        <a href="/listings" class="text-decoration-none">
+          <div class="wl-listing-card">
+            <div class="wl-listing-img-wrap">
+              <img
+                src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"
+                alt="The Lakeview Houseboat"
+                class="wl-listing-img"
+                loading="lazy"
+              />
+              <span class="wl-heart-btn" aria-hidden="true">
+                <i class="fa-regular fa-heart"></i>
+              </span>
+            </div>
+            <div class="wl-listing-body">
+              <div class="wl-listing-title text-truncate">The Lakeview Houseboat</div>
+              <div class="wl-listing-location">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>Srinagar, Jammu & Kashmir</span>
+              </div>
+              <div class="wl-listing-footer">
+                <span class="wl-listing-price">&#8377;9,200</span>
+                <span class="wl-listing-unit">/ night</span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
