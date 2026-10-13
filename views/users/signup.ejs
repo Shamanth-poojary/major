@@ -1,196 +1,291 @@
 <% layout("layouts/boilerplate") -%>
 <% const activeRole = (typeof selectedRole !== "undefined" && selectedRole) ? selectedRole : "customer"; %>
 
-<div class="row">
-  <div class="col-8 offset-2">
-    <form action="/signup" method="POST" enctype="multipart/form-data" novalidate class="needs-validation">
-      <h2 class="mb-4 mt-4">Sign Up</h2>
-
-      <!-- ACCOUNT TYPE -->
-      <div class="mb-3">
-        <label class="form-label"><b>Account Type</b></label>
-        <div class="list-group">
-          <label id="role-customer-label" class="list-group-item d-flex gap-2">
-            <input
-              class="form-check-input flex-shrink-0"
-              type="radio"
-              id="role-customer"
-              name="role"
-              value="customer"
-              required
-              <% if (activeRole === "customer") { %>checked<% } %>
-            />
-            <span>
-              <strong>Customer</strong>
-              <small class="d-block text-muted">Browse and book listings, leave reviews.</small>
-            </span>
-          </label>
-          <label id="role-owner-label" class="list-group-item d-flex gap-2">
-            <input
-              class="form-check-input flex-shrink-0"
-              type="radio"
-              id="role-owner"
-              name="role"
-              value="owner"
-              <% if (activeRole === "owner") { %>checked<% } %>
-            />
-            <span>
-              <strong>Property / Venue Owner</strong>
-              <small class="d-block text-muted">List and manage hotels, properties and event venues.</small>
-              <small class="d-block text-muted">Owner accounts are approved by an admin before you can add listings.</small>
-            </span>
-          </label>
-        </div>
-        <div class="invalid-feedback">Please choose an account type.</div>
-      </div>
-
-      <!-- OWNER DETAILS BLOCK (shown only when owner is selected) -->
-      <% if (activeRole === "owner") { %>
-      <div id="owner-fields" class="mb-3">
-        <div class="mb-3">
-          <label for="business_name" class="form-label"><b>Business Name</b></label>
-          <input
-            type="text"
-            id="business_name"
-            name="business_name"
-            placeholder="Enter business name"
-            class="form-control"
-            required
-            minlength="2"
-            maxlength="100"
-          />
-          <div class="invalid-feedback">Please enter a business name (2-100 characters).</div>
+<div class="wl-container my-4 my-md-5">
+  <div class="wl-auth-container" style="max-width: 1080px;">
+    <!-- Left Visual Panel -->
+    <div
+      class="wl-auth-media"
+      style="background-image: url('/images/signup_hero.jpg');"
+    >
+      <div>
+        <!-- Brand Mark -->
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <svg width="34" height="24" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3L23 22H1L12 3Z" fill="#FFFFFF" />
+            <path d="M22 8L31 22H13L22 8Z" fill="#FFFFFF" fill-opacity="0.85" />
+            <path d="M7 13L13 22H1L7 13Z" fill="#FFFFFF" fill-opacity="0.7" />
+          </svg>
+          <span class="fs-4 fw-bold tracking-tight text-white">WanderLust</span>
         </div>
 
-        <div class="mb-3">
-          <label for="business_type" class="form-label"><b>Business Type</b></label>
-          <select id="business_type" name="business_type" class="form-select" required>
-            <option value="">Select business type...</option>
-            <% if (typeof BUSINESS_TYPES !== "undefined") { %>
-              <% for (const [val, label] of Object.entries(BUSINESS_TYPES)) { %>
-                <option value="<%= val %>"><%= label %></option>
-              <% } %>
-            <% } %>
-          </select>
-          <div class="invalid-feedback">Please select a business type.</div>
-        </div>
+        <h2 class="display-6 fw-bold text-white mb-3" style="line-height: 1.15;">
+          More than stays.<br />A kinder way to see the world.
+        </h2>
 
-        <div class="mb-3">
-          <label for="phone" class="form-label"><b>Phone Number</b></label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="+91XXXXXXXXXX"
-            class="form-control"
-            required
-            pattern="^\+?[0-9]{10,15}$"
-          />
-          <div class="invalid-feedback">Please enter a valid phone number (10-15 digits).</div>
-        </div>
-      </div>
-      <% } else { %>
-      <div id="owner-fields" class="mb-3" style="display: none;">
-        <div class="mb-3">
-          <label for="business_name" class="form-label"><b>Business Name</b></label>
-          <input
-            type="text"
-            id="business_name"
-            name="business_name"
-            placeholder="Enter business name"
-            class="form-control"
-            disabled
-            minlength="2"
-            maxlength="100"
-          />
-          <div class="invalid-feedback">Please enter a business name (2-100 characters).</div>
-        </div>
+        <!-- Bullet Highlights from mockup -->
+        <div class="d-flex flex-column gap-3 mt-4">
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-25 text-white" style="width: 38px; height: 38px; flex-shrink: 0;">
+              <i class="fa-regular fa-compass fs-6"></i>
+            </div>
+            <span class="fs-6 text-white text-opacity-90 fw-medium">Curated stays and experiences</span>
+          </div>
 
-        <div class="mb-3">
-          <label for="business_type" class="form-label"><b>Business Type</b></label>
-          <select id="business_type" name="business_type" class="form-select" disabled>
-            <option value="">Select business type...</option>
-            <% if (typeof BUSINESS_TYPES !== "undefined") { %>
-              <% for (const [val, label] of Object.entries(BUSINESS_TYPES)) { %>
-                <option value="<%= val %>"><%= label %></option>
-              <% } %>
-            <% } %>
-          </select>
-          <div class="invalid-feedback">Please select a business type.</div>
-        </div>
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-25 text-white" style="width: 38px; height: 38px; flex-shrink: 0;">
+              <i class="fa-solid fa-users fs-6"></i>
+            </div>
+            <span class="fs-6 text-white text-opacity-90 fw-medium">Support local communities</span>
+          </div>
 
-        <div class="mb-3">
-          <label for="phone" class="form-label"><b>Phone Number</b></label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            placeholder="+91XXXXXXXXXX"
-            class="form-control"
-            disabled
-            pattern="^\+?[0-9]{10,15}$"
-          />
-          <div class="invalid-feedback">Please enter a valid phone number (10-15 digits).</div>
+          <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-25 text-white" style="width: 38px; height: 38px; flex-shrink: 0;">
+              <i class="fa-regular fa-heart fs-6"></i>
+            </div>
+            <span class="fs-6 text-white text-opacity-90 fw-medium">A more meaningful way to travel</span>
+          </div>
         </div>
       </div>
-      <% } %>
 
-      <!-- USERNAME -->
-      <div class="mb-3">
-        <label for="username" class="form-label"><b>Username</b></label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          placeholder="Enter username"
-          class="form-control"
-          required
-        />
-        <div class="invalid-feedback">Please enter a username.</div>
+      <!-- Bottom Tagline -->
+      <div class="pt-4 border-top border-white-50 mt-4">
+        <div class="text-uppercase tracking-wider text-white-50 fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.12em;">
+          Better Places &middot; Brighter Tomorrows
+        </div>
       </div>
+    </div>
 
-      <!-- EMAIL -->
-      <div class="mb-3">
-        <label for="email" class="form-label"><b>Email</b></label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          placeholder="Enter email"
-          class="form-control"
-          required
-        />
-        <div class="invalid-feedback">Please enter a valid email.</div>
+    <!-- Right Form Panel -->
+    <div class="wl-auth-form-panel">
+      <div style="max-width: 480px; width: 100%; margin: 0 auto;">
+        <h1 class="h2 fw-bold text-dark mb-1">Create your account</h1>
+        <p class="text-muted small mb-4">Join WanderLust and start your next journey.</p>
+
+        <form action="/signup" method="POST" enctype="multipart/form-data" novalidate class="needs-validation">
+          <!-- Account Type -->
+          <div class="mb-3">
+            <label class="form-label d-block">I'm signing up as</label>
+            <div class="wl-role-cards-grid">
+              <!-- Customer Radio Card -->
+              <label class="wl-role-card <%= activeRole === 'customer' ? 'is-selected' : '' %>" for="role-customer">
+                <input
+                  class="wl-role-radio form-check-input"
+                  type="radio"
+                  id="role-customer"
+                  name="role"
+                  value="customer"
+                  required
+                  <%= activeRole === "customer" ? "checked" : "" %>
+                />
+                <div>
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="fa-regular fa-user text-muted" style="font-size: 0.95rem;"></i>
+                    <strong class="text-dark" style="font-size: 0.92rem;">Customer</strong>
+                  </div>
+                  <small class="d-block text-muted mt-1" style="font-size: 0.78rem; line-height: 1.35;">
+                    Book stays and experiences around the world
+                  </small>
+                </div>
+              </label>
+
+              <!-- Owner Radio Card -->
+              <label class="wl-role-card <%= activeRole === 'owner' ? 'is-selected' : '' %>" for="role-owner">
+                <input
+                  class="wl-role-radio form-check-input"
+                  type="radio"
+                  id="role-owner"
+                  name="role"
+                  value="owner"
+                  <%= activeRole === "owner" ? "checked" : "" %>
+                />
+                <div>
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-house-chimney text-muted" style="font-size: 0.95rem;"></i>
+                    <strong class="text-dark" style="font-size: 0.92rem;">Property or Venue Owner</strong>
+                  </div>
+                  <small class="d-block text-muted mt-1" style="font-size: 0.78rem; line-height: 1.35;">
+                    List your property or venue on WanderLust
+                  </small>
+                </div>
+              </label>
+            </div>
+            <div class="d-flex align-items-center gap-2 text-muted mt-1 mb-2" style="font-size: 0.78rem;">
+              <i class="fa-solid fa-circle-info text-teal-600"></i>
+              <span>Owner accounts are approved by an admin before you can add listings.</span>
+            </div>
+            <div class="invalid-feedback">Please choose an account type.</div>
+          </div>
+
+          <!-- Owner Extra Fields (Toggled when Owner selected) -->
+          <div id="owner-fields" class="p-3 mb-3 rounded-3" style="<%= activeRole === 'owner' ? 'background-color: var(--wl-bg); border: 1px solid var(--wl-border);' : 'display: none; background-color: var(--wl-bg); border: 1px solid var(--wl-border);' %>">
+            <div class="fw-bold text-dark small mb-3">Owner Business Information</div>
+
+            <!-- Business Name -->
+            <div class="mb-3">
+              <label for="business_name" class="form-label">Business Name</label>
+              <div class="wl-input-icon-group">
+                <i class="fa-solid fa-briefcase wl-lead-icon"></i>
+                <input
+                  type="text"
+                  id="business_name"
+                  name="business_name"
+                  placeholder="e.g. Seaside Resort & Villas"
+                  class="form-control"
+                  <%= activeRole === 'owner' ? 'required' : 'disabled' %>
+                  minlength="2"
+                  maxlength="100"
+                />
+              </div>
+              <div class="invalid-feedback">Please enter a business name (2-100 characters).</div>
+            </div>
+
+            <!-- Business Type -->
+            <div class="mb-3">
+              <label for="business_type" class="form-label">Business Type</label>
+              <select
+                id="business_type"
+                name="business_type"
+                class="form-select"
+                <%= activeRole === 'owner' ? 'required' : 'disabled' %>
+              >
+                <option value="">Select business type...</option>
+                <% if (typeof BUSINESS_TYPES !== "undefined") { %>
+                  <% for (const [val, label] of Object.entries(BUSINESS_TYPES)) { %>
+                    <option value="<%= val %>"><%= label %></option>
+                  <% } %>
+                <% } %>
+              </select>
+              <div class="invalid-feedback">Please select a business type.</div>
+            </div>
+
+            <!-- Phone -->
+            <div class="mb-2">
+              <label for="phone" class="form-label">Phone Number</label>
+              <div class="wl-input-icon-group">
+                <i class="fa-solid fa-phone wl-lead-icon"></i>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="+91 98765 43210"
+                  class="form-control"
+                  <%= activeRole === 'owner' ? 'required' : 'disabled' %>
+                  pattern="^\+?[0-9]{10,15}$"
+                />
+              </div>
+              <div class="invalid-feedback">Please enter a valid phone number (10-15 digits).</div>
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <div class="wl-input-icon-group">
+              <i class="fa-regular fa-user wl-lead-icon"></i>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Choose a username"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="invalid-feedback">Please enter a username.</div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <div class="wl-input-icon-group">
+              <i class="fa-regular fa-envelope wl-lead-icon"></i>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="invalid-feedback">Please enter a valid email.</div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="wl-input-icon-group">
+              <i class="fa-solid fa-lock wl-lead-icon"></i>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Create a password"
+                class="form-control"
+                required
+              />
+              <button
+                type="button"
+                class="wl-pwd-toggle"
+                aria-label="Show password"
+              >
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+            <div class="invalid-feedback">Please enter a password.</div>
+          </div>
+
+          <!-- Profile Picture Dropzone -->
+          <div class="mb-4">
+            <label for="profile_picture" class="form-label">Profile picture (optional)</label>
+            <div class="wl-dropzone">
+              <input
+                type="file"
+                id="profile_picture"
+                name="profile_picture"
+                accept="image/*"
+              />
+              <div class="wl-dropzone-content">
+                <div class="wl-dropzone-icon">
+                  <i class="fa-regular fa-image"></i>
+                </div>
+                <div class="fw-semibold text-dark" style="font-size: 0.92rem;">
+                  Drag and drop a photo here or click to browse
+                </div>
+                <div class="text-muted small mt-1">
+                  Max 2 MB &middot; JPEG / PNG / WebP
+                </div>
+              </div>
+              <div class="wl-dropzone-preview text-center" style="display: none;">
+                <img
+                  src=""
+                  alt="Avatar Preview"
+                  class="rounded-circle shadow-sm border mb-2"
+                  style="width: 72px; height: 72px; object-fit: cover;"
+                />
+                <div class="small text-teal-600 fw-semibold">Photo selected &middot; Click to replace</div>
+              </div>
+              <div class="wl-dropzone-error text-danger small mt-2"></div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn wl-btn-primary w-100 py-3 mb-3">
+            Sign Up
+          </button>
+
+          <!-- Privacy & Terms note -->
+          <div class="text-center text-muted small mb-2" style="font-size: 0.8rem;">
+            By signing up, you agree to our <a href="/privacy" class="text-decoration-none">Privacy Policy</a> and <a href="/terms" class="text-decoration-none">Terms of Service</a>.
+          </div>
+
+          <!-- Login Redirect -->
+          <div class="text-center pt-2 text-muted small">
+            Already have an account? <a href="/login" class="fw-semibold text-decoration-none">Login</a>
+          </div>
+        </form>
       </div>
-
-      <!-- PASSWORD -->
-      <div class="mb-3">
-        <label for="password" class="form-label"><b>Password</b></label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          placeholder="Enter password"
-          class="form-control"
-          required
-        />
-        <div class="invalid-feedback">Please enter a password.</div>
-      </div>
-
-      <!-- PROFILE PICTURE (OPTIONAL) -->
-      <div class="mb-3">
-        <label for="profile_picture" class="form-label"><b>Profile Picture (Optional)</b></label>
-        <input
-          type="file"
-          id="profile_picture"
-          name="profile_picture"
-          class="form-control"
-          accept="image/*"
-        />
-        <div class="form-text">Optional. Max 2 MB (JPEG, PNG, WebP).</div>
-      </div>
-
-      <button type="submit" class="btn btn-primary">Sign Up</button>
-    </form>
+    </div>
   </div>
 </div>
