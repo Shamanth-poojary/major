@@ -1512,18 +1512,22 @@ textarea.form-control {
 
 /* Floating Pill Search & Filter Bar */
 .wl-search-pill-wrapper {
-  max-width: 960px;
+  max-width: 1040px;
   margin: 0 auto 36px;
+  position: relative;
+  z-index: 60;
 }
 .wl-search-pill {
   background-color: #FFFFFF;
   border: 1.5px solid var(--wl-border);
   border-radius: var(--wl-radius-pill);
-  box-shadow: 0 8px 24px rgba(11, 47, 58, 0.08);
-  padding: 6px 8px 6px 18px;
+  box-shadow: 0 8px 26px rgba(11, 47, 58, 0.08);
+  padding: 6px 8px 6px 20px;
   display: flex;
   align-items: center;
   gap: 12px;
+  position: relative;
+  z-index: 60;
   transition: box-shadow 200ms ease, border-color 200ms ease;
 }
 .wl-search-pill:focus-within {
@@ -1533,9 +1537,9 @@ textarea.form-control {
 .wl-search-pill-input-group {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex: 1.6;
-  min-width: 180px;
+  gap: 12px;
+  flex: 2;
+  min-width: 230px;
 }
 .wl-search-pill-input {
   border: none;
@@ -1554,31 +1558,96 @@ textarea.form-control {
   background-color: var(--wl-border);
   flex-shrink: 0;
 }
-.wl-search-pill-filter {
+.wl-search-pill-dropdown-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 135px;
+}
+.wl-search-pill-dropdown-wrap.show {
+  z-index: 1060;
+}
+.wl-search-pill-dropdown-btn {
+  width: 100%;
+  height: 40px;
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  border-radius: var(--wl-radius-pill);
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  position: relative;
-  min-width: 120px;
-}
-.wl-search-pill-select {
-  border: none;
-  background: transparent;
-  outline: none;
+  justify-content: space-between;
   font-size: 0.88rem;
   font-weight: 500;
   color: var(--wl-ink);
   cursor: pointer;
-  width: 100%;
-  padding-right: 18px;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235F7A83' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-size: 14px;
+  transition: all 180ms ease;
+  user-select: none;
+  text-align: left;
 }
+.wl-search-pill-dropdown-btn:hover {
+  background-color: #F1F6F7;
+  color: var(--wl-teal-900);
+}
+.wl-search-pill-dropdown-wrap.show .wl-search-pill-dropdown-btn {
+  background-color: var(--wl-teal-50);
+  color: var(--wl-teal-900);
+}
+.wl-search-pill-dropdown-btn .chevron-icon {
+  font-size: 0.68rem;
+  color: var(--wl-muted);
+  transition: transform 200ms ease;
+}
+.wl-search-pill-dropdown-wrap.show .chevron-icon {
+  transform: rotate(180deg);
+}
+.wl-search-pill-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  min-width: 210px;
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--wl-border);
+  border-radius: var(--wl-radius-lg);
+  box-shadow: 0 16px 36px rgba(11, 47, 58, 0.18), 0 4px 14px rgba(0, 0, 0, 0.06);
+  padding: 6px;
+  z-index: 1060;
+  display: none;
+  animation: wlDropdownSlide 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.wl-search-pill-dropdown-wrap.show .wl-search-pill-dropdown-menu {
+  display: block;
+}
+.wl-search-pill-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: var(--wl-radius-md);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--wl-text);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.wl-search-pill-dropdown-item:hover {
+  background-color: #F0F6F7;
+  color: var(--wl-teal-900);
+}
+.wl-search-pill-dropdown-item.active {
+  background-color: var(--wl-teal-50);
+  color: var(--wl-teal-800);
+  font-weight: 600;
+}
+.wl-search-pill-dropdown-item .check-icon {
+  opacity: 0;
+  font-size: 0.8rem;
+  color: var(--wl-teal-600);
+  transition: opacity 120ms ease;
+}
+.wl-search-pill-dropdown-item.active .check-icon {
+  opacity: 1;
+}
+
 .wl-search-pill-btn {
   background-color: var(--wl-accent-600) !important;
   color: #FFFFFF !important;
@@ -1611,7 +1680,7 @@ textarea.form-control {
     display: none;
   }
   .wl-search-pill-input-group,
-  .wl-search-pill-filter {
+  .wl-search-pill-dropdown-wrap {
     flex: 1 1 100%;
   }
   .wl-search-pill-btn {

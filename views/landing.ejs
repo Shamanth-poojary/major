@@ -1,546 +1,509 @@
 <% layout("layouts/boilerplate") -%>
 
 <%
-  const safeListings = (typeof listings !== 'undefined' && Array.isArray(listings)) ? listings : ((typeof alllistings !== 'undefined' && Array.isArray(alllistings)) ? alllistings : []);
-  const safeWishlist = (typeof wishlistListingIds !== 'undefined' && wishlistListingIds) ? wishlistListingIds : new Set();
+  const safeListingsData = (typeof listings !== 'undefined' && Array.isArray(listings)) ? listings : [];
+  const heroQuotes = [
+    { quote: "Escape the ordinary and discover a haven where tranquility meets luxury.", theme: "Beach & Coastal Escapes" },
+    { quote: "Travel is the only thing you buy that makes you richer in spirit and memories.", theme: "Historic & Alpine Retreats" },
+    { quote: "Every extraordinary journey begins with finding the perfect place to rest.", theme: "Iconic Urban Destinations" },
+    { quote: "Collect unforgettable moments and golden sunsets, not just things.", theme: "Serene Nature & Cabins" },
+    { quote: "Live with no excuses, travel with no regrets, and find your sanctuary.", theme: "Curated Boutique Venues" }
+  ];
 
-  // Curate 4-5 handpicked luxury stays for the Featured Listings banner
-  // Prefer real DB listings matching luxury/villa/heritage or fallback gracefully
-  const featuredCandidates = safeListings.filter(l =>
-    /villa|heritage|penthouse|suite|retreat|cottage/i.test(l.title || "")
-  );
-  const featuredSlides = (featuredCandidates.length >= 3)
-    ? featuredCandidates.slice(0, 5)
-    : (safeListings.length > 0 ? safeListings.slice(0, 5) : [
-        { id: 79, title: "Riverside Villa with Garden", location: "Udaipur, Rajasthan", country: "India", price: 7500, avgRating: 4.9, reviewCount: 210, image: { url: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1600&q=80" } },
-        { id: 81, title: "Sunlit Courtyard Room", location: "Pushkar, Rajasthan", country: "India", price: 9900, avgRating: 4.9, reviewCount: 185, image: { url: "https://picsum.photos/seed/wanderlust-aarav_heritage-4/1200/800" } },
-        { id: 82, title: "Beachside Villa with Pool", location: "Anjuna, Goa", country: "India", price: 8900, avgRating: 4.8, reviewCount: 142, image: { url: "https://picsum.photos/seed/wanderlust-goa_getaways-1/1200/800" } },
-        { id: 83, title: "Historic Villa & Vineyard", location: "Florence, Tuscany", country: "Italy", price: 14500, avgRating: 5.0, reviewCount: 96, image: { url: "https://picsum.photos/seed/wanderlust-tuscany_villas-1/1200/800" } }
-      ]);
+  // Pick up to 5 listings for hero slides (using real DB listings if available, otherwise rich fallbacks)
+  const heroSlides = (safeListingsData.length > 0)
+    ? safeListingsData.slice(0, 5)
+    : [
+        { id: 12, title: "Cozy Beachfront Cottage", location: "Malibu", country: "United States", price: 8500, image: { url: "/images/landing_hero.jpg" } },
+        { id: 15, title: "Historic Villa in Tuscany", location: "Florence", country: "Italy", price: 15000, image: { url: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80" } },
+        { id: 14, title: "Mountain Retreat", location: "Aspen", country: "United States", price: 12000, image: { url: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=80" } },
+        { id: 13, title: "Modern Loft in Downtown", location: "New York City", country: "United States", price: 9500, image: { url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1600&q=80" } },
+        { id: 21, title: "Safari Lodge in the Serengeti", location: "Serengeti National Park", country: "Tanzania", price: 18000, image: { url: "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1600&q=80" } }
+      ];
 %>
 
-<div class="wl-home-container">
-
-  <!-- 1. Sleek Floating Search & Filter Pill Bar -->
-  <div class="wl-search-pill-wrapper">
-    <form id="homeSearchForm" action="/" method="GET" class="wl-search-pill">
-      <!-- Search Input -->
-      <div class="wl-search-pill-input-group">
-        <i class="fa-solid fa-magnifying-glass text-muted ms-1" style="font-size: 0.95rem;"></i>
-        <input
-          type="text"
-          name="search"
-          id="homeSearchInput"
-          class="wl-search-pill-input"
-          placeholder="Search destinations, properties..."
-          value="<%= typeof search !== 'undefined' ? search : '' %>"
-          autocomplete="off"
-        />
-      </div>
-
-      <div class="wl-search-pill-divider"></div>
-
-      <!-- Category Filter -->
-      <div class="wl-search-pill-filter">
-        <i class="fa-solid fa-hotel text-muted" style="font-size: 0.85rem;"></i>
-        <select name="category" id="homeCategorySelect" class="wl-search-pill-select" aria-label="Select Category">
-          <option value="all" <%= (typeof category === 'undefined' || category === 'all') ? 'selected' : '' %>>All Types</option>
-          <option value="villa" <%= (typeof category !== 'undefined' && category === 'villa') ? 'selected' : '' %>>Villas</option>
-          <option value="hotel" <%= (typeof category !== 'undefined' && category === 'hotel') ? 'selected' : '' %>>Hotels</option>
-          <option value="cottage" <%= (typeof category !== 'undefined' && category === 'cottage') ? 'selected' : '' %>>Cottages</option>
-          <option value="venue" <%= (typeof category !== 'undefined' && category === 'venue') ? 'selected' : '' %>>Venues</option>
-          <option value="retreat" <%= (typeof category !== 'undefined' && category === 'retreat') ? 'selected' : '' %>>Retreats</option>
-        </select>
-      </div>
-
-      <div class="wl-search-pill-divider"></div>
-
-      <!-- Price Range Filter -->
-      <div class="wl-search-pill-filter">
-        <i class="fa-solid fa-tag text-muted" style="font-size: 0.85rem;"></i>
-        <select name="priceRange" id="homePriceSelect" class="wl-search-pill-select" aria-label="Select Price Range">
-          <option value="all">Any Price</option>
-          <option value="under_4000">Under &#8377;4,000</option>
-          <option value="4000_8000">&#8377;4,000 - &#8377;8,000</option>
-          <option value="above_8000">&#8377;8,000+</option>
-        </select>
-      </div>
-
-      <div class="wl-search-pill-divider"></div>
-
-      <!-- Sort Filter -->
-      <div class="wl-search-pill-filter">
-        <i class="fa-solid fa-arrow-down-wide-short text-muted" style="font-size: 0.85rem;"></i>
-        <select name="sort" id="homeSortSelect" class="wl-search-pill-select" aria-label="Select Sort Order">
-          <option value="default" <%= (typeof sort === 'undefined' || sort === 'default') ? 'selected' : '' %>>Recommended</option>
-          <option value="price_asc" <%= (typeof sort !== 'undefined' && sort === 'price_asc') ? 'selected' : '' %>>Price: Low to High</option>
-          <option value="price_desc" <%= (typeof sort !== 'undefined' && sort === 'price_desc') ? 'selected' : '' %>>Price: High to Low</option>
-          <option value="rating" <%= (typeof sort !== 'undefined' && sort === 'rating') ? 'selected' : '' %>>Top Rated</option>
-        </select>
-      </div>
-
-      <!-- Search Button -->
-      <button type="submit" id="homeSearchBtn" class="wl-search-pill-btn">
-        <i class="fa-solid fa-magnifying-glass me-1"></i>
-        <span>Search</span>
-      </button>
-    </form>
+<!-- Dynamic Hero Slideshow with Quotes and Highlighted Listings -->
+<section id="heroDynamicSlider" class="carousel slide carousel-fade wl-hero-carousel position-relative text-white" data-bs-ride="carousel" data-bs-interval="6500">
+  <!-- Indicators -->
+  <div class="carousel-indicators wl-hero-indicators">
+    <% heroSlides.forEach((item, idx) => { %>
+      <button
+        type="button"
+        data-bs-target="#heroDynamicSlider"
+        data-bs-slide-to="<%= idx %>"
+        class="<%= idx === 0 ? 'active' : '' %>"
+        aria-current="<%= idx === 0 ? 'true' : 'false' %>"
+        aria-label="Slide <%= idx + 1 %>"
+      ></button>
+    <% }); %>
   </div>
 
-  <!-- 2. Featured Listings Section -->
-  <section class="wl-featured-section mb-5">
-    <div class="wl-featured-header">
-      <h2>Featured Listings</h2>
-      <p>Handpicked stays, venues and experiences</p>
-    </div>
+  <div class="carousel-inner">
+    <% heroSlides.forEach((listing, idx) => { %>
+      <% const qObj = heroQuotes[idx % heroQuotes.length]; %>
+      <div class="carousel-item <%= idx === 0 ? 'active' : '' %>" style="min-height: 480px;">
+        <!-- Ken-Burns Slow Zooming Background -->
+        <img
+          src="<%= (listing.image && listing.image.url) ? listing.image.url : '/images/landing_hero.jpg' %>"
+          alt="<%= listing.title %>"
+          class="wl-hero-slide-bg"
+          loading="<%= idx === 0 ? 'eager' : 'lazy' %>"
+        />
+        <div class="wl-hero-overlay"></div>
 
-    <!-- Featured Carousel Container -->
-    <div id="featuredCarousel" class="wl-featured-card">
-      <% featuredSlides.forEach((item, index) => { %>
-        <%
-          const fSaved = safeWishlist.has(item.id);
-          const fImg = (item.image && item.image.url) ? item.image.url : '/images/landing_hero.jpg';
-          const fLoc = [item.location, item.country].filter(Boolean).join(", ") || 'Featured Destination';
-          const fRating = item.avgRating || 4.9;
-          const fReviews = item.reviewCount || 210;
-        %>
-        <div class="wl-featured-slide <%= index === 0 ? 'active' : '' %>" style="display: <%= index === 0 ? 'block' : 'none' %>; width: 100%; height: 100%; position: absolute; inset: 0;">
-          <a href="/listings/<%= item.id %>" class="d-block w-100 h-100 position-relative text-decoration-none">
-            <img
-              src="<%= fImg %>"
-              alt="<%= item.title %>"
-              class="wl-featured-slide-img"
-              loading="<%= index === 0 ? 'eager' : 'lazy' %>"
-            />
-            <div class="wl-featured-gradient"></div>
-
-            <div class="wl-featured-overlay-content">
-              <div>
-                <h3 class="wl-featured-title"><%= item.title %></h3>
-                <div class="wl-featured-location">
-                  <i class="fa-solid fa-location-dot"></i>
-                  <span><%= fLoc %></span>
-                </div>
+        <div class="wl-container py-5 wl-hero-content d-flex align-items-center" style="min-height: 480px;">
+          <div class="row w-100 align-items-center g-4 my-auto">
+            <!-- Left Hero Content with Login / Register -->
+            <div class="col-12 col-lg-7 text-white">
+              <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-20 border border-white border-opacity-25 small mb-3">
+                <i class="fa-solid fa-sparkles text-warning"></i>
+                <span class="fw-semibold"><%= qObj.theme %></span>
               </div>
-              <div>
-                <div class="wl-featured-price">
-                  &#8377;<%= Number(item.price || 0).toLocaleString("en-IN") %> <span class="fs-6 fw-normal text-white-50">/ night</span>
-                </div>
-                <div class="wl-featured-rating">
-                  <i class="fa-solid fa-star text-warning"></i>
-                  <span><%= fRating %></span>
-                  <span class="text-white-50">(<%= fReviews %>)</span>
-                </div>
-              </div>
-            </div>
-          </a>
+              <h1 class="display-4 fw-bold text-white mb-2" style="letter-spacing: -0.02em; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                Find your next stay or venue
+              </h1>
+              <p class="wl-hero-quote">
+                “<%= qObj.quote %>”
+              </p>
 
-          <!-- Wishlist Heart Button -->
-          <% if (typeof currentUser !== "undefined" && currentUser) { %>
-            <button
-              type="button"
-              class="wl-floating-heart <%= fSaved ? 'is-saved' : '' %>"
-              onclick="toggleWishlist(event, '<%= item.id %>', this)"
-              aria-label="<%= fSaved ? 'Remove from Wishlist' : 'Add to Wishlist' %>"
-              title="Save to Wishlist"
-            >
-              <i class="<%= fSaved ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart' %>"></i>
-            </button>
-          <% } else { %>
-            <a
-              href="/login"
-              class="wl-floating-heart"
-              aria-label="Login to add to Wishlist"
-              title="Login to add to Wishlist"
-            >
-              <i class="fa-regular fa-heart"></i>
-            </a>
-          <% } %>
-        </div>
-      <% }); %>
-
-      <!-- Left / Right Carousel Controls -->
-      <button type="button" class="wl-featured-nav-btn prev" id="featuredPrevBtn" aria-label="Previous Featured Slide">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-      <button type="button" class="wl-featured-nav-btn next" id="featuredNextBtn" aria-label="Next Featured Slide">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-    </div>
-
-    <!-- Carousel Dots Indicators -->
-    <div class="wl-featured-dots" id="featuredDotsContainer">
-      <% featuredSlides.forEach((item, index) => { %>
-        <button
-          type="button"
-          class="wl-featured-dot <%= index === 0 ? 'active' : '' %>"
-          data-slide-index="<%= index %>"
-          aria-label="Slide <%= index + 1 %>"
-        ></button>
-      <% }); %>
-    </div>
-  </section>
-
-  <!-- 3. Trending Listings Section (Responsive 4-column Grid) -->
-  <section class="wl-trending-section">
-    <div class="wl-trending-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <h3 id="trendingHeading">Trending Listings</h3>
-      <span class="text-muted small fw-medium" id="trendingCountLabel">
-        Showing <%= safeListings.length %> <%= safeListings.length === 1 ? 'stay' : 'stays' %>
-      </span>
-    </div>
-
-    <!-- Listings Grid -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="trendingListingsGrid">
-      <% if (safeListings && safeListings.length > 0) { %>
-        <% for (let listing of safeListings) { %>
-          <%
-            const isSaved = safeWishlist.has(listing.id);
-            const locText = [listing.location, listing.country].filter(Boolean).join(", ") || 'Verified stay';
-            const imgUrl = (listing.image && listing.image.url) ? listing.image.url : '/images/landing_hero.jpg';
-          %>
-          <div
-            class="col wl-listing-item"
-            data-id="<%= listing.id %>"
-            data-title="<%= (listing.title || '').toLowerCase() %>"
-            data-location="<%= (locText || '').toLowerCase() %>"
-            data-price="<%= listing.price || 0 %>"
-            data-category="<%= ((listing.businessType || '') + ' ' + (listing.title || '') + ' ' + (listing.description || '')).toLowerCase() %>"
-          >
-            <div class="wl-trending-card">
-              <!-- Image & Heart Button -->
-              <div class="wl-trending-img-wrap">
-                <a href="/listings/<%= listing.id %>" class="d-block w-100 h-100">
-                  <img
-                    src="<%= imgUrl %>"
-                    class="wl-trending-img"
-                    alt="<%= listing.title %>"
-                    loading="lazy"
-                  />
+              <!-- CTA Buttons -->
+              <div class="d-flex flex-wrap align-items-center gap-3 mb-4 pb-2">
+                <a id="btn-login" href="/login" class="btn wl-btn-primary px-4 py-2" style="height: 46px;">
+                  Login
                 </a>
-
-                <% if (typeof currentUser !== "undefined" && currentUser) { %>
-                  <button
-                    type="button"
-                    class="wl-trending-heart <%= isSaved ? 'is-saved' : '' %>"
-                    onclick="toggleWishlist(event, '<%= listing.id %>', this)"
-                    aria-label="<%= isSaved ? 'Remove from Wishlist' : 'Add to Wishlist' %>"
-                    title="Save to Wishlist"
-                  >
-                    <i class="<%= isSaved ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart' %>"></i>
-                  </button>
-                <% } else { %>
-                  <a
-                    href="/login"
-                    class="wl-trending-heart"
-                    aria-label="Login to add to Wishlist"
-                    title="Login to add to Wishlist"
-                  >
-                    <i class="fa-regular fa-heart"></i>
-                  </a>
-                <% } %>
+                <a
+                  id="btn-register"
+                  href="/signup"
+                  class="btn wl-btn-outline px-4 py-2"
+                  style="height: 46px; background-color: rgba(255, 255, 255, 0.12) !important; color: #FFFFFF !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important;"
+                >
+                  Register
+                </a>
+                <a
+                  href="/listings/<%= listing.id %>"
+                  class="btn btn-sm btn-outline-light d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill"
+                  style="height: 46px; backdrop-filter: blur(8px); background-color: rgba(255,255,255,0.08);"
+                >
+                  <span>Explore <%= listing.title.length > 22 ? listing.title.substring(0, 20) + '...' : listing.title %></span>
+                  <i class="fa-solid fa-arrow-right small"></i>
+                </a>
               </div>
 
-              <!-- Info Body -->
-              <div class="wl-trending-info">
-                <h4 class="wl-trending-title">
-                  <a href="/listings/<%= listing.id %>" class="text-decoration-none text-dark" title="<%= listing.title %>">
-                    <%= listing.title %>
-                  </a>
-                </h4>
-                <div class="wl-trending-location">
-                  <i class="fa-solid fa-location-dot" style="font-size: 0.78rem;"></i>
-                  <span><%= locText %></span>
+              <!-- Trust Badges Row -->
+              <div class="d-flex flex-wrap gap-4 text-white text-opacity-90 pt-3 border-top border-white border-opacity-25 small">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-shield-halved text-teal-100"></i>
+                  <span>Verified Listings</span>
                 </div>
-                <div class="wl-trending-price">
-                  &#8377;<%= Number(listing.price || 0).toLocaleString("en-IN") %>
-                  <span class="wl-trending-price-unit">/ night</span>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-users text-teal-100"></i>
+                  <span>Trusted Community</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fa-solid fa-tag text-teal-100"></i>
+                  <span>Memorable Experiences</span>
                 </div>
               </div>
             </div>
-          </div>
-        <% } %>
-      <% } %>
-    </div>
 
-    <!-- Empty State (Shown when filters produce 0 matches) -->
-    <div
-      id="trendingEmptyState"
-      class="wl-card text-center p-5 my-4 <%= (safeListings && safeListings.length > 0) ? 'd-none' : '' %>"
-      style="border-radius: var(--wl-radius-xl);"
-    >
-      <div class="wl-empty-state py-4">
-        <i class="fa-solid fa-magnifying-glass fa-3x text-muted mb-3 opacity-50"></i>
-        <h4 class="fw-bold text-dark mb-2">No listings found</h4>
-        <p class="text-muted mb-4" style="max-width: 440px; margin: 0 auto;">
-          We couldn't find any stays or venues matching your current filters. Try searching for another destination or resetting your filters.
-        </p>
-        <button type="button" class="btn wl-btn-primary rounded-pill px-4" id="btnResetFilters">
-          <i class="fa-solid fa-rotate-left me-2"></i>Clear All Filters
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. Community & Role Registration Section -->
-  <section class="mt-5 pt-4 border-top">
-    <div class="row g-4 align-items-center">
-      <div class="col-12 col-md-6">
-        <div class="p-4 rounded-4 bg-white border shadow-sm h-100 d-flex flex-column justify-content-between" style="border-radius: var(--wl-radius-lg);">
-          <div>
-            <span class="badge bg-light text-muted fw-bold text-uppercase mb-2" style="font-size: 0.72rem;">For Travelers</span>
-            <h4 class="h5 fw-bold text-dark mb-2">Book Unique Stays &amp; Venues</h4>
-            <p class="text-muted small mb-3">Discover verified properties, save favorites to your wishlist, and enjoy seamless bookings.</p>
-          </div>
-          <div>
-            <a id="btn-register-customer" href="/signup?role=customer" class="btn wl-btn-outline rounded-pill px-4 fw-semibold">
-              Register as Customer
-            </a>
+            <!-- Right Spotlight Glassmorphism Card for Current Highlighted Listing -->
+            <div class="col-12 col-lg-5 d-none d-lg-block">
+              <a href="/listings/<%= listing.id %>" class="text-decoration-none">
+                <div class="wl-hero-glass-card">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
+                      <i class="fa-solid fa-star me-1"></i> Highlighted Listing
+                    </span>
+                    <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill fw-semibold">
+                      &#8377;<%= Number(listing.price || 0).toLocaleString("en-IN") %> / night
+                    </span>
+                  </div>
+                  <h3 class="h4 fw-bold text-white mb-2 text-truncate"><%= listing.title %></h3>
+                  <div class="d-flex align-items-center gap-2 text-white text-opacity-90 small mb-3">
+                    <i class="fa-solid fa-location-dot text-teal-200"></i>
+                    <span><%= [listing.location, listing.country].filter(Boolean).join(", ") || 'Verified Venue' %></span>
+                  </div>
+                  <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-25">
+                    <span class="text-white-50 small">Click to book or view details</span>
+                    <span class="btn btn-sm btn-light rounded-pill px-3 py-1 fw-bold text-dark">
+                      View Stay <i class="fa-solid fa-chevron-right ms-1 small"></i>
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-12 col-md-6">
-        <div class="p-4 rounded-4 bg-white border shadow-sm h-100 d-flex flex-column justify-content-between" style="border-radius: var(--wl-radius-lg);">
-          <div>
-            <span class="badge bg-light text-muted fw-bold text-uppercase mb-2" style="font-size: 0.72rem;">For Hosts &amp; Managers</span>
-            <h4 class="h5 fw-bold text-dark mb-2">List Your Property or Venue</h4>
-            <p class="text-muted small mb-3">Reach thousands of verified guests, manage listings easily, and grow your hospitality business.</p>
+    <% }); %>
+  </div>
+
+  <!-- Left & Right Carousel Controls -->
+  <button class="carousel-control-prev wl-carousel-control prev d-none d-md-flex" type="button" data-bs-target="#heroDynamicSlider" data-bs-slide="prev" aria-label="Previous">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+  <button class="carousel-control-next wl-carousel-control next d-none d-md-flex" type="button" data-bs-target="#heroDynamicSlider" data-bs-slide="next" aria-label="Next">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</section>
+
+<!-- Main Container -->
+<div class="wl-container py-5">
+  <!-- Dual Role Cards (Customer & Owner) -->
+  <div class="row g-4 mb-5">
+    <!-- Customer Card -->
+    <div class="col-12 col-md-6">
+      <div class="wl-card h-100 shadow-sm border" style="border-radius: var(--wl-radius-lg); overflow: hidden;">
+        <div class="row g-0 h-100">
+          <div class="col-sm-5" style="min-height: 200px;">
+            <img
+              src="/images/customer_card.jpg"
+              alt="Discover stays"
+              class="w-100 h-100"
+              style="object-fit: cover;"
+              loading="lazy"
+            />
           </div>
-          <div>
-            <a id="btn-register-owner" href="/signup?role=owner" class="btn wl-btn-primary rounded-pill px-4 fw-semibold">
-              Register as Owner
-            </a>
+          <div class="col-sm-7 p-4 d-flex flex-direction-column flex-column justify-content-between">
+            <div>
+              <div class="text-uppercase fw-bold text-muted small mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                FOR CUSTOMERS
+              </div>
+              <h2 class="h5 fw-bold text-dark mb-2">
+                Discover amazing stays and event venues
+              </h2>
+              <p class="text-muted small mb-3">
+                Find and book unique hotels, holiday homes, and stunning venues for your special moments.
+              </p>
+            </div>
+            <div>
+              <a
+                id="btn-register-customer"
+                href="/signup?role=customer"
+                class="btn wl-btn-primary"
+              >
+                Register as Customer
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
+
+    <!-- Owner Card -->
+    <div class="col-12 col-md-6">
+      <div class="wl-card h-100 shadow-sm border" style="border-radius: var(--wl-radius-lg); overflow: hidden;">
+        <div class="row g-0 h-100">
+          <div class="col-sm-5" style="min-height: 200px;">
+            <img
+              src="/images/owner_card.jpg"
+              alt="List property"
+              class="w-100 h-100"
+              style="object-fit: cover;"
+              loading="lazy"
+            />
+          </div>
+          <div class="col-sm-7 p-4 d-flex flex-direction-column flex-column justify-content-between">
+            <div>
+              <div class="text-uppercase fw-bold text-muted small mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">
+                FOR PROPERTY AND VENUE OWNERS
+              </div>
+              <h2 class="h5 fw-bold text-dark mb-2">
+                List your property or venue
+              </h2>
+              <p class="text-muted small mb-3">
+                Reach thousands of travelers and event planners. Grow your business with WanderLust.
+                <span class="d-block mt-1 fst-italic">Owner accounts are approved by an admin before you can add listings.</span>
+              </p>
+            </div>
+            <div>
+              <a
+                id="btn-register-owner"
+                href="/signup?role=owner"
+                class="btn wl-btn-primary"
+              >
+                Register as Owner
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Venue Categorized Dynamic Collage Section -->
+  <% const safeListings = (typeof listings !== 'undefined' && Array.isArray(listings)) ? listings : []; %>
+  <div id="venueCollageSection" class="mt-5 wl-collage-section" data-hydrated="<%= safeListings.length > 0 ? 'true' : 'false' %>">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+      <div>
+        <h2 class="h4 fw-bold text-dark mb-1">Explore Venues &amp; Stays by Category</h2>
+        <p class="text-muted small mb-0">Discover handpicked destinations across curated venue collections</p>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <div class="wl-collage-cycle-indicator d-none d-md-inline-flex">
+          <span class="wl-pulse-dot"></span>
+          <span id="cycleStatusLabel">Dynamic spotlight active</span>
+        </div>
+        <a href="/listings" class="fw-semibold text-decoration-none d-flex align-items-center gap-1" style="color: var(--wl-teal-600);">
+          <span id="allStaysCountText">View all stays<%= safeListings.length > 0 ? ' (' + safeListings.length + ')' : '' %></span>
+          <i class="fa-solid fa-arrow-right small"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Category Filter Navigation Pills -->
+    <div class="wl-category-nav" id="venueCategoryNav">
+      <button type="button" class="wl-category-btn active" data-category="all">
+        <i class="fa-solid fa-compass"></i>
+        <span>All Venues</span>
+        <span class="wl-category-count" id="count-all"><%= safeListings.length %></span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="beach">
+        <i class="fa-solid fa-umbrella-beach"></i>
+        <span>Beach &amp; Waterfront</span>
+        <span class="wl-category-count" id="count-beach">0</span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="mountain">
+        <i class="fa-solid fa-mountain"></i>
+        <span>Mountains &amp; Cabins</span>
+        <span class="wl-category-count" id="count-mountain">0</span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="villa">
+        <i class="fa-solid fa-landmark"></i>
+        <span>Villas &amp; Estates</span>
+        <span class="wl-category-count" id="count-villa">0</span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="urban">
+        <i class="fa-solid fa-city"></i>
+        <span>Urban &amp; Penthouses</span>
+        <span class="wl-category-count" id="count-urban">0</span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="unique">
+        <i class="fa-solid fa-gem"></i>
+        <span>Unique &amp; Boutique</span>
+        <span class="wl-category-count" id="count-unique">0</span>
+      </button>
+    </div>
+
+    <!-- Dynamic Bento Collage Grid -->
+    <div class="wl-collage-grid" id="venueCollageGrid">
+      <!-- Dynamically rendered and animated collage cards -->
+    </div>
+  </div>
 </div>
 
-<!-- Dynamic Live Filtering, Featured Carousel, & Wishlist Script -->
+<!-- Embedded JSON Data of Database Listings for Fast Client-Side Dynamic Switching -->
+<script id="venueListingsData" type="application/json">
+  <%- JSON.stringify(safeListings) %>
+</script>
+
+<!-- Dynamic Collage Controller Script -->
 <script>
-  (function () {
-    // ----------------------------------------------------
-    // 1. Featured Carousel Slider
-    // ----------------------------------------------------
-    const slides = document.querySelectorAll(".wl-featured-slide");
-    const dots = document.querySelectorAll(".wl-featured-dot");
-    const prevBtn = document.getElementById("featuredPrevBtn");
-    const nextBtn = document.getElementById("featuredNextBtn");
-    let currentSlide = 0;
-    let autoPlayTimer = null;
-
-    function showSlide(index) {
-      if (!slides.length) return;
-      slides[currentSlide].style.display = "none";
-      slides[currentSlide].classList.remove("active");
-      if (dots[currentSlide]) dots[currentSlide].classList.remove("active");
-
-      currentSlide = (index + slides.length) % slides.length;
-
-      slides[currentSlide].style.display = "block";
-      slides[currentSlide].classList.add("active");
-      if (dots[currentSlide]) dots[currentSlide].classList.add("active");
-    }
-
-    function nextSlide() {
-      showSlide(currentSlide + 1);
-    }
-    function prevSlide() {
-      showSlide(currentSlide - 1);
-    }
-
-    if (prevBtn) prevBtn.addEventListener("click", () => { prevSlide(); resetAutoplay(); });
-    if (nextBtn) nextBtn.addEventListener("click", () => { nextSlide(); resetAutoplay(); });
-
-    dots.forEach((dot, idx) => {
-      dot.addEventListener("click", () => {
-        showSlide(idx);
-        resetAutoplay();
-      });
-    });
-
-    function startAutoplay() {
-      if (slides.length > 1) {
-        autoPlayTimer = setInterval(nextSlide, 5000);
+  (function() {
+    function categorizeListing(listing) {
+      const text = ((listing.title || "") + " " + (listing.location || "") + " " + (listing.country || "")).toLowerCase();
+      if (/beach|coast|ocean|lake|sea|water|island|cancun|malibu/i.test(text)) {
+        return { id: "beach", name: "Beach & Waterfront", icon: "fa-umbrella-beach" };
       }
-    }
-    function resetAutoplay() {
-      clearInterval(autoPlayTimer);
-      startAutoplay();
-    }
-    startAutoplay();
-
-    // ----------------------------------------------------
-    // 2. Working Live Filter & Client-side Instant Filter
-    // ----------------------------------------------------
-    const searchInput = document.getElementById("homeSearchInput");
-    const categorySelect = document.getElementById("homeCategorySelect");
-    const priceSelect = document.getElementById("homePriceSelect");
-    const sortSelect = document.getElementById("homeSortSelect");
-    const listingsGrid = document.getElementById("trendingListingsGrid");
-    const emptyState = document.getElementById("trendingEmptyState");
-    const countLabel = document.getElementById("trendingCountLabel");
-    const resetBtn = document.getElementById("btnResetFilters");
-    const searchForm = document.getElementById("homeSearchForm");
-
-    function applyLiveFilters() {
-      const q = (searchInput ? searchInput.value : "").trim().toLowerCase();
-      const cat = categorySelect ? categorySelect.value : "all";
-      const pr = priceSelect ? priceSelect.value : "all";
-      const items = Array.from(document.querySelectorAll(".wl-listing-item"));
-      let visibleCount = 0;
-
-      items.forEach(item => {
-        const title = item.getAttribute("data-title") || "";
-        const location = item.getAttribute("data-location") || "";
-        const categoryData = item.getAttribute("data-category") || "";
-        const price = parseFloat(item.getAttribute("data-price") || "0");
-
-        // Keyword Match
-        let matchesQuery = true;
-        if (q) {
-          matchesQuery = title.includes(q) || location.includes(q) || categoryData.includes(q);
-        }
-
-        // Category Match
-        let matchesCategory = true;
-        if (cat !== "all") {
-          matchesCategory = categoryData.includes(cat) || title.includes(cat);
-        }
-
-        // Price Match
-        let matchesPrice = true;
-        if (pr === "under_4000") {
-          matchesPrice = price < 4000;
-        } else if (pr === "4000_8000") {
-          matchesPrice = price >= 4000 && price <= 8000;
-        } else if (pr === "above_8000") {
-          matchesPrice = price > 8000;
-        }
-
-        if (matchesQuery && matchesCategory && matchesPrice) {
-          item.style.display = "";
-          visibleCount++;
-        } else {
-          item.style.display = "none";
-        }
-      });
-
-      // Sort visible items
-      if (sortSelect && listingsGrid) {
-        const sortVal = sortSelect.value;
-        const visibleItems = items.filter(i => i.style.display !== "none");
-        if (sortVal === "price_asc") {
-          visibleItems.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
-          visibleItems.forEach(i => listingsGrid.appendChild(i));
-        } else if (sortVal === "price_desc") {
-          visibleItems.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
-          visibleItems.forEach(i => listingsGrid.appendChild(i));
-        }
+      if (/mountain|cabin|chalet|ski|forest|treehouse|aspen|verbier|tahoe|nature/i.test(text)) {
+        return { id: "mountain", name: "Mountains & Cabins", icon: "fa-mountain" };
       }
-
-      // Update Count & Empty State
-      if (countLabel) {
-        countLabel.textContent = `Showing ${visibleCount} ${visibleCount === 1 ? 'stay' : 'stays'}`;
+      if (/villa|historic|estate|resort|lodge|safari|tuscany|serengeti|manor/i.test(text)) {
+        return { id: "villa", name: "Villas & Estates", icon: "fa-landmark" };
       }
-
-      if (emptyState) {
-        if (visibleCount === 0) {
-          emptyState.classList.remove("d-none");
-        } else {
-          emptyState.classList.add("d-none");
-        }
+      if (/loft|penthouse|urban|city|downtown|apartment|hotel|shibuya|york|angeles/i.test(text)) {
+        return { id: "urban", name: "Urban & Penthouses", icon: "fa-city" };
       }
+      return { id: "unique", name: "Unique & Boutique", icon: "fa-gem" };
     }
 
-    // Debounce search typing
-    let debounceTimer = null;
-    if (searchInput) {
-      searchInput.addEventListener("input", () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(applyLiveFilters, 180);
-      });
-    }
-
-    if (categorySelect) categorySelect.addEventListener("change", applyLiveFilters);
-    if (priceSelect) priceSelect.addEventListener("change", applyLiveFilters);
-    if (sortSelect) sortSelect.addEventListener("change", applyLiveFilters);
-
-    if (resetBtn) {
-      resetBtn.addEventListener("click", () => {
-        if (searchInput) searchInput.value = "";
-        if (categorySelect) categorySelect.value = "all";
-        if (priceSelect) priceSelect.value = "all";
-        if (sortSelect) sortSelect.value = "default";
-        applyLiveFilters();
-      });
-    }
-
-    // Run initial filter if URL parameters are prefilled
-    applyLiveFilters();
-  })();
-
-  // ----------------------------------------------------
-  // 3. Wishlist Toggle AJAX (Global)
-  // ----------------------------------------------------
-  async function toggleWishlist(event, listingId, btn) {
-    event.preventDefault();
-    event.stopPropagation();
-    const icon = btn.querySelector("i");
-    const isSaved = icon.classList.contains("fa-solid");
-    const method = isSaved ? "DELETE" : "POST";
-
-    // Optimistic UI toggle
-    if (isSaved) {
-      icon.classList.remove("fa-solid", "text-danger");
-      icon.classList.add("fa-regular");
-      btn.classList.remove("is-saved");
-    } else {
-      icon.classList.remove("fa-regular");
-      icon.classList.add("fa-solid", "text-danger");
-      btn.classList.add("is-saved");
-    }
-
+    let allListings = [];
     try {
-      const res = await fetch(`/wishlist/${listingId}`, {
-        method: method,
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (res.status === 401) {
-        window.location.href = "/login";
-        return;
+      const dataScript = document.getElementById("venueListingsData");
+      if (dataScript && dataScript.textContent.trim()) {
+        allListings = JSON.parse(dataScript.textContent.trim());
       }
-
-      const data = await res.json();
-      if (!data || !data.success) {
-        // Rollback
-        if (isSaved) {
-          icon.classList.remove("fa-regular");
-          icon.classList.add("fa-solid", "text-danger");
-          btn.classList.add("is-saved");
-        } else {
-          icon.classList.remove("fa-solid", "text-danger");
-          icon.classList.add("fa-regular");
-          btn.classList.remove("is-saved");
-        }
-      }
-    } catch (err) {
-      console.error("Error toggling wishlist:", err);
-      // Rollback
-      if (isSaved) {
-        icon.classList.remove("fa-regular");
-        icon.classList.add("fa-solid", "text-danger");
-        btn.classList.add("is-saved");
-      } else {
-        icon.classList.remove("fa-solid", "text-danger");
-        icon.classList.add("fa-regular");
-        btn.classList.remove("is-saved");
-      }
+    } catch (e) {
+      allListings = [];
     }
-  }
+
+    let currentCategory = "all";
+    let spotlightOffset = 0;
+    let autoCycleTimer = null;
+    let isHovered = false;
+
+    const grid = document.getElementById("venueCollageGrid");
+    const nav = document.getElementById("venueCategoryNav");
+    const cycleLabel = document.getElementById("cycleStatusLabel");
+    const section = document.getElementById("venueCollageSection");
+
+    function renderCollage(listings, category, offset) {
+      if (!grid) return;
+
+      // Filter by category
+      let categoryMatches = category === "all" 
+        ? listings 
+        : listings.filter(l => categorizeListing(l).id === category);
+
+      if (categoryMatches.length === 0) {
+        categoryMatches = listings;
+      }
+
+      // Re-order based on spotlight offset for dynamic rotation
+      const shifted = [];
+      const len = categoryMatches.length;
+      for (let i = 0; i < len; i++) {
+        shifted.push(categoryMatches[(i + offset) % len]);
+      }
+
+      // If fewer than 5, backfill from remaining listings so collage layout stays balanced
+      let displayItems = [...shifted];
+      if (displayItems.length < 5) {
+        const others = listings.filter(l => !displayItems.some(d => d.id === l.id));
+        displayItems = displayItems.concat(others).slice(0, 5);
+      } else {
+        displayItems = displayItems.slice(0, 5);
+      }
+
+      // Trigger smooth CSS animation
+      grid.classList.remove("wl-collage-animating");
+      void grid.offsetWidth; // trigger reflow
+      grid.classList.add("wl-collage-animating");
+
+      grid.innerHTML = "";
+
+      displayItems.forEach((item, index) => {
+        const cat = categorizeListing(item);
+        const isFeatured = index === 0;
+        const link = document.createElement("a");
+        link.href = "/listings/" + item.id;
+        link.className = "wl-collage-item " + (isFeatured ? "featured" : "tile");
+
+        const imgUrl = (item.image && item.image.url) ? item.image.url : "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb";
+        const priceStr = "&#8377;" + Number(item.price || 0).toLocaleString("en-IN");
+        const locStr = [item.location, item.country].filter(Boolean).join(", ") || "Verified Venue";
+
+        link.innerHTML = `
+          <img src="${imgUrl}" alt="${item.title}" loading="${isFeatured ? 'eager' : 'lazy'}">
+          <div class="wl-collage-overlay">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <span class="wl-collage-badge">
+                <i class="fa-solid ${cat.icon} text-teal-600"></i>
+                <span>${cat.name}</span>
+              </span>
+              <span class="wl-collage-price-tag">
+                ${priceStr} <span class="small fw-normal text-white-50">/ night</span>
+              </span>
+            </div>
+            <div class="wl-collage-caption">
+              <h${isFeatured ? '3' : '4'} class="wl-collage-title ${isFeatured ? '' : 'text-truncate'}">${item.title}</h${isFeatured ? '3' : '4'}>
+              <div class="wl-collage-location ${isFeatured ? '' : 'text-truncate'}">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>${locStr}</span>
+              </div>
+              ${isFeatured ? `
+                <div class="mt-3">
+                  <span class="btn wl-btn-primary px-3 py-2 btn-sm text-white fw-semibold">
+                    Explore Venue <i class="fa-solid fa-arrow-right ms-1"></i>
+                  </span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        grid.appendChild(link);
+      });
+    }
+
+    function updateCategoryCounts(listings) {
+      const counts = { all: listings.length, beach: 0, mountain: 0, villa: 0, urban: 0, unique: 0 };
+      listings.forEach(l => {
+        const c = categorizeListing(l).id;
+        if (counts[c] !== undefined) counts[c]++;
+      });
+      Object.keys(counts).forEach(k => {
+        const el = document.getElementById("count-" + k);
+        if (el) el.textContent = counts[k];
+      });
+      const allText = document.getElementById("allStaysCountText");
+      if (allText) allText.textContent = "View all stays (" + listings.length + ")";
+    }
+
+    function startAutoCycle() {
+      if (autoCycleTimer) clearInterval(autoCycleTimer);
+      autoCycleTimer = setInterval(() => {
+        if (isHovered || allListings.length === 0) return;
+        spotlightOffset = (spotlightOffset + 1) % allListings.length;
+        renderCollage(allListings, currentCategory, spotlightOffset);
+      }, 5500);
+    }
+
+    // Category button click handling
+    if (nav) {
+      nav.addEventListener("click", e => {
+        const btn = e.target.closest(".wl-category-btn");
+        if (!btn) return;
+        nav.querySelectorAll(".wl-category-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentCategory = btn.getAttribute("data-category") || "all";
+        spotlightOffset = 0;
+        renderCollage(allListings, currentCategory, spotlightOffset);
+      });
+    }
+
+    // Hover pause mechanism
+    if (section) {
+      section.addEventListener("mouseenter", () => {
+        isHovered = true;
+        if (cycleLabel) cycleLabel.textContent = "Spotlight paused";
+      });
+      section.addEventListener("mouseleave", () => {
+        isHovered = false;
+        if (cycleLabel) cycleLabel.textContent = "Dynamic spotlight active";
+      });
+    }
+
+    // Initialize or hydrate from /listings if needed
+    if (allListings && allListings.length > 0) {
+      updateCategoryCounts(allListings);
+      renderCollage(allListings, "all", 0);
+      startAutoCycle();
+    } else {
+      // Hydrate via client-side fetch from /listings
+      fetch("/listings")
+        .then(r => r.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const cards = Array.from(doc.querySelectorAll(".wl-listing-card"));
+          if (!cards || cards.length === 0) return;
+
+          allListings = cards.map((card, idx) => {
+            const anchor = card.closest("a");
+            const href = anchor ? anchor.getAttribute("href") : "/listings";
+            const idMatch = href.match(/\/listings\/(\d+)/);
+            const id = idMatch ? idMatch[1] : (idx + 1);
+            const img = card.querySelector("img");
+            const titleEl = card.querySelector(".wl-listing-title");
+            const locEl = card.querySelector(".wl-listing-location");
+            const priceEl = card.querySelector(".wl-listing-price");
+            const priceClean = priceEl ? priceEl.textContent.replace(/[^\d]/g, "") : "0";
+
+            return {
+              id: id,
+              title: titleEl ? titleEl.textContent.trim() : "Venue Stay",
+              location: locEl ? locEl.textContent.trim() : "Location",
+              country: "",
+              price: parseInt(priceClean, 10) || 5000,
+              image: { url: img ? img.getAttribute("src") : "" }
+            };
+          });
+
+          updateCategoryCounts(allListings);
+          renderCollage(allListings, "all", 0);
+          startAutoCycle();
+        })
+        .catch(err => console.error("Error hydrating collage:", err));
+    }
+  })();
 </script>

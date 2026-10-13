@@ -20,7 +20,7 @@
 
 <div class="wl-home-container">
 
-  <!-- 1. Sleek Floating Search & Filter Pill Bar -->
+  <!-- 1. Sleek Floating Search & Filter Pill Bar with Custom Dropdowns -->
   <div class="wl-search-pill-wrapper">
     <form id="homeSearchForm" action="/listings" method="GET" class="wl-search-pill">
       <!-- Search Input -->
@@ -39,43 +39,139 @@
 
       <div class="wl-search-pill-divider"></div>
 
-      <!-- Category Filter -->
-      <div class="wl-search-pill-filter">
-        <i class="fa-solid fa-hotel text-muted" style="font-size: 0.85rem;"></i>
-        <select name="category" id="homeCategorySelect" class="wl-search-pill-select" aria-label="Select Category">
-          <option value="all" <%= (typeof category === 'undefined' || category === 'all') ? 'selected' : '' %>>All Types</option>
-          <option value="villa" <%= (typeof category !== 'undefined' && category === 'villa') ? 'selected' : '' %>>Villas</option>
-          <option value="hotel" <%= (typeof category !== 'undefined' && category === 'hotel') ? 'selected' : '' %>>Hotels</option>
-          <option value="cottage" <%= (typeof category !== 'undefined' && category === 'cottage') ? 'selected' : '' %>>Cottages</option>
-          <option value="venue" <%= (typeof category !== 'undefined' && category === 'venue') ? 'selected' : '' %>>Venues</option>
-          <option value="retreat" <%= (typeof category !== 'undefined' && category === 'retreat') ? 'selected' : '' %>>Retreats</option>
-        </select>
+      <!-- Hidden form inputs for compatibility & URL query params -->
+      <input type="hidden" name="category" id="homeCategoryInput" value="<%= (typeof category !== 'undefined' && category) ? category : 'all' %>" />
+      <input type="hidden" name="priceRange" id="homePriceInput" value="<%= (typeof priceRange !== 'undefined' && priceRange) ? priceRange : 'all' %>" />
+      <input type="hidden" name="sort" id="homeSortInput" value="<%= (typeof sort !== 'undefined' && sort) ? sort : 'default' %>" />
+
+      <!-- Category Custom Dropdown -->
+      <div class="wl-search-pill-dropdown-wrap" id="pillDropdownCategory">
+        <button type="button" class="wl-search-pill-dropdown-btn">
+          <span class="d-flex align-items-center gap-2 text-truncate">
+            <i class="fa-solid <%= (category === 'villa') ? 'fa-house-chimney text-primary' : (category === 'hotel' ? 'fa-city text-teal-600' : (category === 'cottage' ? 'fa-tree text-success' : (category === 'venue' ? 'fa-gem text-warning' : (category === 'retreat' ? 'fa-mountain text-info' : 'fa-hotel text-muted')))) %> filter-icon" style="font-size: 0.88rem;"></i>
+            <span class="filter-label fw-medium"><%= (category === 'villa') ? 'Villas' : (category === 'hotel' ? 'Hotels' : (category === 'cottage' ? 'Cottages' : (category === 'venue' ? 'Venues' : (category === 'retreat' ? 'Retreats' : 'All Types')))) %></span>
+          </span>
+          <i class="fa-solid fa-chevron-down chevron-icon ms-1"></i>
+        </button>
+
+        <div class="wl-search-pill-dropdown-menu">
+          <div class="wl-search-pill-dropdown-item <%= (!category || category === 'all') ? 'active' : '' %>" data-field="category" data-value="all" data-label="All Types" data-icon="fa-hotel text-muted">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-hotel text-secondary" style="width: 18px;"></i> All Types
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item <%= (category === 'villa') ? 'active' : '' %>" data-field="category" data-value="villa" data-label="Villas" data-icon="fa-house-chimney text-primary">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-house-chimney text-primary" style="width: 18px;"></i> Villas &amp; Estates
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item <%= (category === 'hotel') ? 'active' : '' %>" data-field="category" data-value="hotel" data-label="Hotels" data-icon="fa-city text-teal-600">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-city text-teal-600" style="width: 18px;"></i> Hotels &amp; Suites
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item <%= (category === 'cottage') ? 'active' : '' %>" data-field="category" data-value="cottage" data-label="Cottages" data-icon="fa-tree text-success">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-tree text-success" style="width: 18px;"></i> Hill Cottages
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item <%= (category === 'venue') ? 'active' : '' %>" data-field="category" data-value="venue" data-label="Venues" data-icon="fa-gem text-warning">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-gem text-warning" style="width: 18px;"></i> Event Venues
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item <%= (category === 'retreat') ? 'active' : '' %>" data-field="category" data-value="retreat" data-label="Retreats" data-icon="fa-mountain text-info">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-mountain text-info" style="width: 18px;"></i> Nature Retreats
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+        </div>
       </div>
 
       <div class="wl-search-pill-divider"></div>
 
-      <!-- Price Range Filter -->
-      <div class="wl-search-pill-filter">
-        <i class="fa-solid fa-tag text-muted" style="font-size: 0.85rem;"></i>
-        <select name="priceRange" id="homePriceSelect" class="wl-search-pill-select" aria-label="Select Price Range">
-          <option value="all">Any Price</option>
-          <option value="under_4000">Under &#8377;4,000</option>
-          <option value="4000_8000">&#8377;4,000 - &#8377;8,000</option>
-          <option value="above_8000">&#8377;8,000+</option>
-        </select>
+      <!-- Price Range Custom Dropdown -->
+      <div class="wl-search-pill-dropdown-wrap" id="pillDropdownPrice">
+        <button type="button" class="wl-search-pill-dropdown-btn">
+          <span class="d-flex align-items-center gap-2 text-truncate">
+            <i class="fa-solid fa-tag text-muted filter-icon" style="font-size: 0.88rem;"></i>
+            <span class="filter-label fw-medium">Any Price</span>
+          </span>
+          <i class="fa-solid fa-chevron-down chevron-icon ms-1"></i>
+        </button>
+
+        <div class="wl-search-pill-dropdown-menu">
+          <div class="wl-search-pill-dropdown-item active" data-field="priceRange" data-value="all" data-label="Any Price" data-icon="fa-tag text-muted">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-tag text-secondary" style="width: 18px;"></i> Any Price
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item" data-field="priceRange" data-value="under_4000" data-label="Under ₹4,000" data-icon="fa-coins text-success">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-coins text-success" style="width: 18px;"></i> Under &#8377;4,000 <span class="text-muted small ms-1">(Budget)</span>
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item" data-field="priceRange" data-value="4000_8000" data-label="₹4k - ₹8k" data-icon="fa-money-bill-wave text-primary">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-money-bill-wave text-primary" style="width: 18px;"></i> &#8377;4,000 - &#8377;8,000 <span class="text-muted small ms-1">(Popular)</span>
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item" data-field="priceRange" data-value="above_8000" data-label="₹8,000+" data-icon="fa-crown text-warning">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-crown text-warning" style="width: 18px;"></i> &#8377;8,000+ <span class="text-muted small ms-1">(Luxury)</span>
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+        </div>
       </div>
 
       <div class="wl-search-pill-divider"></div>
 
-      <!-- Sort Filter -->
-      <div class="wl-search-pill-filter">
-        <i class="fa-solid fa-arrow-down-wide-short text-muted" style="font-size: 0.85rem;"></i>
-        <select name="sort" id="homeSortSelect" class="wl-search-pill-select" aria-label="Select Sort Order">
-          <option value="default" <%= (typeof sort === 'undefined' || sort === 'default') ? 'selected' : '' %>>Recommended</option>
-          <option value="price_asc" <%= (typeof sort !== 'undefined' && sort === 'price_asc') ? 'selected' : '' %>>Price: Low to High</option>
-          <option value="price_desc" <%= (typeof sort !== 'undefined' && sort === 'price_desc') ? 'selected' : '' %>>Price: High to Low</option>
-          <option value="rating" <%= (typeof sort !== 'undefined' && sort === 'rating') ? 'selected' : '' %>>Top Rated</option>
-        </select>
+      <!-- Sort Custom Dropdown -->
+      <div class="wl-search-pill-dropdown-wrap" id="pillDropdownSort">
+        <button type="button" class="wl-search-pill-dropdown-btn">
+          <span class="d-flex align-items-center gap-2 text-truncate">
+            <i class="fa-solid fa-arrow-down-wide-short text-muted filter-icon" style="font-size: 0.88rem;"></i>
+            <span class="filter-label fw-medium">Recommended</span>
+          </span>
+          <i class="fa-solid fa-chevron-down chevron-icon ms-1"></i>
+        </button>
+
+        <div class="wl-search-pill-dropdown-menu" style="right: 0; left: auto;">
+          <div class="wl-search-pill-dropdown-item <%= (!sort || sort === 'default') ? 'active' : '' %>" data-field="sort" data-value="default" data-label="Recommended" data-icon="fa-sparkles text-warning">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-sparkles text-warning" style="width: 18px;"></i> Recommended
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item <%= (sort === 'price_asc') ? 'active' : '' %>" data-field="sort" data-value="price_asc" data-label="Price: Low-High" data-icon="fa-arrow-down-1-9 text-secondary">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-arrow-down-1-9 text-secondary" style="width: 18px;"></i> Price: Low to High
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item <%= (sort === 'price_desc') ? 'active' : '' %>" data-field="sort" data-value="price_desc" data-label="Price: High-Low" data-icon="fa-arrow-down-9-1 text-secondary">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-arrow-down-9-1 text-secondary" style="width: 18px;"></i> Price: High to Low
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-search-pill-dropdown-item <%= (sort === 'rating') ? 'active' : '' %>" data-field="sort" data-value="rating" data-label="Top Rated" data-icon="fa-star text-warning">
+            <span class="d-flex align-items-center gap-2">
+              <i class="fa-solid fa-star text-warning" style="width: 18px;"></i> Top Rated
+            </span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+        </div>
       </div>
 
       <!-- Search Button -->
@@ -282,7 +378,7 @@
   </section>
 </div>
 
-<!-- Dynamic Live Filtering, Featured Carousel, & Wishlist Script -->
+<!-- Dynamic Live Filtering, Custom Dropdown Popups, Featured Carousel, & Wishlist Script -->
 <script>
   (function () {
     // ----------------------------------------------------
@@ -337,12 +433,74 @@
     startAutoplay();
 
     // ----------------------------------------------------
-    // 2. Working Live Filter & Client-side Instant Filter
+    // 2. Custom Filter Dropdowns (Category, Price, Sort)
+    // ----------------------------------------------------
+    document.querySelectorAll(".wl-search-pill-dropdown-wrap").forEach(wrap => {
+      const btn = wrap.querySelector(".wl-search-pill-dropdown-btn");
+      if (btn) {
+        btn.addEventListener("click", e => {
+          e.stopPropagation();
+          const wasOpen = wrap.classList.contains("show");
+          document.querySelectorAll(".wl-search-pill-dropdown-wrap.show").forEach(d => d.classList.remove("show"));
+          if (!wasOpen) wrap.classList.add("show");
+        });
+      }
+
+      wrap.querySelectorAll(".wl-search-pill-dropdown-item").forEach(item => {
+        item.addEventListener("click", e => {
+          e.stopPropagation();
+          const field = item.getAttribute("data-field");
+          const val = item.getAttribute("data-value");
+          const label = item.getAttribute("data-label");
+          const iconClass = item.getAttribute("data-icon");
+
+          // Update active item styling
+          wrap.querySelectorAll(".wl-search-pill-dropdown-item").forEach(i => i.classList.remove("active"));
+          item.classList.add("active");
+
+          // Update trigger label and icon
+          const labelEl = wrap.querySelector(".filter-label");
+          if (labelEl) labelEl.textContent = label;
+          const iconEl = wrap.querySelector(".filter-icon");
+          if (iconEl && iconClass) {
+            iconEl.className = "fa-solid " + iconClass + " filter-icon";
+          }
+
+          // Update underlying hidden inputs
+          if (field === "category") {
+            const input = document.getElementById("homeCategoryInput");
+            if (input) input.value = val;
+          } else if (field === "priceRange") {
+            const input = document.getElementById("homePriceInput");
+            if (input) input.value = val;
+          } else if (field === "sort") {
+            const input = document.getElementById("homeSortInput");
+            if (input) input.value = val;
+          }
+
+          // Close dropdown
+          wrap.classList.remove("show");
+
+          // Apply live filters instantly!
+          applyLiveFilters();
+        });
+      });
+    });
+
+    // Close dropdowns on outside click
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".wl-search-pill-dropdown-wrap")) {
+        document.querySelectorAll(".wl-search-pill-dropdown-wrap.show").forEach(d => d.classList.remove("show"));
+      }
+    });
+
+    // ----------------------------------------------------
+    // 3. Working Live Filter & Client-side Instant Filter
     // ----------------------------------------------------
     const searchInput = document.getElementById("homeSearchInput");
-    const categorySelect = document.getElementById("homeCategorySelect");
-    const priceSelect = document.getElementById("homePriceSelect");
-    const sortSelect = document.getElementById("homeSortSelect");
+    const catInput = document.getElementById("homeCategoryInput");
+    const prInput = document.getElementById("homePriceInput");
+    const sortInput = document.getElementById("homeSortInput");
     const listingsGrid = document.getElementById("trendingListingsGrid");
     const emptyState = document.getElementById("trendingEmptyState");
     const countLabel = document.getElementById("trendingCountLabel");
@@ -350,8 +508,10 @@
 
     function applyLiveFilters() {
       const q = (searchInput ? searchInput.value : "").trim().toLowerCase();
-      const cat = categorySelect ? categorySelect.value : "all";
-      const pr = priceSelect ? priceSelect.value : "all";
+      const cat = catInput ? catInput.value : "all";
+      const pr = prInput ? prInput.value : "all";
+      const sortVal = sortInput ? sortInput.value : "default";
+
       const items = Array.from(document.querySelectorAll(".wl-listing-item"));
       let visibleCount = 0;
 
@@ -392,8 +552,7 @@
       });
 
       // Sort visible items
-      if (sortSelect && listingsGrid) {
-        const sortVal = sortSelect.value;
+      if (listingsGrid) {
         const visibleItems = items.filter(i => i.style.display !== "none");
         if (sortVal === "price_asc") {
           visibleItems.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
@@ -427,16 +586,32 @@
       });
     }
 
-    if (categorySelect) categorySelect.addEventListener("change", applyLiveFilters);
-    if (priceSelect) priceSelect.addEventListener("change", applyLiveFilters);
-    if (sortSelect) sortSelect.addEventListener("change", applyLiveFilters);
-
+    // Reset filters
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
         if (searchInput) searchInput.value = "";
-        if (categorySelect) categorySelect.value = "all";
-        if (priceSelect) priceSelect.value = "all";
-        if (sortSelect) sortSelect.value = "default";
+        if (catInput) catInput.value = "all";
+        if (prInput) prInput.value = "all";
+        if (sortInput) sortInput.value = "default";
+
+        // Reset UI triggers
+        const catWrap = document.getElementById("pillDropdownCategory");
+        if (catWrap) {
+          catWrap.querySelector(".filter-label").textContent = "All Types";
+          catWrap.querySelector(".filter-icon").className = "fa-solid fa-hotel text-muted filter-icon";
+          catWrap.querySelectorAll(".wl-search-pill-dropdown-item").forEach(i => i.classList.toggle("active", i.getAttribute("data-value") === "all"));
+        }
+        const prWrap = document.getElementById("pillDropdownPrice");
+        if (prWrap) {
+          prWrap.querySelector(".filter-label").textContent = "Any Price";
+          prWrap.querySelectorAll(".wl-search-pill-dropdown-item").forEach(i => i.classList.toggle("active", i.getAttribute("data-value") === "all"));
+        }
+        const sortWrap = document.getElementById("pillDropdownSort");
+        if (sortWrap) {
+          sortWrap.querySelector(".filter-label").textContent = "Recommended";
+          sortWrap.querySelectorAll(".wl-search-pill-dropdown-item").forEach(i => i.classList.toggle("active", i.getAttribute("data-value") === "default"));
+        }
+
         applyLiveFilters();
       });
     }
@@ -445,7 +620,7 @@
   })();
 
   // ----------------------------------------------------
-  // 3. Wishlist Toggle AJAX (Global)
+  // 4. Wishlist Toggle AJAX (Global)
   // ----------------------------------------------------
   async function toggleWishlist(event, listingId, btn) {
     event.preventDefault();
