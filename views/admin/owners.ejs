@@ -7,37 +7,34 @@
   </div>
 
   <!-- Tabs Bar (Mockup Ref 05) -->
+  <!-- Tabs Bar (Mockup Ref 05) -->
   <div class="wl-tabs">
     <a
       href="/admin/owners?status=pending"
       class="wl-tab-item <%= filter === 'pending' ? 'active' : '' %>"
     >
-      <span>Pending</span>
-      <span class="wl-pill-count"><%= counts.pending %></span>
+      Pending <span class="badge wl-pill-count"><%= counts.pending %></span>
     </a>
 
     <a
       href="/admin/owners?status=approved"
       class="wl-tab-item <%= filter === 'approved' ? 'active' : '' %>"
     >
-      <span>Approved</span>
-      <span class="wl-pill-count"><%= counts.approved %></span>
+      Approved <span class="badge wl-pill-count"><%= counts.approved %></span>
     </a>
 
     <a
       href="/admin/owners?status=rejected"
       class="wl-tab-item <%= filter === 'rejected' ? 'active' : '' %>"
     >
-      <span>Rejected</span>
-      <span class="wl-pill-count"><%= counts.rejected %></span>
+      Rejected <span class="badge wl-pill-count"><%= counts.rejected %></span>
     </a>
 
     <a
       href="/admin/owners?status=all"
       class="wl-tab-item <%= filter === 'all' ? 'active' : '' %>"
     >
-      <span>All</span>
-      <span class="wl-pill-count"><%= counts.all %></span>
+      All <span class="badge wl-pill-count"><%= counts.all %></span>
     </a>
   </div>
 

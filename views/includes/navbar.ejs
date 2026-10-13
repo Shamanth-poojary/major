@@ -28,7 +28,7 @@
         <a class="nav-link" href="/listings">Home</a>
 
         <% if (typeof canManageListings !== "undefined" && canManageListings) { %>
-          <a class="nav-link" href="/listings/new">Add New Listing</a>
+          <a class="nav-link" href="/listings/new">Add New Listings</a>
         <% } %>
 
         <% if (typeof currentUser !== "undefined" && currentUser) { %>
@@ -61,11 +61,8 @@
         <% } %>
 
         <% if (typeof currentUser !== "undefined" && currentUser && currentUser.role === "admin") { %>
-          <a class="nav-link d-inline-flex align-items-center gap-2" href="/dashboard/approvals">
-            <span>Owner Applications</span>
-            <% if (typeof pendingOwnerCount === "number" && pendingOwnerCount > 0) { %>
-              <span class="wl-pill-count bg-danger text-white"><%= pendingOwnerCount %></span>
-            <% } %>
+          <a class="nav-link d-inline-flex align-items-center gap-1" href="/dashboard/approvals">
+            <span>Owner Applications</span><% if (typeof pendingOwnerCount === "number" && pendingOwnerCount > 0) { %> <span class="badge bg-danger ms-1"><%= pendingOwnerCount %></span><% } %>
           </a>
         <% } %>
       </div>
@@ -107,7 +104,7 @@
                     owner:    'bg-primary-subtle text-primary-emphasis',
                     admin:    'bg-danger-subtle text-danger-emphasis'
                   };
-                  const roleLabel = { customer: 'Traveller', owner: 'Owner', admin: 'Admin' };
+                  const roleLabel = { customer: 'Customer', owner: 'Property / Venue Owner', admin: 'Admin' };
                 %>
                 <span class="badge <%= roleBadgeClass[currentUser.role] || 'bg-light text-dark' %> rounded-pill px-2 py-1" style="font-size: 0.72rem;">
                   <%= roleLabel[currentUser.role] || currentUser.role %>
