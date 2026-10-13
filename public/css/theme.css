@@ -1381,10 +1381,116 @@ textarea.form-control {
   background-color: var(--wl-teal-500);
   animation: wlPulse 2s infinite;
 }
-@keyframes wlPulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(20, 110, 120, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(20, 110, 120, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(20, 110, 120, 0); }
+/* ==========================================================================
+   CUSTOM SLEEK FILTER DROPDOWNS & LIVE FILTERING
+   ========================================================================== */
+.wl-custom-dropdown {
+  position: relative;
+  width: 100%;
 }
+.wl-custom-dropdown-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--wl-surface);
+  border: 1.5px solid var(--wl-border);
+  border-radius: var(--wl-radius-md);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--wl-ink);
+  cursor: pointer;
+  transition: all 180ms ease;
+  user-select: none;
+  text-align: left;
+}
+.wl-custom-dropdown-btn:hover {
+  border-color: var(--wl-teal-400);
+  background-color: #FAFCFC;
+  box-shadow: var(--wl-shadow-xs);
+}
+.wl-custom-dropdown-btn:focus,
+.wl-custom-dropdown.show .wl-custom-dropdown-btn {
+  border-color: var(--wl-teal-600);
+  box-shadow: 0 0 0 3px rgba(20, 110, 120, 0.16);
+  background-color: var(--wl-surface);
+  outline: none;
+}
+.wl-custom-dropdown-btn .chevron-icon {
+  font-size: 0.72rem;
+  color: var(--wl-muted);
+  transition: transform 200ms ease;
+}
+.wl-custom-dropdown.show .chevron-icon {
+  transform: rotate(180deg);
+}
+.wl-custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 180px;
+  background-color: var(--wl-surface);
+  border: 1.5px solid var(--wl-border);
+  border-radius: var(--wl-radius-lg);
+  box-shadow: 0 12px 32px rgba(11, 47, 58, 0.14);
+  padding: 6px;
+  z-index: 1050;
+  display: none;
+  animation: wlDropdownSlide 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.wl-custom-dropdown.show .wl-custom-dropdown-menu {
+  display: block;
+}
+@keyframes wlDropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.wl-custom-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--wl-radius-md);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--wl-text);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.wl-custom-dropdown-item:hover {
+  background-color: #F0F6F7;
+  color: var(--wl-teal-900);
+}
+.wl-custom-dropdown-item.active {
+  background-color: var(--wl-teal-50);
+  color: var(--wl-teal-800);
+  font-weight: 600;
+}
+.wl-custom-dropdown-item .check-icon {
+  opacity: 0;
+  font-size: 0.8rem;
+  color: var(--wl-teal-600);
+  transition: opacity 120ms ease;
+}
+.wl-custom-dropdown-item.active .check-icon {
+  opacity: 1;
+}
+
+/* Loading state for dynamic filter updates */
+.wl-table-updating {
+  opacity: 0.45;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
 
 

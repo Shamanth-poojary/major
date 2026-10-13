@@ -12,69 +12,154 @@
     <h1 class="h3 fw-bold text-dark mb-1">User Management</h1>
     <p class="text-muted small mb-0">Browse, filter, and inspect registered customer, owner, and admin accounts.</p>
   </div>
-  <span class="badge rounded-pill bg-white border text-dark px-3 py-2 fw-semibold" style="font-size: 0.82rem; border-color: var(--wl-border) !important;">
+  <span id="totalUsersBadge" class="badge rounded-pill bg-white border text-dark px-3 py-2 fw-semibold" style="font-size: 0.82rem; border-color: var(--wl-border) !important;">
     Total: <%= totalUsers %> <%= totalUsers === 1 ? 'User' : 'Users' %>
   </span>
 </div>
 
-<!-- Filters Card -->
-<div class="wl-card p-3 mb-4">
-  <form action="/dashboard/users" method="GET" class="row g-2 align-items-center">
-    <!-- Search -->
+<!-- Filters Card with Custom Sleek Dropdowns -->
+<div class="wl-card p-3 mb-4 shadow-sm">
+  <form id="usersFilterForm" action="/dashboard/users" method="GET" class="row g-2 align-items-center">
+    <!-- Search Input -->
     <div class="col-12 col-md-4">
       <div class="wl-input-icon-group">
         <i class="fa-solid fa-magnifying-glass wl-lead-icon" style="font-size: 0.85rem;"></i>
         <input
           type="text"
+          id="userSearchInput"
           name="search"
           class="form-control"
-          style="height: 40px; font-size: 0.88rem;"
+          style="height: 42px; font-size: 0.88rem;"
           placeholder="Search username or email..."
           value="<%= search || '' %>"
+          autocomplete="off"
         />
       </div>
     </div>
 
-    <!-- Role Filter -->
+    <!-- Hidden Native Selects for Full Compatibility & Accessibility -->
+    <select name="role" id="realSelectRole" class="d-none">
+      <option value="all" <%= roleFilter === 'all' ? 'selected' : '' %>>All Roles</option>
+      <option value="customer" <%= roleFilter === 'customer' ? 'selected' : '' %>>Customers</option>
+      <option value="owner" <%= roleFilter === 'owner' ? 'selected' : '' %>>Owners</option>
+      <option value="admin" <%= roleFilter === 'admin' ? 'selected' : '' %>>Admins</option>
+    </select>
+    <select name="ownerStatus" id="realSelectStatus" class="d-none">
+      <option value="all" <%= ownerStatusFilter === 'all' ? 'selected' : '' %>>All Statuses</option>
+      <option value="pending" <%= ownerStatusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
+      <option value="approved" <%= ownerStatusFilter === 'approved' ? 'selected' : '' %>>Approved</option>
+      <option value="rejected" <%= ownerStatusFilter === 'rejected' ? 'selected' : '' %>>Rejected</option>
+    </select>
+    <select name="sort" id="realSelectSort" class="d-none">
+      <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest Joined</option>
+      <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest Joined</option>
+    </select>
+
+    <!-- Role Filter Custom Dropdown -->
     <div class="col-6 col-md-2">
-      <select name="role" class="form-select" style="height: 40px; font-size: 0.88rem;">
-        <option value="all" <%= roleFilter === 'all' ? 'selected' : '' %>>All Roles</option>
-        <option value="customer" <%= roleFilter === 'customer' ? 'selected' : '' %>>Customers</option>
-        <option value="owner" <%= roleFilter === 'owner' ? 'selected' : '' %>>Owners</option>
-        <option value="admin" <%= roleFilter === 'admin' ? 'selected' : '' %>>Admins</option>
-      </select>
+      <div class="wl-custom-dropdown" id="dropdownRole">
+        <button type="button" class="wl-custom-dropdown-btn">
+          <div class="d-flex align-items-center gap-2 text-truncate">
+            <i class="fa-solid <%= roleFilter === 'customer' ? 'fa-user text-teal-600' : (roleFilter === 'owner' ? 'fa-hotel text-primary' : (roleFilter === 'admin' ? 'fa-shield-halved text-danger' : 'fa-globe text-muted')) %>"></i>
+            <span class="selected-text fw-medium">
+              <%= roleFilter === 'customer' ? 'Customers' : (roleFilter === 'owner' ? 'Owners' : (roleFilter === 'admin' ? 'Admins' : 'All Roles')) %>
+            </span>
+          </div>
+          <i class="fa-solid fa-chevron-down chevron-icon ms-2"></i>
+        </button>
+        <div class="wl-custom-dropdown-menu">
+          <div class="wl-custom-dropdown-item <%= roleFilter === 'all' ? 'active' : '' %>" data-field="role" data-value="all" data-label="All Roles" data-icon="fa-globe text-muted">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-globe text-secondary"></i> All Roles</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-custom-dropdown-item <%= roleFilter === 'customer' ? 'active' : '' %>" data-field="role" data-value="customer" data-label="Customers" data-icon="fa-user text-teal-600">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-user text-teal-600"></i> Customers</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-custom-dropdown-item <%= roleFilter === 'owner' ? 'active' : '' %>" data-field="role" data-value="owner" data-label="Owners" data-icon="fa-hotel text-primary">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-hotel text-primary"></i> Owners</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-custom-dropdown-item <%= roleFilter === 'admin' ? 'active' : '' %>" data-field="role" data-value="admin" data-label="Admins" data-icon="fa-shield-halved text-danger">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-shield-halved text-danger"></i> Admins</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Owner Status Filter -->
+    <!-- Owner Status Filter Custom Dropdown -->
     <div class="col-6 col-md-2">
-      <select name="ownerStatus" class="form-select" style="height: 40px; font-size: 0.88rem;">
-        <option value="all" <%= ownerStatusFilter === 'all' ? 'selected' : '' %>>All Statuses</option>
-        <option value="pending" <%= ownerStatusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
-        <option value="approved" <%= ownerStatusFilter === 'approved' ? 'selected' : '' %>>Approved</option>
-        <option value="rejected" <%= ownerStatusFilter === 'rejected' ? 'selected' : '' %>>Rejected</option>
-      </select>
+      <div class="wl-custom-dropdown" id="dropdownStatus">
+        <button type="button" class="wl-custom-dropdown-btn">
+          <div class="d-flex align-items-center gap-2 text-truncate">
+            <i class="fa-solid <%= ownerStatusFilter === 'pending' ? 'fa-clock text-warning' : (ownerStatusFilter === 'approved' ? 'fa-circle-check text-success' : (ownerStatusFilter === 'rejected' ? 'fa-circle-xmark text-danger' : 'fa-circle-notch text-muted')) %>"></i>
+            <span class="selected-text fw-medium">
+              <%= ownerStatusFilter === 'pending' ? 'Pending' : (ownerStatusFilter === 'approved' ? 'Approved' : (ownerStatusFilter === 'rejected' ? 'Rejected' : 'All Statuses')) %>
+            </span>
+          </div>
+          <i class="fa-solid fa-chevron-down chevron-icon ms-2"></i>
+        </button>
+        <div class="wl-custom-dropdown-menu">
+          <div class="wl-custom-dropdown-item <%= ownerStatusFilter === 'all' ? 'active' : '' %>" data-field="ownerStatus" data-value="all" data-label="All Statuses" data-icon="fa-circle-notch text-muted">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-notch text-secondary"></i> All Statuses</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-custom-dropdown-item <%= ownerStatusFilter === 'pending' ? 'active' : '' %>" data-field="ownerStatus" data-value="pending" data-label="Pending" data-icon="fa-clock text-warning">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-clock text-warning"></i> Pending</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-custom-dropdown-item <%= ownerStatusFilter === 'approved' ? 'active' : '' %>" data-field="ownerStatus" data-value="approved" data-label="Approved" data-icon="fa-circle-check text-success">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-check text-success"></i> Approved</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-custom-dropdown-item <%= ownerStatusFilter === 'rejected' ? 'active' : '' %>" data-field="ownerStatus" data-value="rejected" data-label="Rejected" data-icon="fa-circle-xmark text-danger">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-circle-xmark text-danger"></i> Rejected</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Sort -->
+    <!-- Sort Filter Custom Dropdown -->
     <div class="col-6 col-md-2">
-      <select name="sort" class="form-select" style="height: 40px; font-size: 0.88rem;">
-        <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest Joined</option>
-        <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest Joined</option>
-      </select>
+      <div class="wl-custom-dropdown" id="dropdownSort">
+        <button type="button" class="wl-custom-dropdown-btn">
+          <div class="d-flex align-items-center gap-2 text-truncate">
+            <i class="fa-solid fa-arrow-down-wide-short text-muted"></i>
+            <span class="selected-text fw-medium">
+              <%= sort === 'oldest' ? 'Oldest Joined' : 'Newest Joined' %>
+            </span>
+          </div>
+          <i class="fa-solid fa-chevron-down chevron-icon ms-2"></i>
+        </button>
+        <div class="wl-custom-dropdown-menu">
+          <div class="wl-custom-dropdown-item <%= sort !== 'oldest' ? 'active' : '' %>" data-field="sort" data-value="newest" data-label="Newest Joined" data-icon="fa-arrow-down-wide-short text-teal-600">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-arrow-down-wide-short text-teal-600"></i> Newest Joined</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+          <div class="wl-custom-dropdown-item <%= sort === 'oldest' ? 'active' : '' %>" data-field="sort" data-value="oldest" data-label="Oldest Joined" data-icon="fa-arrow-up-wide-short text-secondary">
+            <span class="d-flex align-items-center gap-2"><i class="fa-solid fa-arrow-up-wide-short text-secondary"></i> Oldest Joined</span>
+            <i class="fa-solid fa-check check-icon"></i>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Action Buttons -->
     <div class="col-6 col-md-2 d-flex gap-2">
-      <button type="submit" class="btn wl-btn-primary flex-grow-1" style="height: 40px; font-size: 0.88rem;">
+      <button type="submit" id="btnFilterApply" class="btn wl-btn-primary flex-grow-1" style="height: 42px; font-size: 0.88rem;">
         Filter
       </button>
-      <a href="/dashboard/users" class="btn wl-btn-outline d-flex align-items-center justify-content-center" style="height: 40px; width: 40px;" title="Reset Filters">
+      <a href="/dashboard/users" id="btnResetFilters" class="btn wl-btn-outline d-flex align-items-center justify-content-center" style="height: 42px; width: 42px;" title="Reset Filters">
         <i class="fa-solid fa-rotate-left"></i>
       </a>
     </div>
   </form>
 </div>
 
+<!-- Dynamic Results Area (Auto-Updated Live without Reloading) -->
+<div id="usersResultsArea">
 <% if (!users || users.length === 0) { %>
   <!-- Empty State -->
   <div class="wl-card text-center p-5 my-4">
@@ -262,3 +347,184 @@
     </nav>
   <% } %>
 <% } %>
+</div>
+
+<!-- Dynamic Filter and Custom Dropdown Logic -->
+<script>
+  (function() {
+    const form = document.getElementById("usersFilterForm");
+    const searchInput = document.getElementById("userSearchInput");
+    const resultsArea = document.getElementById("usersResultsArea");
+    const totalBadge = document.getElementById("totalUsersBadge");
+    const resetBtn = document.getElementById("btnResetFilters");
+    const emptyResetBtn = document.getElementById("btnEmptyStateReset");
+
+    // Dynamic Filter Trigger (AJAX with URL sync)
+    function triggerFilter(urlOverride) {
+      if (!form) return;
+
+      let targetUrl = urlOverride;
+      if (!targetUrl) {
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        if (!params.get("search")) params.delete("search");
+        targetUrl = "/dashboard/users?" + params.toString();
+      }
+
+      // Update URL in browser address bar seamlessly
+      window.history.pushState(null, "", targetUrl);
+
+      // Add loading state
+      if (resultsArea) resultsArea.classList.add("wl-table-updating");
+
+      fetch(targetUrl, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+        .then(res => res.text())
+        .then(html => {
+          const doc = new DOMParser().parseFromString(html, "text/html");
+          const newResults = doc.getElementById("usersResultsArea");
+          const newBadge = doc.getElementById("totalUsersBadge");
+
+          if (resultsArea && newResults) {
+            resultsArea.innerHTML = newResults.innerHTML;
+          }
+          if (totalBadge && newBadge) {
+            totalBadge.innerHTML = newBadge.innerHTML;
+          }
+        })
+        .catch(err => {
+          console.error("Dynamic filter error, submitting form:", err);
+          form.submit();
+        })
+        .finally(() => {
+          if (resultsArea) resultsArea.classList.remove("wl-table-updating");
+        });
+    }
+
+    // Custom Dropdown Open/Close
+    document.querySelectorAll(".wl-custom-dropdown").forEach(dropdown => {
+      const btn = dropdown.querySelector(".wl-custom-dropdown-btn");
+      if (btn) {
+        btn.addEventListener("click", e => {
+          e.stopPropagation();
+          const wasOpen = dropdown.classList.contains("show");
+          document.querySelectorAll(".wl-custom-dropdown.show").forEach(d => d.classList.remove("show"));
+          if (!wasOpen) dropdown.classList.add("show");
+        });
+      }
+
+      // Option item click -> updates immediately and triggers filter
+      dropdown.querySelectorAll(".wl-custom-dropdown-item").forEach(item => {
+        item.addEventListener("click", e => {
+          e.stopPropagation();
+          const field = item.getAttribute("data-field");
+          const val = item.getAttribute("data-value");
+          const label = item.getAttribute("data-label");
+          const iconClass = item.getAttribute("data-icon");
+
+          // Update active option
+          dropdown.querySelectorAll(".wl-custom-dropdown-item").forEach(i => i.classList.remove("active"));
+          item.classList.add("active");
+
+          // Update trigger label and icon
+          const labelEl = dropdown.querySelector(".selected-text");
+          if (labelEl) labelEl.textContent = label;
+          const btnIcon = dropdown.querySelector(".wl-custom-dropdown-btn i:first-child");
+          if (btnIcon && iconClass) {
+            btnIcon.className = "fa-solid " + iconClass;
+          }
+
+          // Update underlying native select
+          if (field === "role") {
+            const select = document.getElementById("realSelectRole");
+            if (select) select.value = val;
+          } else if (field === "ownerStatus") {
+            const select = document.getElementById("realSelectStatus");
+            if (select) select.value = val;
+          } else if (field === "sort") {
+            const select = document.getElementById("realSelectSort");
+            if (select) select.value = val;
+          }
+
+          // Close dropdown
+          dropdown.classList.remove("show");
+
+          // Apply changes immediately without clicking Filter!
+          triggerFilter();
+        });
+      });
+    });
+
+    // Close dropdowns on outside click
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".wl-custom-dropdown")) {
+        document.querySelectorAll(".wl-custom-dropdown.show").forEach(d => d.classList.remove("show"));
+      }
+    });
+
+    // Live search input debounce (300ms)
+    let searchDebounce = null;
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => {
+          triggerFilter();
+        }, 320);
+      });
+    }
+
+    // Intercept form submit button
+    if (form) {
+      form.addEventListener("submit", e => {
+        e.preventDefault();
+        triggerFilter();
+      });
+    }
+
+    // Reset filters handler
+    function resetAllFilters(e) {
+      if (e) e.preventDefault();
+      if (searchInput) searchInput.value = "";
+
+      // Reset hidden selects
+      const sRole = document.getElementById("realSelectRole");
+      if (sRole) sRole.value = "all";
+      const sStatus = document.getElementById("realSelectStatus");
+      if (sStatus) sStatus.value = "all";
+      const sSort = document.getElementById("realSelectSort");
+      if (sSort) sSort.value = "newest";
+
+      // Reset custom dropdown UI displays
+      resetDropdownUI("dropdownRole", "All Roles", "fa-globe text-muted", "all");
+      resetDropdownUI("dropdownStatus", "All Statuses", "fa-circle-notch text-muted", "all");
+      resetDropdownUI("dropdownSort", "Newest Joined", "fa-arrow-down-wide-short text-muted", "newest");
+
+      triggerFilter("/dashboard/users");
+    }
+
+    function resetDropdownUI(dropdownId, label, iconClass, activeVal) {
+      const dd = document.getElementById(dropdownId);
+      if (!dd) return;
+      const text = dd.querySelector(".selected-text");
+      if (text) text.textContent = label;
+      const icon = dd.querySelector(".wl-custom-dropdown-btn i:first-child");
+      if (icon) icon.className = "fa-solid " + iconClass;
+      dd.querySelectorAll(".wl-custom-dropdown-item").forEach(item => {
+        item.classList.toggle("active", item.getAttribute("data-value") === activeVal);
+      });
+    }
+
+    if (resetBtn) resetBtn.addEventListener("click", resetAllFilters);
+    if (emptyResetBtn) emptyResetBtn.addEventListener("click", resetAllFilters);
+
+    // Delegate pagination link clicks for smooth AJAX pagination
+    if (resultsArea) {
+      resultsArea.addEventListener("click", e => {
+        const pageLink = e.target.closest(".pagination a");
+        if (pageLink && pageLink.getAttribute("href")) {
+          e.preventDefault();
+          triggerFilter(pageLink.getAttribute("href"));
+        }
+      });
+    }
+  })();
+</script>
