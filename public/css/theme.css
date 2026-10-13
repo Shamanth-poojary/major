@@ -112,14 +112,25 @@ a:hover {
 /* ==========================================================================
    HEADER / NAVBAR
    ========================================================================== */
-.wl-navbar {
+.wl-navbar,
+nav.navbar.sticky-top {
   height: var(--wl-header-height);
   background-color: var(--wl-surface);
   border-bottom: 1px solid var(--wl-border);
   position: sticky;
   top: 0;
-  z-index: 1020;
+  z-index: 1040 !important;
   transition: box-shadow 200ms ease;
+}
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+}
+/* Any sticky card or element within page content must scroll underneath the navbar */
+.sticky-top:not(.wl-navbar),
+.wl-card.sticky-top,
+.wl-sticky-card {
+  z-index: 20 !important;
 }
 .wl-navbar.is-scrolled {
   box-shadow: 0 4px 16px rgba(11, 47, 58, 0.07);
