@@ -1,14 +1,31 @@
 <% layout("layouts/boilerplate") -%>
-<div class="row">
-  <div class="alert alert-danger col-5 offset-3" role="alert">
-    <h4 class="alert-heading">
-      Error <%= typeof statusCode !== 'undefined' ? statusCode : (err &&
-      err.statusCode) %>
-    </h4>
-    <p>
-      <%= typeof message !== 'undefined' ? message : (err && err.message) %>
-    </p>
-    <hr />
-    <a href="/listings" class="btn btn-outline-danger">Go Back to Listings</a>
+
+<div class="wl-container py-5 d-flex align-items-center justify-content-center" style="min-height: 60vh;">
+  <div class="wl-card p-5 text-center shadow-sm" style="max-width: 520px; width: 100%;">
+    <div class="wl-empty-state py-2">
+      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--wl-accent-600)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+
+      <div class="badge rounded-pill bg-danger-subtle text-danger px-3 py-1 fw-bold mt-3 mb-2" style="font-size: 0.85rem;">
+        Error <%= typeof statusCode !== 'undefined' ? statusCode : (err && err.statusCode ? err.statusCode : '500') %>
+      </div>
+
+      <h1 class="h3 fw-bold text-dark mb-2">Something went wrong</h1>
+      <p class="text-muted small mb-4">
+        <%= typeof message !== 'undefined' ? message : (err && err.message ? err.message : 'An unexpected error occurred.') %>
+      </p>
+
+      <div class="d-flex justify-content-center gap-2">
+        <a href="/" class="btn wl-btn-primary px-4">
+          Back to Home
+        </a>
+        <a href="/listings" class="btn wl-btn-outline px-4">
+          Browse Listings
+        </a>
+      </div>
+    </div>
   </div>
 </div>
