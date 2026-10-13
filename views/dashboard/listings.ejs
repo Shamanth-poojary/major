@@ -1,136 +1,181 @@
 <% layout("dashboard/layout") -%>
 
-<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+<%
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const pageTitle = isAdmin ? 'Manage Listings' : 'My Listings';
+  const pageSubtitle = isAdmin
+    ? 'View, edit or manage all property listings on WanderLust.'
+    : 'Manage your properties and venues.';
+%>
+
+<!-- Breadcrumb -->
+<div class="wl-breadcrumb">
+  <a href="/dashboard" class="text-muted text-decoration-none">Dashboard</a>
+  <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+  <span class="text-dark fw-semibold"><%= pageTitle %></span>
+</div>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
   <div>
-    <h3 class="fw-bold mb-1">
-      <i class="fa-solid fa-hotel me-2 text-primary"></i><%= currentUser.role === 'admin' ? 'All Listings' : 'My Listings' %>
-    </h3>
-    <p class="text-muted mb-0"><%= currentUser.role === 'admin' ? 'Manage all published properties across WanderLust.' : 'Manage all properties and venues owned by your account.' %></p>
+    <h1 class="h3 fw-bold text-dark mb-1"><%= pageTitle %></h1>
+    <p class="text-muted small mb-0"><%= pageSubtitle %></p>
   </div>
 
-  <% if (currentUser.role === 'admin' || currentUser.ownerStatus === 'approved') { %>
-    <a href="/listings/new" class="btn btn-primary px-3">
-      <i class="fa-solid fa-plus me-1"></i>Add New Listing
+  <% if (isAdmin || currentUser.ownerStatus === 'approved') { %>
+    <a href="/listings/new" class="btn wl-btn-primary px-3 py-2 d-inline-flex align-items-center gap-2">
+      <i class="fa-solid fa-plus small"></i>
+      <span>Add New Listing</span>
     </a>
   <% } else { %>
-    <button class="btn btn-secondary px-3" disabled title="Requires approved owner account">
-      <i class="fa-solid fa-lock me-1"></i>Add New Listing
+    <button
+      class="btn btn-secondary px-3 py-2 d-inline-flex align-items-center gap-2 opacity-75"
+      disabled
+      aria-disabled="true"
+      title="Available after admin approval"
+    >
+      <i class="fa-solid fa-lock small"></i>
+      <span>Add New Listing</span>
     </button>
   <% } %>
 </div>
 
-<!-- Approval Status Banner (Owners only) -->
+<!-- Owner Approval Banners (Mockup Ref 11) -->
 <% if (currentUser.role === 'owner' && currentUser.ownerStatus !== 'approved') { %>
   <% if (currentUser.ownerStatus === 'pending') { %>
-    <div class="alert alert-warning shadow-sm border-0 d-flex align-items-center justify-content-between mb-4">
-      <div>
-        <i class="fa-solid fa-clock me-2 text-warning fs-5"></i>
-        <strong>Awaiting Admin Approval:</strong> Your owner application is currently under review. Adding or editing listings will be unlocked as soon as an admin approves your profile.
+    <div class="wl-banner wl-banner-warning shadow-sm d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+      <div class="d-flex align-items-center gap-3">
+        <div class="wl-banner-icon text-warning">
+          <i class="fa-regular fa-clock fs-5"></i>
+        </div>
+        <div>
+          <div class="fw-bold" style="color: #7A4500;">Awaiting Admin Approval</div>
+          <div class="small" style="color: #8C5304;">
+            Your owner application is currently under review. Adding or editing listings will be unlocked as soon as an admin approves your profile.
+          </div>
+        </div>
       </div>
-      <a href="/owner/status" class="btn btn-sm btn-outline-dark ms-3 text-nowrap">View Status</a>
+      <a href="/owner/status" class="btn wl-btn-outline btn-sm px-3 bg-white" style="color: #7A4500 !important; border-color: #E2BC7A !important;">
+        View Status
+      </a>
     </div>
   <% } else if (currentUser.ownerStatus === 'rejected') { %>
-    <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center justify-content-between mb-4">
-      <div>
-        <i class="fa-solid fa-circle-xmark me-2 text-danger fs-5"></i>
-        <strong>Owner Application Not Approved:</strong> Your application was declined by the administrator. Please check the feedback and update your business details.
+    <div class="wl-banner shadow-sm d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4" style="background-color: var(--wl-danger-bg); color: var(--wl-danger-text);">
+      <div class="d-flex align-items-center gap-3">
+        <div class="wl-banner-icon text-danger">
+          <i class="fa-solid fa-circle-xmark fs-5"></i>
+        </div>
+        <div>
+          <div class="fw-bold">Owner Application Not Approved</div>
+          <div class="small">
+            Your application was declined by the administrator. Please review the feedback and update your business details.
+          </div>
+        </div>
       </div>
-      <a href="/owner/status" class="btn btn-sm btn-outline-danger ms-3 text-nowrap">Review Application</a>
-    </div>
-  <% } else { %>
-    <div class="alert alert-info shadow-sm border-0 d-flex align-items-center justify-content-between mb-4">
-      <div>
-        <i class="fa-solid fa-circle-info me-2 text-info fs-5"></i>
-        <strong>Application Required:</strong> Please submit your business details to apply for owner approval.
-      </div>
-      <a href="/owner/status" class="btn btn-sm btn-outline-primary ms-3 text-nowrap">Apply Now</a>
+      <a href="/owner/status" class="btn wl-btn-outline-danger btn-sm px-3 bg-white">
+        Review Application
+      </a>
     </div>
   <% } %>
 <% } %>
 
 <% if (!listings || listings.length === 0) { %>
-  <!-- Empty State -->
-  <div class="card border-0 shadow-sm text-center py-5">
-    <div class="card-body">
-      <div class="mb-3">
-        <i class="fa-solid fa-mountain-city text-muted display-3"></i>
-      </div>
-      <h4 class="fw-bold text-dark">No Listings Found</h4>
-      <p class="text-muted mx-auto" style="max-width: 480px;">
+  <!-- Empty State (Ref 11) -->
+  <div class="wl-card text-center p-5 my-4">
+    <div class="wl-empty-state py-4">
+      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="var(--wl-teal-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="3" y1="9" x2="21" y2="9"></line>
+        <line x1="9" y1="21" x2="9" y2="9"></line>
+      </svg>
+      <h3 class="h4 fw-bold text-dark mt-3 mb-2">No Listings Found</h3>
+      <p class="text-muted mb-4" style="max-width: 480px; margin: 0 auto;">
         You haven't published any properties yet. Once your owner profile is approved, you can showcase your hotel, villa, or venue to thousands of guests.
       </p>
-      <% if (currentUser.ownerStatus === 'approved') { %>
-        <a href="/listings/new" class="btn btn-primary px-4 mt-2">
+      <% if (currentUser.ownerStatus === 'approved' || isAdmin) { %>
+        <a href="/listings/new" class="btn wl-btn-primary px-4">
           <i class="fa-solid fa-plus me-1"></i>Create Your First Listing
         </a>
       <% } %>
     </div>
   </div>
 <% } else { %>
-  <!-- Listings Table -->
-  <div class="card border-0 shadow-sm overflow-hidden">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
+  <!-- Listings Table (Ref 07) -->
+  <div class="wl-table-container">
+    <table class="wl-table">
+      <thead>
+        <tr>
+          <th style="width: 100px;">Property</th>
+          <th>Title</th>
+          <th>Location</th>
+          <th>Price / night</th>
+          <th>Created</th>
+          <th class="text-end" style="min-width: 160px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (let listing of listings) { %>
           <tr>
-            <th style="width: 80px;">Image</th>
-            <th>Title</th>
-            <th>Location</th>
-            <th>Price</th>
-            <th>Created</th>
-            <th class="text-end" style="min-width: 160px;">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (let listing of listings) { %>
-            <tr>
-              <td>
-                <img
-                  src="<%= listing.image.url %>"
-                  alt="<%= listing.title %>"
-                  class="rounded"
-                  style="width: 65px; height: 50px; object-fit: cover;"
-                />
-              </td>
-              <td>
-                <a href="/listings/<%= listing.id %>" class="fw-bold text-dark text-decoration-none">
-                  <%= listing.title %>
+            <td>
+              <img
+                src="<%= listing.image ? listing.image.url : '/images/landing_hero.jpg' %>"
+                alt="<%= listing.title %>"
+                class="rounded"
+                style="width: 80px; height: 54px; object-fit: cover; border: 1px solid var(--wl-border);"
+              />
+            </td>
+            <td>
+              <a href="/listings/<%= listing.id %>" class="fw-bold text-dark text-decoration-none">
+                <%= listing.title %>
+              </a>
+            </td>
+            <td>
+              <span class="text-muted small d-inline-flex align-items-center gap-1">
+                <i class="fa-solid fa-location-dot text-muted"></i>
+                <%= listing.location %>, <%= listing.country %>
+              </span>
+            </td>
+            <td>
+              <span class="fw-bold text-dark">&#8377;<%= listing.price ? listing.price.toLocaleString("en-IN") : 'N/A' %></span>
+              <span class="text-muted small">/ night</span>
+            </td>
+            <td>
+              <span class="text-muted small">
+                <%= listing.createdAt ? new Date(listing.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : 'N/A' %>
+              </span>
+            </td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-2">
+                <a
+                  href="/listings/<%= listing.id %>"
+                  class="btn wl-btn-outline btn-sm px-2 py-1 d-inline-flex align-items-center gap-1"
+                  title="View Listing"
+                >
+                  <i class="fa-regular fa-eye text-muted"></i>
+                  <span class="small">View</span>
                 </a>
-              </td>
-              <td>
-                <span class="text-muted">
-                  <i class="fa-solid fa-location-dot me-1 text-danger small"></i><%= listing.location %>, <%= listing.country %>
-                </span>
-              </td>
-              <td>
-                <span class="fw-semibold">₹ <%= listing.price ? listing.price.toLocaleString("en-IN") : 'N/A' %></span>
-                <span class="text-muted small">/ night</span>
-              </td>
-              <td>
-                <span class="text-muted small">
-                  <%= listing.createdAt ? new Date(listing.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : 'N/A' %>
-                </span>
-              </td>
-              <td class="text-end">
-                <div class="btn-group btn-group-sm">
-                  <a href="/listings/<%= listing.id %>" class="btn btn-outline-secondary" title="View Listing">
-                    <i class="fa-solid fa-eye"></i>
+                <% if (isAdmin || currentUser.ownerStatus === 'approved') { %>
+                  <a
+                    href="/listings/<%= listing.id %>/edit"
+                    class="btn wl-btn-outline btn-sm px-2 py-1 d-inline-flex align-items-center gap-1"
+                    title="Edit Listing"
+                  >
+                    <i class="fa-solid fa-pencil text-muted"></i>
+                    <span class="small">Edit</span>
                   </a>
-                  <% if (currentUser.role === 'admin' || currentUser.ownerStatus === 'approved') { %>
-                    <a href="/listings/<%= listing.id %>/edit" class="btn btn-outline-primary" title="Edit Listing">
-                      <i class="fa-solid fa-pen-to-square"></i>
-                    </a>
-                  <% } else { %>
-                    <button class="btn btn-outline-secondary" disabled title="Editing disabled until approved">
-                      <i class="fa-solid fa-lock"></i>
-                    </button>
-                  <% } %>
-                </div>
-              </td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
+                <% } else { %>
+                  <button
+                    class="btn wl-btn-outline btn-sm px-2 py-1 opacity-50"
+                    disabled
+                    title="Editing disabled until approved"
+                  >
+                    <i class="fa-solid fa-lock text-muted"></i>
+                  </button>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
   </div>
 <% } %>
