@@ -1,42 +1,102 @@
 <% layout("layouts/boilerplate") -%>
 
-<div class="row">
-  <div class="col-8 offset-2">
-    <form action="/login" method="POST" novalidate class="needs-validation">
-      <h2 class="mb-4 mt-4">LOGIN</h2>
+<div class="wl-container my-4 my-md-5">
+  <div class="wl-auth-container">
+    <!-- Left Visual Panel -->
+    <div
+      class="wl-auth-media"
+      style="background-image: url('/images/login_hero.jpg');"
+    >
+      <!-- Top Brand Tag -->
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <svg width="34" height="24" viewBox="0 0 36 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3L23 22H1L12 3Z" fill="#FFFFFF" />
+            <path d="M22 8L31 22H13L22 8Z" fill="#FFFFFF" fill-opacity="0.85" />
+            <path d="M7 13L13 22H1L7 13Z" fill="#FFFFFF" fill-opacity="0.7" />
+          </svg>
+          <span class="fs-4 fw-bold tracking-tight text-white">WanderLust</span>
+        </div>
 
-      <!-- USERNAME -->
-      <div class="mb-3">
-        <label for="username" class="form-label"><b>Username</b></label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          placeholder="Enter username"
-          class="form-control"
-          required
-        />
-        <div class="invalid-feedback">Please enter a username.</div>
+        <h2 class="display-6 fw-bold text-white mb-3" style="line-height: 1.15;">
+          More than trips.<br />A brighter you.
+        </h2>
+        <p class="text-white-50 fs-6" style="max-width: 340px; line-height: 1.5;">
+          Handpicked stays, unforgettable experiences, and a more meaningful way to see the world.
+        </p>
       </div>
 
-      <!-- PASSWORD -->
-      <div class="mb-3">
-        <label for="password" class="form-label"><b>Password</b></label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          placeholder="Enter password"
-          class="form-control"
-          required
-        />
-        <div class="invalid-feedback">Please enter a password.</div>
+      <!-- Bottom Tagline -->
+      <div class="pt-4 border-top border-white-50">
+        <div class="text-uppercase tracking-wider text-white-50 fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.12em;">
+          Better Travel &middot; Brighter Tomorrows
+        </div>
       </div>
+    </div>
 
-      <button type="submit" class="btn btn-primary">Login</button>
-      <p class="mt-3 mb-0 text-muted">
-        New here? <a href="/signup">Register</a>
-      </p>
-    </form>
+    <!-- Right Form Panel -->
+    <div class="wl-auth-form-panel">
+      <div style="max-width: 380px; width: 100%; margin: 0 auto;">
+        <div class="text-uppercase fw-bold text-muted mb-2" style="font-size: 0.75rem; letter-spacing: 0.08em;">
+          Welcome Back
+        </div>
+        <h1 class="h2 fw-bold text-dark mb-2">Log in to your account</h1>
+        <p class="text-muted small mb-4">Continue your journey with WanderLust.</p>
+
+        <form action="/login" method="POST" novalidate class="needs-validation">
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <div class="wl-input-icon-group">
+              <i class="fa-regular fa-user wl-lead-icon"></i>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                class="form-control"
+                required
+                autofocus
+              />
+            </div>
+            <div class="invalid-feedback">Please enter your username.</div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-4">
+            <label for="password" class="form-label">Password</label>
+            <div class="wl-input-icon-group">
+              <i class="fa-solid fa-lock wl-lead-icon"></i>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                class="form-control"
+                required
+              />
+              <button
+                type="button"
+                class="wl-pwd-toggle"
+                aria-label="Show password"
+              >
+                <i class="fa-regular fa-eye"></i>
+              </button>
+            </div>
+            <div class="invalid-feedback">Please enter your password.</div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn wl-btn-primary w-100 py-3 mb-3">
+            Login
+          </button>
+
+          <!-- Register Redirect -->
+          <div class="text-center pt-2 text-muted small">
+            New here? <a href="/signup" class="fw-semibold text-decoration-none">Register</a>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
