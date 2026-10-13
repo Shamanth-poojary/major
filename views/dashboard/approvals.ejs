@@ -1,147 +1,240 @@
 <% layout("dashboard/layout") -%>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h3 class="fw-bold mb-1">
-      <i class="fa-solid fa-user-check me-2 text-primary"></i>Owner Approvals
-    </h3>
-    <p class="text-muted mb-0">Review property and venue owner registration applications.</p>
-  </div>
+<!-- Breadcrumb -->
+<div class="wl-breadcrumb">
+  <a href="/dashboard" class="text-muted text-decoration-none">Dashboard</a>
+  <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+  <span class="text-dark fw-semibold">Owner Approvals</span>
 </div>
 
-<!-- Filter Tabs -->
-<ul class="nav nav-tabs mb-4">
-  <li class="nav-item">
-    <a
-      class="nav-link <%= filter === 'pending' ? 'active fw-bold' : '' %>"
-      href="/dashboard/approvals?status=pending"
-    >
-      Pending <span class="badge bg-warning text-dark ms-1"><%= counts.pending %></span>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a
-      class="nav-link <%= filter === 'approved' ? 'active fw-bold' : '' %>"
-      href="/dashboard/approvals?status=approved"
-    >
-      Approved <span class="badge bg-success ms-1"><%= counts.approved %></span>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a
-      class="nav-link <%= filter === 'rejected' ? 'active fw-bold' : '' %>"
-      href="/dashboard/approvals?status=rejected"
-    >
-      Rejected <span class="badge bg-danger ms-1"><%= counts.rejected %></span>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a
-      class="nav-link <%= filter === 'all' ? 'active fw-bold' : '' %>"
-      href="/dashboard/approvals?status=all"
-    >
-      All <span class="badge bg-secondary ms-1"><%= counts.all %></span>
-    </a>
-  </li>
-</ul>
+<div class="mb-4">
+  <h1 class="h3 fw-bold text-dark mb-1">Owner Approvals</h1>
+  <p class="text-muted small mb-0">Review and manage owner registrations for the WanderLust marketplace.</p>
+</div>
+
+<!-- Tabs Bar (Mockup Ref 05) -->
+<div class="wl-tabs">
+  <a
+    href="/dashboard/approvals?status=pending"
+    class="wl-tab-item <%= filter === 'pending' ? 'active' : '' %>"
+  >
+    <span>Pending</span>
+    <span class="wl-pill-count"><%= counts.pending %></span>
+  </a>
+
+  <a
+    href="/dashboard/approvals?status=approved"
+    class="wl-tab-item <%= filter === 'approved' ? 'active' : '' %>"
+  >
+    <span>Approved</span>
+    <span class="wl-pill-count"><%= counts.approved %></span>
+  </a>
+
+  <a
+    href="/dashboard/approvals?status=rejected"
+    class="wl-tab-item <%= filter === 'rejected' ? 'active' : '' %>"
+  >
+    <span>Rejected</span>
+    <span class="wl-pill-count"><%= counts.rejected %></span>
+  </a>
+
+  <a
+    href="/dashboard/approvals?status=all"
+    class="wl-tab-item <%= filter === 'all' ? 'active' : '' %>"
+  >
+    <span>All</span>
+    <span class="wl-pill-count"><%= counts.all %></span>
+  </a>
+</div>
 
 <% if (!owners || owners.length === 0) { %>
-  <div class="card border-0 shadow-sm text-center py-5">
-    <div class="card-body">
-      <i class="fa-solid fa-clipboard-check text-muted display-4 mb-3"></i>
-      <h5 class="fw-bold text-dark">No owner applications found</h5>
-      <p class="text-muted">There are no owner registrations matching the "<%= filter %>" filter.</p>
+  <!-- Empty State (Mockup Ref 06) -->
+  <div class="wl-card text-center p-5 my-4">
+    <div class="wl-empty-state py-4">
+      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="var(--wl-teal-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="8.5" cy="7" r="4"></circle>
+        <polyline points="17 11 19 13 23 9"></polyline>
+      </svg>
+      <h3 class="h4 fw-bold text-dark mt-3 mb-2">No owner applications found</h3>
+      <p class="text-muted mb-0" style="max-width: 440px; margin: 0 auto;">
+        There are no owner registrations matching the "<%= filter %>" filter.
+      </p>
     </div>
   </div>
 <% } else { %>
-  <div class="card border-0 shadow-sm overflow-hidden">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
+  <!-- Table Container (Mockup Ref 05) -->
+  <div class="wl-table-container">
+    <table class="wl-table">
+      <thead>
+        <tr>
+          <th>Owner</th>
+          <th>Business</th>
+          <th>Type</th>
+          <th>Phone</th>
+          <th>Applied</th>
+          <th>Status</th>
+          <th class="text-end" style="min-width: 140px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (const owner of owners) { %>
+          <%
+            const isApproved = owner.status === 'approved';
+            const isRejected = owner.status === 'rejected';
+            const isPending  = owner.status === 'pending';
+
+            const statusClass = {
+              pending:  'wl-pill-pending',
+              approved: 'wl-pill-approved',
+              rejected: 'wl-pill-rejected',
+            }[owner.status] || 'wl-pill-pending';
+
+            const statusText = {
+              pending:  'Pending',
+              approved: 'Approved',
+              rejected: 'Not approved',
+            }[owner.status] || owner.status;
+
+            const appliedDate = owner.createdAt
+              ? new Date(owner.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+              : "N/A";
+
+            const bizType = (typeof BUSINESS_TYPES !== 'undefined' && BUSINESS_TYPES[owner.businessType]) || owner.businessType || 'Owner';
+          %>
           <tr>
-            <th>Applicant</th>
-            <th>Business Details</th>
-            <th>Contact</th>
-            <th>Applied Date</th>
-            <th>Status</th>
-            <th class="text-end" style="min-width: 220px;">Decision Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (const owner of owners) { %>
-            <%
-              const badgeClass = {
-                pending:  "bg-warning text-dark",
-                approved: "bg-success",
-                rejected: "bg-danger",
-              }[owner.status] || "bg-secondary";
-              const statusLabel = (typeof OWNER_STATUS_LABELS !== 'undefined' && OWNER_STATUS_LABELS[owner.status]) || owner.status;
-              const appliedDate = owner.createdAt ? new Date(owner.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "N/A";
-              const bizType = (typeof BUSINESS_TYPES !== 'undefined' && BUSINESS_TYPES[owner.businessType]) || owner.businessType;
-            %>
-            <tr>
-              <td>
-                <div class="fw-bold text-dark"><%= owner.username %></div>
-                <div class="text-muted small"><%= owner.email %></div>
-              </td>
-              <td>
-                <div class="fw-semibold"><%= owner.businessName %></div>
-                <span class="badge bg-light text-dark border small"><%= bizType %></span>
-              </td>
-              <td>
-                <span class="small text-muted"><%= owner.phone || 'No phone provided' %></span>
-              </td>
-              <td>
-                <span class="small text-muted"><%= appliedDate %></span>
-              </td>
-              <td>
-                <span class="badge <%= badgeClass %>"><%= statusLabel %></span>
-                <% if (owner.status === 'rejected' && owner.rejectionReason) { %>
-                  <div class="small text-danger mt-1">
-                    <strong>Reason:</strong> <%= owner.rejectionReason %>
-                  </div>
-                <% } %>
-              </td>
-              <td class="text-end">
-                <div class="d-inline-flex flex-column gap-2" style="min-width: 200px;">
-                  <!-- Approve Button Form -->
+            <!-- Owner Column with Avatar -->
+            <td>
+              <div class="d-flex align-items-center gap-3">
+                <div
+                  class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold"
+                  style="width: 38px; height: 38px; background-color: var(--wl-teal-500); font-size: 0.95rem; flex-shrink: 0;"
+                >
+                  <%= owner.username ? owner.username.charAt(0).toUpperCase() : 'O' %>
+                </div>
+                <div>
+                  <div class="fw-bold text-dark"><%= owner.username %></div>
+                  <div class="text-muted small"><%= owner.email %></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Business Name -->
+            <td>
+              <span class="fw-medium text-dark"><%= owner.businessName %></span>
+            </td>
+
+            <!-- Business Type -->
+            <td>
+              <span class="text-muted small"><%= bizType %></span>
+            </td>
+
+            <!-- Phone -->
+            <td>
+              <span class="text-muted small"><%= owner.phone || 'N/A' %></span>
+            </td>
+
+            <!-- Applied Date -->
+            <td>
+              <span class="text-muted small"><%= appliedDate %></span>
+            </td>
+
+            <!-- Status Pill + Reason -->
+            <td>
+              <span class="wl-pill <%= statusClass %>">
+                <span class="wl-pill-dot"></span>
+                <%= statusText %>
+              </span>
+              <% if (isRejected && owner.rejectionReason) { %>
+                <div class="text-muted mt-1" style="font-size: 0.76rem; max-width: 180px;">
+                  <%= owner.rejectionReason %>
+                </div>
+              <% } %>
+            </td>
+
+            <!-- Contextual Actions -->
+            <td class="text-end">
+              <div class="d-inline-flex align-items-center justify-content-end gap-2">
+                <% if (isPending || isRejected) { %>
+                  <!-- Approve Action Form -->
                   <form
                     action="/dashboard/approvals/<%= owner.userId %>/approve"
                     method="POST"
                     class="d-inline"
                   >
                     <input type="hidden" name="filter" value="<%= filter %>" />
-                    <button type="submit" class="btn btn-sm btn-success w-100">
-                      <i class="fa-solid fa-check me-1"></i>Approve Owner
+                    <button type="submit" class="btn wl-btn-primary btn-sm px-3">
+                      Approve
                     </button>
                   </form>
+                <% } %>
 
-                  <!-- Reject Form with Reason -->
-                  <form
-                    action="/dashboard/approvals/<%= owner.userId %>/reject"
-                    method="POST"
-                    class="d-inline"
+                <% if (isPending || isApproved) { %>
+                  <!-- Reject Button (opens modal) -->
+                  <button
+                    type="button"
+                    class="btn wl-btn-outline-danger btn-sm px-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#rejectModal-<%= owner.userId %>"
                   >
-                    <input type="hidden" name="filter" value="<%= filter %>" />
-                    <div class="input-group input-group-sm">
-                      <input
-                        type="text"
-                        name="reason"
-                        class="form-control"
-                        placeholder="Rejection reason (optional)"
-                        maxlength="500"
-                      />
-                      <button type="submit" class="btn btn-outline-danger">
-                        Reject
-                      </button>
+                    Reject
+                  </button>
+
+                  <!-- Rejection Reason Modal -->
+                  <div
+                    class="modal fade text-start"
+                    id="rejectModal-<%= owner.userId %>"
+                    tabindex="-1"
+                    aria-labelledby="rejectModalLabel-<%= owner.userId %>"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content border-0 shadow-lg" style="border-radius: var(--wl-radius-lg);">
+                        <form
+                          action="/dashboard/approvals/<%= owner.userId %>/reject"
+                          method="POST"
+                        >
+                          <input type="hidden" name="filter" value="<%= filter %>" />
+                          <div class="modal-header border-bottom">
+                            <h5 class="modal-title fw-bold text-dark" id="rejectModalLabel-<%= owner.userId %>">
+                              Reject Application
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body p-4">
+                            <p class="text-muted small mb-3">
+                              Reject application for <strong><%= owner.username %></strong> (<%= owner.businessName %>). You can optionally provide feedback.
+                            </p>
+                            <label for="reason-<%= owner.userId %>" class="form-label small fw-semibold text-dark">
+                              Reason for rejection (optional)
+                            </label>
+                            <textarea
+                              id="reason-<%= owner.userId %>"
+                              name="reason"
+                              class="form-control"
+                              rows="3"
+                              placeholder="e.g. Incomplete business documentation or test account..."
+                              maxlength="500"
+                            ></textarea>
+                          </div>
+                          <div class="modal-footer border-top bg-light">
+                            <button type="button" class="btn wl-btn-outline btn-sm" data-bs-dismiss="modal">
+                              Cancel
+                            </button>
+                            <button type="submit" class="btn wl-btn-primary btn-sm px-4">
+                              Confirm Reject
+                            </button>
+                          </div>
+                        </form>
+                      </div>
                     </div>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
+                  </div>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
   </div>
 <% } %>
