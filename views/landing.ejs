@@ -138,248 +138,279 @@
     </div>
   </div>
 
-  <!-- Dynamic Database Listings Showcase Carousel & Slideshow -->
+  <!-- Venue Categorized Dynamic Collage Section -->
   <% const safeListings = (typeof listings !== 'undefined' && Array.isArray(listings)) ? listings : []; %>
-  <div id="dynamicShowcaseSection" class="mt-5" data-hydrated="<%= safeListings.length > 0 ? 'true' : 'false' %>">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+  <div id="venueCollageSection" class="mt-5 wl-collage-section" data-hydrated="<%= safeListings.length > 0 ? 'true' : 'false' %>">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
       <div>
-        <h2 class="h4 fw-bold text-dark mb-1">Featured Stays &amp; Venues</h2>
-        <p class="text-muted small mb-0">Explore handpicked stays directly from our verified host community</p>
+        <h2 class="h4 fw-bold text-dark mb-1">Explore Venues &amp; Stays by Category</h2>
+        <p class="text-muted small mb-0">Discover handpicked destinations across curated venue collections</p>
       </div>
-      <a href="/listings" class="fw-semibold text-decoration-none d-flex align-items-center gap-1" style="color: var(--wl-teal-600);">
-        <span id="allStaysCountText">View all stays<%= safeListings.length > 0 ? ' (' + safeListings.length + ')' : '' %></span>
-        <i class="fa-solid fa-arrow-right small"></i>
-      </a>
-    </div>
-
-    <!-- High-Impact Auto-Playing Carousel Slideshow -->
-    <div id="listingHeroCarousel" class="carousel slide carousel-fade wl-carousel-wrapper mb-5" data-bs-ride="carousel" data-bs-interval="4000">
-      <!-- Indicators -->
-      <div class="carousel-indicators wl-carousel-indicators" id="heroCarouselIndicators">
-        <% if (safeListings.length > 0) { %>
-          <% safeListings.slice(0, Math.min(safeListings.length, 6)).forEach((item, idx) => { %>
-            <button
-              type="button"
-              data-bs-target="#listingHeroCarousel"
-              data-bs-slide-to="<%= idx %>"
-              class="<%= idx === 0 ? 'active' : '' %>"
-              aria-current="<%= idx === 0 ? 'true' : 'false' %>"
-              aria-label="Slide <%= idx + 1 %>"
-            ></button>
-          <% }); %>
-        <% } %>
-      </div>
-
-      <!-- Carousel Slides -->
-      <div class="carousel-inner" id="heroCarouselInner">
-        <% if (safeListings.length > 0) { %>
-          <% safeListings.slice(0, Math.min(safeListings.length, 6)).forEach((listing, idx) => { %>
-            <div class="carousel-item <%= idx === 0 ? 'active' : '' %> wl-carousel-item">
-              <img
-                src="<%= (listing.image && listing.image.url) ? listing.image.url : 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1400&q=80' %>"
-                class="wl-carousel-img"
-                alt="<%= listing.title %>"
-                loading="<%= idx === 0 ? 'eager' : 'lazy' %>"
-              />
-              <div class="wl-carousel-overlay">
-                <div class="d-flex justify-content-between align-items-start gap-2">
-                  <span class="wl-carousel-badge">
-                    <i class="fa-solid fa-star text-warning"></i>
-                    <span>Featured Destination</span>
-                  </span>
-                  <span class="badge bg-dark bg-opacity-75 text-white px-3 py-2 rounded-pill fs-6 fw-semibold shadow-sm">
-                    &#8377;<%= Number(listing.price || 0).toLocaleString("en-IN") %>
-                    <span class="small fw-normal text-white-50">/ night</span>
-                  </span>
-                </div>
-                <div class="wl-carousel-caption">
-                  <h3 class="display-6 fw-bold text-white mb-2" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);"><%= listing.title %></h3>
-                  <% if (listing.location || listing.country) { %>
-                    <p class="fs-6 text-white text-opacity-90 mb-3 d-flex align-items-center gap-2">
-                      <i class="fa-solid fa-location-dot text-teal-100"></i>
-                      <span><%= [listing.location, listing.country].filter(Boolean).join(", ") %></span>
-                    </p>
-                  <% } %>
-                  <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a href="/listings/<%= listing.id %>" class="btn wl-btn-primary px-4 py-2">
-                      View Listing <i class="fa-solid fa-arrow-right ms-1"></i>
-                    </a>
-                    <a href="/listings" class="btn btn-outline-light px-4 py-2" style="backdrop-filter: blur(4px);">
-                      Explore All Properties
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          <% }); %>
-        <% } %>
-      </div>
-
-      <!-- Controls -->
-      <button class="carousel-control-prev wl-carousel-control prev" type="button" data-bs-target="#listingHeroCarousel" data-bs-slide="prev" aria-label="Previous">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-      <button class="carousel-control-next wl-carousel-control next" type="button" data-bs-target="#listingHeroCarousel" data-bs-slide="next" aria-label="Next">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-    </div>
-
-    <!-- Moving Marquee Slideshow of All Database Listings -->
-    <div class="mt-4">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h3 class="h5 fw-bold text-dark mb-0">Live From Our Catalog</h3>
-        <span class="text-muted small">Continuous moving slideshow &bull; Hover to pause</span>
-      </div>
-
-      <div class="wl-marquee-container">
-        <div class="wl-marquee-track" id="heroMarqueeTrack">
-          <% if (safeListings.length > 0) { %>
-            <!-- Render 2 continuous loops for seamless infinite scrolling -->
-            <% for (let loop = 0; loop < 2; loop++) { %>
-              <% safeListings.forEach((listing) => { %>
-                <div class="wl-marquee-card">
-                  <a href="/listings/<%= listing.id %>" class="text-decoration-none">
-                    <div class="wl-listing-card">
-                      <div class="wl-listing-img-wrap">
-                        <img
-                          src="<%= (listing.image && listing.image.url) ? listing.image.url : 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80' %>"
-                          alt="<%= listing.title %>"
-                          class="wl-listing-img"
-                          loading="lazy"
-                        />
-                        <span class="wl-heart-btn" aria-hidden="true">
-                          <i class="fa-regular fa-heart"></i>
-                        </span>
-                      </div>
-                      <div class="wl-listing-body">
-                        <div class="wl-listing-title text-truncate"><%= listing.title %></div>
-                        <div class="wl-listing-location">
-                          <i class="fa-solid fa-location-dot"></i>
-                          <span><%= [listing.location, listing.country].filter(Boolean).join(", ") || 'Verified Location' %></span>
-                        </div>
-                        <div class="wl-listing-footer">
-                          <span class="wl-listing-price">&#8377;<%= Number(listing.price || 0).toLocaleString("en-IN") %></span>
-                          <span class="wl-listing-unit">/ night</span>
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                </div>
-              <% }); %>
-            <% } %>
-          <% } %>
+      <div class="d-flex align-items-center gap-3">
+        <div class="wl-collage-cycle-indicator d-none d-md-inline-flex">
+          <span class="wl-pulse-dot"></span>
+          <span id="cycleStatusLabel">Dynamic spotlight active</span>
         </div>
+        <a href="/listings" class="fw-semibold text-decoration-none d-flex align-items-center gap-1" style="color: var(--wl-teal-600);">
+          <span id="allStaysCountText">View all stays<%= safeListings.length > 0 ? ' (' + safeListings.length + ')' : '' %></span>
+          <i class="fa-solid fa-arrow-right small"></i>
+        </a>
       </div>
+    </div>
+
+    <!-- Category Filter Navigation Pills -->
+    <div class="wl-category-nav" id="venueCategoryNav">
+      <button type="button" class="wl-category-btn active" data-category="all">
+        <i class="fa-solid fa-compass"></i>
+        <span>All Venues</span>
+        <span class="wl-category-count" id="count-all"><%= safeListings.length %></span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="beach">
+        <i class="fa-solid fa-umbrella-beach"></i>
+        <span>Beach &amp; Waterfront</span>
+        <span class="wl-category-count" id="count-beach">0</span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="mountain">
+        <i class="fa-solid fa-mountain"></i>
+        <span>Mountains &amp; Cabins</span>
+        <span class="wl-category-count" id="count-mountain">0</span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="villa">
+        <i class="fa-solid fa-landmark"></i>
+        <span>Villas &amp; Estates</span>
+        <span class="wl-category-count" id="count-villa">0</span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="urban">
+        <i class="fa-solid fa-city"></i>
+        <span>Urban &amp; Penthouses</span>
+        <span class="wl-category-count" id="count-urban">0</span>
+      </button>
+      <button type="button" class="wl-category-btn" data-category="unique">
+        <i class="fa-solid fa-gem"></i>
+        <span>Unique &amp; Boutique</span>
+        <span class="wl-category-count" id="count-unique">0</span>
+      </button>
+    </div>
+
+    <!-- Dynamic Bento Collage Grid -->
+    <div class="wl-collage-grid" id="venueCollageGrid">
+      <!-- Dynamically rendered and animated collage cards -->
     </div>
   </div>
 </div>
 
-<!-- Client-side hydration fallback for moving slideshow if server hasn't passed listings yet -->
+<!-- Embedded JSON Data of Database Listings for Fast Client-Side Dynamic Switching -->
+<script id="venueListingsData" type="application/json">
+  <%- JSON.stringify(safeListings) %>
+</script>
+
+<!-- Dynamic Collage Controller Script -->
 <script>
   (function() {
-    const section = document.getElementById("dynamicShowcaseSection");
-    if (!section) return;
-    if (section.getAttribute("data-hydrated") === "true") return;
+    function categorizeListing(listing) {
+      const text = ((listing.title || "") + " " + (listing.location || "") + " " + (listing.country || "")).toLowerCase();
+      if (/beach|coast|ocean|lake|sea|water|island|cancun|malibu/i.test(text)) {
+        return { id: "beach", name: "Beach & Waterfront", icon: "fa-umbrella-beach" };
+      }
+      if (/mountain|cabin|chalet|ski|forest|treehouse|aspen|verbier|tahoe|nature/i.test(text)) {
+        return { id: "mountain", name: "Mountains & Cabins", icon: "fa-mountain" };
+      }
+      if (/villa|historic|estate|resort|lodge|safari|tuscany|serengeti|manor/i.test(text)) {
+        return { id: "villa", name: "Villas & Estates", icon: "fa-landmark" };
+      }
+      if (/loft|penthouse|urban|city|downtown|apartment|hotel|shibuya|york|angeles/i.test(text)) {
+        return { id: "urban", name: "Urban & Penthouses", icon: "fa-city" };
+      }
+      return { id: "unique", name: "Unique & Boutique", icon: "fa-gem" };
+    }
 
-    fetch("/listings")
-      .then(r => r.text())
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-        const cards = Array.from(doc.querySelectorAll(".wl-listing-card"));
-        if (!cards || cards.length === 0) return;
+    let allListings = [];
+    try {
+      const dataScript = document.getElementById("venueListingsData");
+      if (dataScript && dataScript.textContent.trim()) {
+        allListings = JSON.parse(dataScript.textContent.trim());
+      }
+    } catch (e) {
+      allListings = [];
+    }
 
-        const countText = document.getElementById("allStaysCountText");
-        if (countText) countText.textContent = "View all stays (" + cards.length + ")";
+    let currentCategory = "all";
+    let spotlightOffset = 0;
+    let autoCycleTimer = null;
+    let isHovered = false;
 
-        // Populate Carousel
-        const indicators = document.getElementById("heroCarouselIndicators");
-        const inner = document.getElementById("heroCarouselInner");
-        if (indicators && inner) {
-          indicators.innerHTML = "";
-          inner.innerHTML = "";
-          const featured = cards.slice(0, 6);
-          featured.forEach((card, idx) => {
+    const grid = document.getElementById("venueCollageGrid");
+    const nav = document.getElementById("venueCategoryNav");
+    const cycleLabel = document.getElementById("cycleStatusLabel");
+    const section = document.getElementById("venueCollageSection");
+
+    function renderCollage(listings, category, offset) {
+      if (!grid) return;
+
+      // Filter by category
+      let categoryMatches = category === "all" 
+        ? listings 
+        : listings.filter(l => categorizeListing(l).id === category);
+
+      if (categoryMatches.length === 0) {
+        categoryMatches = listings;
+      }
+
+      // Re-order based on spotlight offset for dynamic rotation
+      const shifted = [];
+      const len = categoryMatches.length;
+      for (let i = 0; i < len; i++) {
+        shifted.push(categoryMatches[(i + offset) % len]);
+      }
+
+      // If fewer than 5, backfill from remaining listings so collage layout stays balanced
+      let displayItems = [...shifted];
+      if (displayItems.length < 5) {
+        const others = listings.filter(l => !displayItems.some(d => d.id === l.id));
+        displayItems = displayItems.concat(others).slice(0, 5);
+      } else {
+        displayItems = displayItems.slice(0, 5);
+      }
+
+      // Trigger smooth CSS animation
+      grid.classList.remove("wl-collage-animating");
+      void grid.offsetWidth; // trigger reflow
+      grid.classList.add("wl-collage-animating");
+
+      grid.innerHTML = "";
+
+      displayItems.forEach((item, index) => {
+        const cat = categorizeListing(item);
+        const isFeatured = index === 0;
+        const link = document.createElement("a");
+        link.href = "/listings/" + item.id;
+        link.className = "wl-collage-item " + (isFeatured ? "featured" : "tile");
+
+        const imgUrl = (item.image && item.image.url) ? item.image.url : "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb";
+        const priceStr = "&#8377;" + Number(item.price || 0).toLocaleString("en-IN");
+        const locStr = [item.location, item.country].filter(Boolean).join(", ") || "Verified Venue";
+
+        link.innerHTML = `
+          <img src="${imgUrl}" alt="${item.title}" loading="${isFeatured ? 'eager' : 'lazy'}">
+          <div class="wl-collage-overlay">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <span class="wl-collage-badge">
+                <i class="fa-solid ${cat.icon} text-teal-600"></i>
+                <span>${cat.name}</span>
+              </span>
+              <span class="wl-collage-price-tag">
+                ${priceStr} <span class="small fw-normal text-white-50">/ night</span>
+              </span>
+            </div>
+            <div class="wl-collage-caption">
+              <h${isFeatured ? '3' : '4'} class="wl-collage-title ${isFeatured ? '' : 'text-truncate'}">${item.title}</h${isFeatured ? '3' : '4'}>
+              <div class="wl-collage-location ${isFeatured ? '' : 'text-truncate'}">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>${locStr}</span>
+              </div>
+              ${isFeatured ? `
+                <div class="mt-3">
+                  <span class="btn wl-btn-primary px-3 py-2 btn-sm text-white fw-semibold">
+                    Explore Venue <i class="fa-solid fa-arrow-right ms-1"></i>
+                  </span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        grid.appendChild(link);
+      });
+    }
+
+    function updateCategoryCounts(listings) {
+      const counts = { all: listings.length, beach: 0, mountain: 0, villa: 0, urban: 0, unique: 0 };
+      listings.forEach(l => {
+        const c = categorizeListing(l).id;
+        if (counts[c] !== undefined) counts[c]++;
+      });
+      Object.keys(counts).forEach(k => {
+        const el = document.getElementById("count-" + k);
+        if (el) el.textContent = counts[k];
+      });
+      const allText = document.getElementById("allStaysCountText");
+      if (allText) allText.textContent = "View all stays (" + listings.length + ")";
+    }
+
+    function startAutoCycle() {
+      if (autoCycleTimer) clearInterval(autoCycleTimer);
+      autoCycleTimer = setInterval(() => {
+        if (isHovered || allListings.length === 0) return;
+        spotlightOffset = (spotlightOffset + 1) % allListings.length;
+        renderCollage(allListings, currentCategory, spotlightOffset);
+      }, 5500);
+    }
+
+    // Category button click handling
+    if (nav) {
+      nav.addEventListener("click", e => {
+        const btn = e.target.closest(".wl-category-btn");
+        if (!btn) return;
+        nav.querySelectorAll(".wl-category-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentCategory = btn.getAttribute("data-category") || "all";
+        spotlightOffset = 0;
+        renderCollage(allListings, currentCategory, spotlightOffset);
+      });
+    }
+
+    // Hover pause mechanism
+    if (section) {
+      section.addEventListener("mouseenter", () => {
+        isHovered = true;
+        if (cycleLabel) cycleLabel.textContent = "Spotlight paused";
+      });
+      section.addEventListener("mouseleave", () => {
+        isHovered = false;
+        if (cycleLabel) cycleLabel.textContent = "Dynamic spotlight active";
+      });
+    }
+
+    // Initialize or hydrate from /listings if needed
+    if (allListings && allListings.length > 0) {
+      updateCategoryCounts(allListings);
+      renderCollage(allListings, "all", 0);
+      startAutoCycle();
+    } else {
+      // Hydrate via client-side fetch from /listings
+      fetch("/listings")
+        .then(r => r.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const cards = Array.from(doc.querySelectorAll(".wl-listing-card"));
+          if (!cards || cards.length === 0) return;
+
+          allListings = cards.map((card, idx) => {
             const anchor = card.closest("a");
             const href = anchor ? anchor.getAttribute("href") : "/listings";
+            const idMatch = href.match(/\/listings\/(\d+)/);
+            const id = idMatch ? idMatch[1] : (idx + 1);
             const img = card.querySelector("img");
-            const imgSrc = img ? img.getAttribute("src") : "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb";
             const titleEl = card.querySelector(".wl-listing-title");
-            const title = titleEl ? titleEl.textContent.trim() : "Featured Listing";
             const locEl = card.querySelector(".wl-listing-location");
-            const loc = locEl ? locEl.textContent.trim() : "";
             const priceEl = card.querySelector(".wl-listing-price");
-            const price = priceEl ? priceEl.textContent.trim() : "";
+            const priceClean = priceEl ? priceEl.textContent.replace(/[^\d]/g, "") : "0";
 
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.setAttribute("data-bs-target", "#listingHeroCarousel");
-            btn.setAttribute("data-bs-slide-to", idx);
-            if (idx === 0) btn.className = "active";
-            btn.setAttribute("aria-label", "Slide " + (idx + 1));
-            indicators.appendChild(btn);
-
-            const slide = document.createElement("div");
-            slide.className = "carousel-item wl-carousel-item" + (idx === 0 ? " active" : "");
-            slide.innerHTML = `
-              <img src="${imgSrc}" class="wl-carousel-img" alt="${title}" loading="${idx === 0 ? 'eager' : 'lazy'}">
-              <div class="wl-carousel-overlay">
-                <div class="d-flex justify-content-between align-items-start gap-2">
-                  <span class="wl-carousel-badge">
-                    <i class="fa-solid fa-star text-warning"></i>
-                    <span>Featured Destination</span>
-                  </span>
-                  <span class="badge bg-dark bg-opacity-75 text-white px-3 py-2 rounded-pill fs-6 fw-semibold shadow-sm">
-                    ${price} <span class="small fw-normal text-white-50">/ night</span>
-                  </span>
-                </div>
-                <div class="wl-carousel-caption">
-                  <h3 class="display-6 fw-bold text-white mb-2" style="text-shadow: 0 2px 8px rgba(0,0,0,0.45);">${title}</h3>
-                  <p class="fs-6 text-white text-opacity-90 mb-3 d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-location-dot text-teal-100"></i>
-                    <span>${loc}</span>
-                  </p>
-                  <div class="d-flex flex-wrap gap-2 mt-3">
-                    <a href="${href}" class="btn wl-btn-primary px-4 py-2">
-                      View Listing <i class="fa-solid fa-arrow-right ms-1"></i>
-                    </a>
-                    <a href="/listings" class="btn btn-outline-light px-4 py-2" style="backdrop-filter: blur(4px);">
-                      Explore All Properties
-                    </a>
-                  </div>
-                </div>
-              </div>
-            `;
-            inner.appendChild(slide);
+            return {
+              id: id,
+              title: titleEl ? titleEl.textContent.trim() : "Venue Stay",
+              location: locEl ? locEl.textContent.trim() : "Location",
+              country: "",
+              price: parseInt(priceClean, 10) || 5000,
+              image: { url: img ? img.getAttribute("src") : "" }
+            };
           });
 
-          // Re-init bootstrap carousel if available
-          if (window.bootstrap && window.bootstrap.Carousel) {
-            const carouselEl = document.getElementById("listingHeroCarousel");
-            new window.bootstrap.Carousel(carouselEl, { interval: 4000, ride: "carousel" });
-          }
-        }
-
-        // Populate Marquee
-        const marqueeTrack = document.getElementById("heroMarqueeTrack");
-        if (marqueeTrack) {
-          marqueeTrack.innerHTML = "";
-          for (let loop = 0; loop < 2; loop++) {
-            cards.forEach(card => {
-              const anchor = card.closest("a");
-              const href = anchor ? anchor.getAttribute("href") : "/listings";
-              const wrap = document.createElement("div");
-              wrap.className = "wl-marquee-card";
-              const link = document.createElement("a");
-              link.href = href;
-              link.className = "text-decoration-none";
-              link.appendChild(card.cloneNode(true));
-              wrap.appendChild(link);
-              marqueeTrack.appendChild(wrap);
-            });
-          }
-        }
-      })
-      .catch(err => console.error("Error hydrating landing slideshow:", err));
+          updateCategoryCounts(allListings);
+          renderCollage(allListings, "all", 0);
+          startAutoCycle();
+        })
+        .catch(err => console.error("Error hydrating collage:", err));
+    }
   })();
 </script>
