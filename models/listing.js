@@ -17,6 +17,8 @@ function rowToMinimal(row) {
     id: row.listing_id,
     title: row.title,
     price: row.price,
+    location: row.location || null,
+    country: row.country || null,
     image: { url: row.image_url, filename: row.image_filename },
   };
 }
@@ -47,11 +49,11 @@ function rowToListing(row) {
 
 /**
  * findAll – used by the index page.
- * Returns array of { id, title, price, image }.
+ * Returns array of { id, title, price, location, country, image }.
  */
 async function findAll() {
   const [rows] = await pool.execute(
-    "SELECT listing_id, title, price, image_url, image_filename FROM listings ORDER BY created_at DESC"
+    "SELECT listing_id, title, price, location, country, image_url, image_filename FROM listings ORDER BY created_at DESC"
   );
   return rows.map(rowToMinimal);
 }

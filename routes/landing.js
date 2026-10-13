@@ -8,12 +8,24 @@
 
 const express = require("express");
 const router = express.Router();
+const Listing = require("../models/listing");
+const wrapAsync = require("../utils/wrapAsync");
 
-router.get("/", (req, res) => {
-  if (req.isAuthenticated()) {
-    return res.redirect("/listings");
-  }
-  res.render("landing.ejs");
-});
+router.get(
+  "/",
+  wrapAsync(async (req, res) => {
+    if (req.isAuthenticated()) {
+      return res.redirect("/listings");
+    }
+    let listings = [];
+    try {
+      listings = await Listing.findAll();
+    } catch (err) {
+      console.error("Error fetching listings for landing carousel:", err);
+      listings = [];
+    }
+    res.render("landing.ejs", { listings });
+  })
+);
 
 module.exports = router;

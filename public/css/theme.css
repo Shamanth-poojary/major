@@ -933,3 +933,143 @@ textarea.form-control {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   DYNAMIC LISTINGS SLIDESHOW CAROUSEL
+   ========================================================================== */
+.wl-carousel-wrapper {
+  position: relative;
+  border-radius: var(--wl-radius-xl);
+  overflow: hidden;
+  box-shadow: var(--wl-shadow-lg);
+  background-color: var(--wl-teal-900);
+}
+.wl-carousel-item {
+  height: 480px;
+  position: relative;
+  background-color: #0b2f3a;
+}
+@media (max-width: 991px) {
+  .wl-carousel-item {
+    height: 380px;
+  }
+}
+@media (max-width: 576px) {
+  .wl-carousel-item {
+    height: 310px;
+  }
+}
+.wl-carousel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.carousel-item.active .wl-carousel-img {
+  transform: scale(1.06);
+}
+.wl-carousel-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(14, 56, 66, 0.15) 0%, rgba(11, 47, 58, 0.88) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 36px 44px;
+}
+@media (max-width: 576px) {
+  .wl-carousel-overlay {
+    padding: 20px;
+  }
+}
+.wl-carousel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: var(--wl-ink);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: var(--wl-radius-pill);
+  backdrop-filter: blur(8px);
+  width: fit-content;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+.wl-carousel-caption {
+  max-width: 620px;
+  color: #FFFFFF;
+}
+.wl-carousel-indicators {
+  margin-bottom: 24px;
+}
+.wl-carousel-indicators [data-bs-target] {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: none;
+  transition: all 250ms ease;
+  margin: 0 5px;
+}
+.wl-carousel-indicators .active {
+  width: 32px;
+  border-radius: var(--wl-radius-pill);
+  background-color: #FFFFFF;
+}
+.wl-carousel-control {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  transition: all 160ms ease;
+  text-decoration: none;
+}
+.wl-carousel-control:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  color: #FFFFFF;
+  transform: translateY(-50%) scale(1.08);
+}
+.wl-carousel-control.prev {
+  left: 20px;
+}
+.wl-carousel-control.next {
+  right: 20px;
+}
+
+/* Continuous moving listings track */
+.wl-marquee-container {
+  overflow: hidden;
+  position: relative;
+  padding: 12px 0;
+  mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+}
+.wl-marquee-track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  animation: wlMarquee 40s linear infinite;
+}
+.wl-marquee-container:hover .wl-marquee-track {
+  animation-play-state: paused;
+}
+@keyframes wlMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.wl-marquee-card {
+  width: 290px;
+  flex-shrink: 0;
+}
+
