@@ -1,117 +1,207 @@
 <% layout("layouts/boilerplate") -%>
 
-<div class="row">
-  <div class="col-8 offset-2">
-    <h2 class="mb-4 mt-4">CREATE NEW LISTING</h2>
+<div class="wl-container py-4 py-md-5">
+  <div class="mb-4">
+    <h1 class="h2 fw-bold text-dark mb-1">Create New Listing</h1>
+    <p class="text-muted small mb-0">
+      Share your space with travelers and be part of a more connected world.
+    </p>
+  </div>
 
-    <form
-      method="POST"
-      action="/listings"
-      novalidate
-      class="needs-validation"
-      enctype="multipart/form-data"
-    >
-      <!-- TITLE -->
-      <div class="mb-3">
-        <label for="title" class="form-label"><b>Title</b></label>
-        <input
-          type="text"
-          id="title"
-          name="listing[title]"
-          placeholder="Enter title"
-          class="form-control"
-          required
-          value="<%= typeof listing !== 'undefined' ? listing.title || '' : '' %>"
-        />
-        <div class="invalid-feedback">Please enter a title.</div>
-      </div>
-
-      <!-- DESCRIPTION -->
-      <div class="mb-3">
-        <label for="description" class="form-label"><b>Description</b></label>
-        <textarea
-          id="description"
-          name="listing[description]"
-          placeholder="Enter description"
-          class="form-control"
-          required
+  <div class="row g-4">
+    <!-- Left: Form Column -->
+    <div class="col-12 col-lg-7">
+      <div class="wl-card p-4">
+        <form
+          method="POST"
+          action="/listings"
+          novalidate
+          class="needs-validation"
+          enctype="multipart/form-data"
         >
-<%= typeof listing !== 'undefined' ? listing.description || '' : '' %></textarea
-        >
-        <div class="invalid-feedback">Please enter a description.</div>
-      </div>
+          <!-- Title -->
+          <div class="mb-3">
+            <label for="title" class="form-label">Listing Title</label>
+            <input
+              type="text"
+              id="title"
+              name="listing[title]"
+              placeholder="e.g. Seaside Serenity Villa"
+              class="form-control"
+              required
+              value="<%= typeof listing !== 'undefined' ? listing.title || '' : '' %>"
+            />
+            <div class="invalid-feedback">Please enter a listing title.</div>
+          </div>
 
-      <div class="row">
-        <!-- PRICE -->
-        <div class="mb-3 col-md-4">
-          <label for="price" class="form-label"><b>Price</b></label>
-          <input
-            type="number"
-            id="price"
-            name="listing[price]"
-            placeholder="Enter price"
-            class="form-control"
-            required
-            min="0"
-            step="0.01"
-            value="<%= typeof listing !== 'undefined' ? listing.price || '' : '' %>"
-          />
-          <div class="invalid-feedback">Please enter a price.</div>
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea
+              id="description"
+              name="listing[description]"
+              placeholder="Describe your space, amenities, and surroundings..."
+              class="form-control"
+              rows="4"
+              required
+            ><%= typeof listing !== 'undefined' ? listing.description || '' : '' %></textarea>
+            <div class="invalid-feedback">Please enter a description.</div>
+          </div>
+
+          <!-- Price -->
+          <div class="mb-3">
+            <label for="price" class="form-label">Price per night</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light fw-bold text-dark" style="border-color: var(--wl-border);">&#8377;</span>
+              <input
+                type="number"
+                id="price"
+                name="listing[price]"
+                placeholder="4500"
+                class="form-control"
+                required
+                min="0"
+                step="1"
+                value="<%= typeof listing !== 'undefined' ? listing.price || '' : '' %>"
+              />
+            </div>
+            <div class="invalid-feedback">Please enter a valid price.</div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <!-- Location -->
+            <div class="col-12 col-md-6">
+              <label for="location" class="form-label">Location / City</label>
+              <div class="wl-input-icon-group">
+                <i class="fa-solid fa-location-dot wl-lead-icon"></i>
+                <input
+                  type="text"
+                  id="location"
+                  name="listing[location]"
+                  placeholder="e.g. Candolim, Goa"
+                  class="form-control"
+                  required
+                  value="<%= typeof listing !== 'undefined' ? listing.location || '' : '' %>"
+                />
+              </div>
+              <div class="invalid-feedback">Please enter a location.</div>
+            </div>
+
+            <!-- Country with datalist -->
+            <div class="col-12 col-md-6">
+              <label for="country" class="form-label">Country</label>
+              <div class="wl-input-icon-group">
+                <i class="fa-solid fa-earth-americas wl-lead-icon"></i>
+                <input
+                  type="text"
+                  id="country"
+                  name="listing[country]"
+                  list="countries-list"
+                  placeholder="e.g. India"
+                  class="form-control"
+                  required
+                  value="<%= typeof listing !== 'undefined' ? listing.country || '' : '' %>"
+                />
+              </div>
+              <datalist id="countries-list">
+                <option value="India">
+                <option value="United States">
+                <option value="United Kingdom">
+                <option value="France">
+                <option value="Italy">
+                <option value="Spain">
+                <option value="Japan">
+                <option value="Thailand">
+                <option value="Indonesia">
+                <option value="Greece">
+              </datalist>
+              <div class="invalid-feedback">Please enter a country.</div>
+            </div>
+          </div>
+
+          <!-- Photo Upload Dropzone -->
+          <div class="mb-4">
+            <label for="image" class="form-label">Listing Photo</label>
+            <div class="wl-dropzone">
+              <input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+                required
+              />
+              <div class="wl-dropzone-content">
+                <div class="wl-dropzone-icon">
+                  <i class="fa-regular fa-image"></i>
+                </div>
+                <div class="fw-semibold text-dark" style="font-size: 0.95rem;">
+                  Drag and drop a photo here or click to browse
+                </div>
+                <div class="text-muted small mt-1">
+                  High-resolution photo &middot; Max 2 MB &middot; JPEG, PNG or WebP
+                </div>
+              </div>
+              <div class="wl-dropzone-preview text-center" style="display: none;">
+                <img
+                  src=""
+                  alt="Selected Listing Photo"
+                  class="rounded-3 shadow-sm border mb-2"
+                  style="max-height: 140px; object-fit: cover;"
+                />
+                <div class="small text-teal-600 fw-semibold">Photo selected &middot; Click to replace</div>
+              </div>
+              <div class="wl-dropzone-error text-danger small mt-2"></div>
+            </div>
+            <div class="invalid-feedback">Please select a photo for the listing.</div>
+          </div>
+
+          <!-- Submit Button -->
+          <button class="btn wl-btn-primary w-100 py-3" type="submit">
+            Create Listing
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right: Live Preview Column (Mockup Ref 12) -->
+    <div class="col-12 col-lg-5">
+      <div class="wl-card p-4 sticky-top" style="top: 88px;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="fw-bold text-dark small">Live Preview</div>
+          <span class="badge rounded-pill bg-light text-muted border small">Preview</span>
         </div>
+        <p class="text-muted small mb-3">
+          This is how your listing will appear to travelers in search results.
+        </p>
 
-        <!-- COUNTRY -->
-        <div class="mb-3 col-md-8">
-          <label for="country" class="form-label"><b>Country</b></label>
-          <input
-            type="text"
-            id="country"
-            name="listing[country]"
-            placeholder="Enter country"
-            class="form-control"
-            required
-            value="<%= typeof listing !== 'undefined' ? listing.country || '' : '' %>"
-          />
-          <div class="invalid-feedback">Please enter a country.</div>
+        <!-- Preview Card -->
+        <div class="wl-listing-card shadow-sm border">
+          <div class="wl-listing-img-wrap">
+            <img
+              id="preview-img"
+              src="/images/landing_hero.jpg"
+              alt="Preview listing"
+              class="wl-listing-img"
+            />
+            <span class="wl-heart-btn" aria-hidden="true" tabindex="-1">
+              <i class="fa-regular fa-heart"></i>
+            </span>
+          </div>
+          <div class="wl-listing-body">
+            <h2 id="preview-title" class="wl-listing-title text-truncate">
+              Your listing title
+            </h2>
+            <div id="preview-location" class="wl-listing-location text-truncate">
+              <i class="fa-solid fa-location-dot text-muted"></i>
+              <span>Location, Country</span>
+            </div>
+            <div class="wl-listing-footer">
+              <span id="preview-price" class="wl-listing-price">&#8377;0</span>
+              <span class="wl-listing-unit">/ night</span>
+            </div>
+          </div>
         </div>
       </div>
-
-      <!-- LOCATION -->
-      <div class="mb-3">
-        <label for="location" class="form-label"><b>Location</b></label>
-        <input
-          type="text"
-          id="location"
-          name="listing[location]"
-          placeholder="Enter location"
-          class="form-control"
-          required
-          value="<%= typeof listing !== 'undefined' ? listing.location || '' : '' %>"
-        />
-        <div class="invalid-feedback">Please enter a location.</div>
-      </div>
-
-      <!-- IMAGE -->
-      <!-- <input
-        type="file"
-        id="image"
-        name="listing[image]"
-        placeholder="select the file to be uploaded"
-        class="form-control"
-        pattern="https?://.*"
-        value="<%= typeof listing !== 'undefined' ? listing.image || '' : '' %>"
-      />
-      <div class="invalid-feedback">
-        Please enter a valid image URL (starting with http:// or https://)
-      </div> -->
-      <input
-        type="file"
-        name="image"
-        placeholder="select the file to be uploaded"
-        class="form-control"
-        required
-      />
-
-      <button class="btn btn-dark mt-3" type="submit">Create Listing</button>
-    </form>
+    </div>
   </div>
 </div>

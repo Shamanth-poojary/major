@@ -1,109 +1,211 @@
 <% layout("layouts/boilerplate") -%>
 
-<body>
-  <div class="row">
-    <div class="col-8 offset-2">
-      <br /><br />
-      <h3>Edit Listing</h3>
-      <br />
+<div class="wl-container py-4 py-md-5">
+  <!-- Breadcrumb -->
+  <div class="wl-breadcrumb mb-3">
+    <a href="/listings" class="text-muted text-decoration-none">Listings</a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+    <a href="/listings/<%= listing.id %>" class="text-muted text-decoration-none"><%= listing.title %></a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+    <span class="text-dark fw-semibold">Edit Listing</span>
+  </div>
 
-      <form
-        method="POST"
-        action="/listings/<%= listing.id %>?_method=PUT"
-        enctype="multipart/form-data"
-      >
-        <!-- TITLE -->
-        <div class="mb-3">
-          <label class="form-label"><b>TITLE</b></label>
-          <input
-            type="text"
-            name="listing[title]"
-            value="<%= listing.title %>"
-            class="form-control"
-            required
-          />
-        </div>
+  <div class="mb-4">
+    <h1 class="h2 fw-bold text-dark mb-1">Edit Listing</h1>
+    <p class="text-muted small mb-0">Update your property information, pricing, or photos.</p>
+  </div>
 
-        <!-- DESCRIPTION -->
-        <div class="mb-3">
-          <label class="form-label"><b>DESCRIPTION</b></label>
-          <textarea
-            name="listing[description]"
-            rows="5"
-            class="form-control"
-            required
-          >
-<%= listing.description %></textarea
-          >
-        </div>
-
-        <div class="row">
-          <!-- PRICE -->
-          <div class="mb-3 col-md-4">
-            <label class="form-label"><b>PRICE</b></label>
-            <input
-              type="number"
-              name="listing[price]"
-              value="<%= listing.price %>"
-              class="form-control"
-              min="0"
-              step="0.01"
-              required
-            />
-          </div>
-
-          <!-- COUNTRY -->
-          <div class="mb-3 col-md-8">
-            <label class="form-label"><b>COUNTRY</b></label>
+  <div class="row g-4">
+    <!-- Left: Edit Form Column -->
+    <div class="col-12 col-lg-7">
+      <div class="wl-card p-4">
+        <form
+          method="POST"
+          action="/listings/<%= listing.id %>?_method=PUT"
+          enctype="multipart/form-data"
+          novalidate
+          class="needs-validation"
+        >
+          <!-- Title -->
+          <div class="mb-3">
+            <label for="title" class="form-label">Listing Title</label>
             <input
               type="text"
-              name="listing[country]"
-              value="<%= listing.country %>"
+              id="title"
+              name="listing[title]"
+              value="<%= listing.title %>"
               class="form-control"
               required
             />
+            <div class="invalid-feedback">Please enter a title.</div>
           </div>
-        </div>
 
-        <!-- LOCATION -->
-        <div class="mb-3">
-          <label class="form-label"><b>LOCATION</b></label>
-          <input
-            type="text"
-            name="listing[location]"
-            value="<%= listing.location %>"
-            class="form-control"
-            required
-          />
-        </div>
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea
+              id="description"
+              name="listing[description]"
+              rows="4"
+              class="form-control"
+              required
+            ><%= listing.description %></textarea>
+            <div class="invalid-feedback">Please enter a description.</div>
+          </div>
 
-        <!-- CURRENT IMAGE PREVIEW -->
-        <div class="mb-3">
-          <label class="form-label"><b>Current Image</b></label>
-          <div>
+          <!-- Price -->
+          <div class="mb-3">
+            <label for="price" class="form-label">Price per night</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light fw-bold text-dark" style="border-color: var(--wl-border);">&#8377;</span>
+              <input
+                type="number"
+                id="price"
+                name="listing[price]"
+                value="<%= listing.price %>"
+                class="form-control"
+                min="0"
+                step="1"
+                required
+              />
+            </div>
+            <div class="invalid-feedback">Please enter a valid price.</div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <!-- Location -->
+            <div class="col-12 col-md-6">
+              <label for="location" class="form-label">Location / City</label>
+              <div class="wl-input-icon-group">
+                <i class="fa-solid fa-location-dot wl-lead-icon"></i>
+                <input
+                  type="text"
+                  id="location"
+                  name="listing[location]"
+                  value="<%= listing.location %>"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="invalid-feedback">Please enter a location.</div>
+            </div>
+
+            <!-- Country -->
+            <div class="col-12 col-md-6">
+              <label for="country" class="form-label">Country</label>
+              <div class="wl-input-icon-group">
+                <i class="fa-solid fa-earth-americas wl-lead-icon"></i>
+                <input
+                  type="text"
+                  id="country"
+                  name="listing[country]"
+                  list="countries-list"
+                  value="<%= listing.country %>"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <datalist id="countries-list">
+                <option value="India">
+                <option value="United States">
+                <option value="United Kingdom">
+                <option value="France">
+                <option value="Italy">
+                <option value="Spain">
+                <option value="Japan">
+                <option value="Thailand">
+                <option value="Indonesia">
+                <option value="Greece">
+              </datalist>
+              <div class="invalid-feedback">Please enter a country.</div>
+            </div>
+          </div>
+
+          <!-- Photo Dropzone -->
+          <div class="mb-4">
+            <label for="image" class="form-label">Change Photo (Optional)</label>
+            <div class="wl-dropzone">
+              <input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+              />
+              <div class="wl-dropzone-content">
+                <div class="wl-dropzone-icon">
+                  <i class="fa-regular fa-image"></i>
+                </div>
+                <div class="fw-semibold text-dark" style="font-size: 0.95rem;">
+                  Click or drag to replace current photo
+                </div>
+                <div class="text-muted small mt-1">
+                  Leave empty to keep existing photo &middot; Max 2 MB &middot; JPEG, PNG or WebP
+                </div>
+              </div>
+              <div class="wl-dropzone-preview text-center" style="display: none;">
+                <img
+                  src=""
+                  alt="New Listing Photo"
+                  class="rounded-3 shadow-sm border mb-2"
+                  style="max-height: 140px; object-fit: cover;"
+                />
+                <div class="small text-teal-600 fw-semibold">New photo selected &middot; Click to replace</div>
+              </div>
+              <div class="wl-dropzone-error text-danger small mt-2"></div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between pt-2">
+            <a href="/listings/<%= listing.id %>" class="btn wl-btn-outline px-4">
+              Cancel
+            </a>
+            <button type="submit" class="btn wl-btn-primary px-4">
+              Update Listing
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right: Live Preview Column -->
+    <div class="col-12 col-lg-5">
+      <div class="wl-card p-4 sticky-top" style="top: 88px;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="fw-bold text-dark small">Live Preview</div>
+          <span class="badge rounded-pill bg-light text-muted border small">Preview</span>
+        </div>
+        <p class="text-muted small mb-3">
+          Updates here reflect immediately as you edit the fields.
+        </p>
+
+        <!-- Preview Listing Card -->
+        <div class="wl-listing-card shadow-sm border">
+          <div class="wl-listing-img-wrap">
             <img
-              src="<%= listing.image.url %>"
-              alt="listing image"
-              style="width: 200px; border-radius: 8px"
+              id="preview-img"
+              src="<%= listing.image ? listing.image.url : '/images/landing_hero.jpg' %>"
+              alt="<%= listing.title %>"
+              class="wl-listing-img"
             />
+            <span class="wl-heart-btn" aria-hidden="true" tabindex="-1">
+              <i class="fa-regular fa-heart"></i>
+            </span>
+          </div>
+          <div class="wl-listing-body">
+            <h2 id="preview-title" class="wl-listing-title text-truncate">
+              <%= listing.title %>
+            </h2>
+            <div id="preview-location" class="wl-listing-location text-truncate">
+              <i class="fa-solid fa-location-dot text-muted"></i>
+              <span><%= listing.location %>, <%= listing.country %></span>
+            </div>
+            <div class="wl-listing-footer">
+              <span id="preview-price" class="wl-listing-price">&#8377;<%= listing.price ? listing.price.toLocaleString("en-IN") : '0' %></span>
+              <span class="wl-listing-unit">/ night</span>
+            </div>
           </div>
         </div>
-
-        <!-- NEW IMAGE UPLOAD -->
-        <div class="mb-3">
-          <label class="form-label"><b>Change Image</b></label>
-          <input
-            type="file"
-            name="image"
-            class="form-control"
-            accept="image/*"
-          />
-        </div>
-
-        <br />
-        <button type="submit" class="btn add-btn">Update</button>
-        <br /><br />
-      </form>
+      </div>
     </div>
   </div>
-</body>
+</div>
