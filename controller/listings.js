@@ -10,12 +10,21 @@ const Wishlist = require("../models/wishlist");
 // INDEX
 // =======================
 module.exports.index = async (req, res) => {
-  const alllistings = await Listing.findAll();
+  const { search, category, minPrice, maxPrice, sort } = req.query;
+  const alllistings = await Listing.findAll({ search, category, minPrice, maxPrice, sort });
   let wishlistListingIds = new Set();
   if (req.user) {
     wishlistListingIds = await Wishlist.getUserWishlistListingIds(req.user.id);
   }
-  res.render("listings/index.ejs", { alllistings, wishlistListingIds });
+  res.render("listings/index.ejs", {
+    alllistings,
+    wishlistListingIds,
+    search: search || "",
+    category: category || "all",
+    sort: sort || "default",
+    minPrice: minPrice || "",
+    maxPrice: maxPrice || "",
+  });
 };
 
 // =======================

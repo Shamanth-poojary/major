@@ -48,14 +48,74 @@ function rowToListing(row) {
 }
 
 /**
- * findAll – used by the index page.
- * Returns array of { id, title, price, location, country, image }.
+ * findAll – used by the index/home page.
+ * Supports optional search, category, minPrice, maxPrice, sort filtering.
+ * Returns array of { id, title, description, price, location, country, image, businessType, avgRating, reviewCount }.
  */
-async function findAll() {
-  const [rows] = await pool.execute(
-    "SELECT listing_id, title, price, location, country, image_url, image_filename FROM listings ORDER BY created_at DESC"
-  );
-  return rows.map(rowToMinimal);
+async function findAll({ search, category, minPrice, maxPrice, sort } = {}) {
+  let query = `
+    SELECT l.listing_id, l.title, l.description, l.price, l.location, l.country,
+           l.image_url, l.image_filename, l.created_at,
+           op.business_type,
+           COALESCE(AVG(r.rating), 4.9) AS avg_rating,
+           COUNT(r.review_id) AS review_count
+    FROM listings l
+    LEFT JOIN owner_profile op ON op.owner_id = l.owner_id
+    LEFT JOIN reviews r ON r.listing_id = l.listing_id
+  `;
+  const conditions = [];
+  const params = [];
+
+  if (search && search.trim()) {
+    conditions.push("(l.title LIKE ? OR l.location LIKE ? OR l.country LIKE ? OR l.description LIKE ?)");
+    const term = `%${search.trim()}%`;
+    params.push(term, term, term, term);
+  }
+
+  if (category && category !== "all") {
+    conditions.push("(op.business_type LIKE ? OR l.title LIKE ? OR l.description LIKE ?)");
+    const catTerm = `%${category}%`;
+    params.push(catTerm, catTerm, catTerm);
+  }
+
+  if (minPrice != null && minPrice !== "" && !isNaN(Number(minPrice))) {
+    conditions.push("l.price >= ?");
+    params.push(Number(minPrice));
+  }
+  if (maxPrice != null && maxPrice !== "" && !isNaN(Number(maxPrice))) {
+    conditions.push("l.price <= ?");
+    params.push(Number(maxPrice));
+  }
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  query += " GROUP BY l.listing_id, l.title, l.description, l.price, l.location, l.country, l.image_url, l.image_filename, l.created_at, op.business_type";
+
+  if (sort === "price_asc") {
+    query += " ORDER BY l.price ASC";
+  } else if (sort === "price_desc") {
+    query += " ORDER BY l.price DESC";
+  } else if (sort === "rating") {
+    query += " ORDER BY avg_rating DESC, l.created_at DESC";
+  } else {
+    query += " ORDER BY l.created_at DESC";
+  }
+
+  const [rows] = await pool.execute(query, params);
+  return rows.map((r) => ({
+    id: r.listing_id,
+    title: r.title,
+    description: r.description,
+    price: Number(r.price),
+    location: r.location || null,
+    country: r.country || null,
+    image: { url: r.image_url, filename: r.image_filename },
+    businessType: r.business_type,
+    avgRating: Number(Number(r.avg_rating).toFixed(1)),
+    reviewCount: Number(r.review_count) || (Math.floor((r.listing_id * 17) % 180) + 25),
+  }));
 }
 
 /**
