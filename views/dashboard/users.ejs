@@ -285,41 +285,16 @@
                 <% if (!isMainAdmin && !isSelf) { %>
                   <button
                     type="button"
-                    class="btn wl-btn-outline-danger btn-sm px-2 py-1"
+                    class="btn wl-btn-outline-danger btn-sm px-2 py-1 btn-delete-user"
                     data-bs-toggle="modal"
-                    data-bs-target="#deleteUserModal-<%= u.id %>"
+                    data-bs-target="#deleteUserModal"
+                    data-user-id="<%= u.id %>"
+                    data-username="<%= u.username %>"
+                    data-email="<%= u.email %>"
                     title="Delete user"
                   >
                     <i class="fa-regular fa-trash-can"></i>
                   </button>
-
-                  <!-- Delete Modal -->
-                  <div
-                    class="modal fade text-start"
-                    id="deleteUserModal-<%= u.id %>"
-                    tabindex="-1"
-                    aria-hidden="true"
-                  >
-                    <div class="modal-dialog modal-dialog-centered">
-                      <div class="modal-content border-0 shadow-lg" style="border-radius: var(--wl-radius-lg);">
-                        <form action="/dashboard/users/<%= u.id %>?_method=DELETE" method="POST">
-                          <div class="modal-header border-bottom">
-                            <h5 class="modal-title fw-bold text-dark">Confirm User Deletion</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                          </div>
-                          <div class="modal-body p-4">
-                            <p class="text-muted small mb-0">
-                              Are you sure you want to delete user <strong><%= u.username %></strong> (<%= u.email %>)? This action cannot be undone.
-                            </p>
-                          </div>
-                          <div class="modal-footer border-top bg-light">
-                            <button type="button" class="btn wl-btn-outline btn-sm" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger btn-sm px-4">Delete User</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
                 <% } %>
               </div>
             </td>
@@ -349,7 +324,34 @@
 <% } %>
 </div>
 
-<!-- Dynamic Filter and Custom Dropdown Logic -->
+<!-- Confirm User Deletion Modal (Placed outside table & card containers to prevent stacking & overflow clipping) -->
+<div
+  class="modal fade text-start"
+  id="deleteUserModal"
+  tabindex="-1"
+  aria-labelledby="deleteUserModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: var(--wl-radius-lg); background-color: var(--wl-surface) !important;">
+      <form id="deleteUserForm" action="" method="POST">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title fw-bold text-dark" id="deleteUserModalLabel">Confirm User Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-muted small mb-0">
+            Are you sure you want to delete user <strong id="deleteUserModalName" class="text-dark"></strong> (<span id="deleteUserModalEmail"></span>)? This action cannot be undone.
+          </p>
+        </div>
+        <div class="modal-footer border-top bg-light">
+          <button type="button" class="btn wl-btn-outline btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger btn-sm px-4">Delete User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <script>
   (function() {
     const form = document.getElementById("usersFilterForm");
@@ -523,6 +525,43 @@
         if (pageLink && pageLink.getAttribute("href")) {
           e.preventDefault();
           triggerFilter(pageLink.getAttribute("href"));
+        }
+      });
+    }
+
+    // Dynamic User Delete Modal Population
+    function setDeleteModalData(userId, username, email) {
+      const form = document.getElementById("deleteUserForm");
+      if (form && userId) {
+        form.action = `/dashboard/users/${userId}?_method=DELETE`;
+      }
+      const nameEl = document.getElementById("deleteUserModalName");
+      if (nameEl) nameEl.textContent = username || "";
+      const emailEl = document.getElementById("deleteUserModalEmail");
+      if (emailEl) emailEl.textContent = email || "";
+    }
+
+    document.addEventListener("click", function(e) {
+      const btn = e.target.closest(".btn-delete-user");
+      if (btn) {
+        setDeleteModalData(
+          btn.getAttribute("data-user-id"),
+          btn.getAttribute("data-username"),
+          btn.getAttribute("data-email")
+        );
+      }
+    });
+
+    const deleteModalEl = document.getElementById("deleteUserModal");
+    if (deleteModalEl) {
+      deleteModalEl.addEventListener("show.bs.modal", function(event) {
+        const btn = event.relatedTarget ? (event.relatedTarget.closest(".btn-delete-user") || event.relatedTarget) : null;
+        if (btn && btn.getAttribute) {
+          setDeleteModalData(
+            btn.getAttribute("data-user-id"),
+            btn.getAttribute("data-username"),
+            btn.getAttribute("data-email")
+          );
         }
       });
     }
