@@ -1384,9 +1384,19 @@ textarea.form-control {
 /* ==========================================================================
    CUSTOM SLEEK FILTER DROPDOWNS & LIVE FILTERING
    ========================================================================== */
+.wl-filters-card,
+.wl-card-overflow-visible {
+  overflow: visible !important;
+  position: relative;
+  z-index: 50;
+}
 .wl-custom-dropdown {
   position: relative;
   width: 100%;
+}
+.wl-custom-dropdown.show {
+  z-index: 1060;
+  position: relative;
 }
 .wl-custom-dropdown-btn {
   width: 100%;
@@ -1430,14 +1440,13 @@ textarea.form-control {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  right: 0;
-  min-width: 180px;
-  background-color: var(--wl-surface);
+  min-width: 190px;
+  background-color: #FFFFFF;
   border: 1.5px solid var(--wl-border);
   border-radius: var(--wl-radius-lg);
-  box-shadow: 0 12px 32px rgba(11, 47, 58, 0.14);
+  box-shadow: 0 16px 36px rgba(11, 47, 58, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
   padding: 6px;
-  z-index: 1050;
+  z-index: 1060;
   display: none;
   animation: wlDropdownSlide 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
