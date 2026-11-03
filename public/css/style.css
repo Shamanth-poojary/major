@@ -112,3 +112,15 @@ body {
   height: 400px;
   border-radius: 12px;
 }
+
+
+/* Signup form inline validation */
+.field-error {
+  color: #c62828;
+  font-size: 0.85rem;
+  margin: 4px 0 0;
+  min-height: 1em;
+}
+.input-invalid {
+  border-color: #c62828 !important;
+}

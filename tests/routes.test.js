@@ -1177,6 +1177,21 @@ describe("Section 11.3 Role and landing tests", () => {
     assert.ok(!res.text.includes('value="password123"'), "password must never be echoed");
   });
 
+  it("Fix B Checkpoint: Inline error slot receives server error message and input-invalid class", async () => {
+    const ag = agent();
+    const res = await ag
+      .post("/signup")
+      .send("role=owner&business_name=Sunset+Villas&business_type=hotel_owner&phone=%2B12345678901&username=testowner&email=invalidemail&password=short")
+      .redirects(0);
+
+    assert.equal(res.status, 400);
+    assert.match(res.text, /id="password-error"[^>]*>[\s\S]*password length must be at least 8 characters long/i);
+    assert.match(res.text, /id="password"[^>]*class="[^"]*input-invalid[^"]*"/);
+    assert.match(res.text, /id="email-error"[^>]*>[\s\S]*email must be a valid email/i);
+    assert.match(res.text, /id="email"[^>]*class="[^"]*input-invalid[^"]*"/);
+    assert.doesNotMatch(res.text, /id="username"[^>]*class="[^"]*input-invalid[^"]*"/);
+  });
+
   // R14: Admin login
   it("R14: Admin login with env credentials -> logged in, role=admin, navbar shows Admin badge", async () => {
     // Ensure clean state for single admin

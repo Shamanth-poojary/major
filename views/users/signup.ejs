@@ -120,7 +120,7 @@
               <i class="fa-solid fa-circle-info text-teal-600"></i>
               <span>Owner accounts are approved by an admin before you can add listings.</span>
             </div>
-            <div class="invalid-feedback">Please choose an account type.</div>
+            <p id="role-error" class="field-error" role="alert" aria-live="polite"><%= errs.role || '' %></p>
           </div>
 
           <!-- Owner Extra Fields (Toggled when Owner selected) -->
@@ -137,14 +137,15 @@
                   id="business_name"
                   name="business_name"
                   placeholder="e.g. Seaside Resort & Villas"
-                  class="form-control"
+                  class="form-control <%= errs.business_name ? 'input-invalid' : '' %>"
                   value="<%= vals.business_name || '' %>"
+                  aria-describedby="business_name-error"
                   <%= activeRole === 'owner' ? 'required' : 'disabled' %>
                   minlength="2"
                   maxlength="100"
                 />
               </div>
-              <div class="invalid-feedback">Please enter a business name (2-100 characters).</div>
+              <p id="business_name-error" class="field-error" role="alert" aria-live="polite"><%= errs.business_name || '' %></p>
             </div>
 
             <!-- Business Type -->
@@ -153,7 +154,8 @@
               <select
                 id="business_type"
                 name="business_type"
-                class="form-select"
+                class="form-select <%= errs.business_type ? 'input-invalid' : '' %>"
+                aria-describedby="business_type-error"
                 <%= activeRole === 'owner' ? 'required' : 'disabled' %>
               >
                 <option value="">Select business type...</option>
@@ -163,7 +165,7 @@
                   <% } %>
                 <% } %>
               </select>
-              <div class="invalid-feedback">Please select a business type.</div>
+              <p id="business_type-error" class="field-error" role="alert" aria-live="polite"><%= errs.business_type || '' %></p>
             </div>
 
             <!-- Phone -->
@@ -176,13 +178,14 @@
                   id="phone"
                   name="phone"
                   placeholder="+91 98765 43210"
-                  class="form-control"
+                  class="form-control <%= errs.phone ? 'input-invalid' : '' %>"
                   value="<%= vals.phone || '' %>"
+                  aria-describedby="phone-error"
                   <%= activeRole === 'owner' ? 'required' : 'disabled' %>
                   pattern="^\+?[0-9]{10,15}$"
                 />
               </div>
-              <div class="invalid-feedback">Please enter a valid phone number (10-15 digits).</div>
+              <p id="phone-error" class="field-error" role="alert" aria-live="polite"><%= errs.phone || '' %></p>
             </div>
           </div>
 
@@ -196,12 +199,13 @@
                 id="username"
                 name="username"
                 placeholder="Choose a username"
-                class="form-control"
+                class="form-control <%= errs.username ? 'input-invalid' : '' %>"
                 value="<%= vals.username || '' %>"
+                aria-describedby="username-error"
                 required
               />
             </div>
-            <div class="invalid-feedback">Please enter a username.</div>
+            <p id="username-error" class="field-error" role="alert" aria-live="polite"><%= errs.username || '' %></p>
           </div>
 
           <!-- Email -->
@@ -214,12 +218,13 @@
                 id="email"
                 name="email"
                 placeholder="you@example.com"
-                class="form-control"
+                class="form-control <%= errs.email ? 'input-invalid' : '' %>"
                 value="<%= vals.email || '' %>"
+                aria-describedby="email-error"
                 required
               />
             </div>
-            <div class="invalid-feedback">Please enter a valid email.</div>
+            <p id="email-error" class="field-error" role="alert" aria-live="polite"><%= errs.email || '' %></p>
           </div>
 
           <!-- Password -->
@@ -232,7 +237,8 @@
                 id="password"
                 name="password"
                 placeholder="Create a password"
-                class="form-control"
+                class="form-control <%= errs.password ? 'input-invalid' : '' %>"
+                aria-describedby="password-error"
                 required
               />
               <button
@@ -246,7 +252,7 @@
             <% if (Object.keys(errs).length > 0) { %>
               <div class="form-text text-muted small mt-1">Please re-enter your password.</div>
             <% } %>
-            <div class="invalid-feedback">Please enter a password.</div>
+            <p id="password-error" class="field-error" role="alert" aria-live="polite"><%= errs.password || '' %></p>
           </div>
 
           <!-- Profile Picture Dropzone -->
