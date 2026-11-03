@@ -12,6 +12,7 @@ const { requireRole }            = require("../middleware");
 const { validateOwnerApplication } = require("../utils/validateUser");
 const wrapAsync                  = require("../utils/wrapAsync");
 const ownerController            = require("../controller/owner");
+const { ownerDocUpload }         = require("../cloudConfig");
 
 // GET /owner/status
 router.get(
@@ -24,6 +25,7 @@ router.get(
 router.post(
   "/application",
   requireRole("owner"),
+  ownerDocUpload,
   validateOwnerApplication,
   wrapAsync(ownerController.submitApplication)
 );

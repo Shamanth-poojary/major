@@ -83,7 +83,10 @@ async function reapply(userId, { businessName, businessType, phone, documents })
   let docsJson = null;
   if (documents && documents.length) {
     const existing = await findByUserId(id);
-    const merged = existing && existing.documents ? [...existing.documents, ...documents] : documents;
+    const existingList = (existing && existing.documents) || [];
+    const existingIds = new Set(existingList.map((d) => d.publicId || d.url));
+    const newItems = documents.filter((d) => !existingIds.has(d.publicId || d.url));
+    const merged = [...existingList, ...newItems];
     docsJson = JSON.stringify(merged);
   }
 

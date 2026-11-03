@@ -92,6 +92,23 @@ const signupUpload = (req, res, next) => {
   });
 };
 
+const ownerDocUpload = (req, res, next) => {
+  signupMulter.fields([{ name: "legalDocuments", maxCount: 5 }])(req, res, (err) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        req.uploadError = "Each file must be 5 MB or smaller";
+      } else if (err.code === "LIMIT_FILE_COUNT" || err.code === "LIMIT_UNEXPECTED_FILE") {
+        req.uploadError = "You can upload up to 5 files";
+      } else if (err.code === "INVALID_FILE_TYPE" || err.message === "INVALID_FILE_TYPE") {
+        req.uploadError = "Only PDF, JPG or PNG files are allowed";
+      } else {
+        req.uploadError = err.message || "File upload failed. Please try again";
+      }
+    }
+    next();
+  });
+};
+
 const uploadBufferToCloudinary = (file, folder = "wanderlust/owner-documents") => {
   return new Promise((resolve, reject) => {
     const isPdf = file.mimetype === "application/pdf" || /\.pdf$/i.test(file.originalname);
@@ -130,6 +147,7 @@ module.exports = {
   avatarStorage,
   uploadAvatar,
   signupUpload,
+  ownerDocUpload,
   uploadBufferToCloudinary,
   deleteCloudinaryAsset,
 };
