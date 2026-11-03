@@ -34,8 +34,13 @@ if (!process.env.ADMIN_PASSWORD) process.env.ADMIN_PASSWORD = "adminpass99";
 const Module = require("module");
 const _origLoad = Module._load;
 
+let docUploadCount = 0;
+function getDocUploadCount() { return docUploadCount; }
+function resetDocUploadCount() { docUploadCount = 0; }
+
 const cloudinary = require("cloudinary").v2;
 cloudinary.uploader.upload_stream = (options, cb) => {
+  docUploadCount++;
   const { Writable } = require("stream");
   const stream = new Writable({
     write(chunk, encoding, next) {
@@ -259,13 +264,15 @@ async function createOwnerWithProfile(
   const businessType = profileData.businessType || "property_owner";
   const phone = profileData.phone || "+1234567890";
   const rejectionReason = profileData.rejectionReason || null;
+  const verificationNote = profileData.verificationNote || null;
+  const documents = profileData.documents ? JSON.stringify(profileData.documents) : null;
   const verifiedAt = status === "approved" ? new Date() : null;
 
   await dbConn.query(
     `INSERT INTO owner_profile
-       (owner_id, business_name, business_type, phone, verification_status, rejection_reason, verified_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [user.id, businessName, businessType, phone, status, rejectionReason, verifiedAt]
+       (owner_id, business_name, business_type, phone, verification_status, rejection_reason, verification_note, documents, verified_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [user.id, businessName, businessType, phone, status, rejectionReason, verificationNote, documents, verifiedAt]
   );
   user.ownerStatus = status;
   return user;
@@ -1622,6 +1629,21 @@ require("./dashboard_phase4.test")(() => ({
   createOwnerWithProfile,
   createListing,
   clearData,
+}));
+
+// --- Phase 8 Owner Legal Documents & Admin Verification Matrix ---------------
+require("./owner_verification_docs.test")(() => ({
+  app,
+  request,
+  dbConn,
+  agent,
+  loginAgent,
+  createUser,
+  createOwnerWithProfile,
+  createListing,
+  clearData,
+  getDocUploadCount,
+  resetDocUploadCount,
 }));
 
 after(async () => {
