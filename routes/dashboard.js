@@ -72,6 +72,12 @@ router.post(
   requireRole("admin"),
   wrapAsync(dashboardController.rejectOwner)
 );
+router.post(
+  "/approvals/:userId/request-info",
+  isLoggedIn,
+  requireRole("admin"),
+  wrapAsync(dashboardController.requestInfo)
+);
 
 // 6. Admin: User Management
 router.get(

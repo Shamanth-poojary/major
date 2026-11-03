@@ -167,7 +167,7 @@ module.exports.renderListings = async (req, res) => {
  * GET /dashboard/approvals (Admin)
  */
 module.exports.renderApprovals = async (req, res) => {
-  const VALID_STATUSES = ["pending", "approved", "rejected", "all"];
+  const VALID_STATUSES = ["pending", "approved", "rejected", "info_requested", "all"];
   const filter = VALID_STATUSES.includes(req.query.status) ? req.query.status : "pending";
   const owners = await OwnerProfile.listByStatus(filter);
   const counts = await OwnerProfile.countsByStatus();
@@ -239,6 +239,43 @@ module.exports.rejectOwner = async (req, res) => {
 
   await OwnerProfile.setDecision(userId, "rejected", reason || null);
   req.flash("success", `Owner ${user.username} rejected.`);
+  res.redirect(`/dashboard/approvals?status=${filter}`);
+};
+
+/**
+ * POST /dashboard/approvals/:userId/request-info (Admin)
+ */
+module.exports.requestInfo = async (req, res) => {
+  const body = req.body || {};
+  const filter = body.filter || req.query.status || "pending";
+  const userId = parseInt(req.params.userId, 10);
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+
+  if (!userId || userId < 1) {
+    req.flash("error", "Owner application not found");
+    return res.redirect(`/dashboard/approvals?status=${filter}`);
+  }
+
+  const profile = await OwnerProfile.findByUserId(userId);
+  const user    = profile ? await User.findById(userId) : null;
+
+  if (!profile || !user || user.role !== "owner") {
+    req.flash("error", "Owner application not found");
+    return res.redirect(`/dashboard/approvals?status=${filter}`);
+  }
+
+  if (!["pending", "info_requested"].includes(profile.status)) {
+    req.flash("error", "Can only request more information for pending applications.");
+    return res.redirect(`/dashboard/approvals?status=${filter}`);
+  }
+
+  if (message.length < 10 || message.length > 500) {
+    req.flash("error", "Please provide a message between 10 and 500 characters.");
+    return res.redirect(`/dashboard/approvals?status=${filter}`);
+  }
+
+  await OwnerProfile.requestInfo(userId, message);
+  req.flash("success", `Information request sent to ${user.username}.`);
   res.redirect(`/dashboard/approvals?status=${filter}`);
 };
 

@@ -77,8 +77,9 @@ module.exports.isApprovedOwner = (req, res, next) => {
     return res.redirect("/listings");
   }
   const messages = {
-    pending:  "Your owner application is awaiting admin approval. You can add listings once it is approved.",
-    rejected: "Your owner application was not approved. See the details below.",
+    pending:        "Your owner application is awaiting admin approval. You can add listings once it is approved.",
+    rejected:       "Your owner application was not approved. See the details below.",
+    info_requested: "Additional information has been requested for your owner application. Please review the details below.",
   };
   req.flash(
     "error",

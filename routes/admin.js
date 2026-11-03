@@ -33,4 +33,11 @@ router.post(
   wrapAsync(adminController.rejectOwner)
 );
 
+// POST /admin/owners/:userId/request-info
+router.post(
+  "/owners/:userId/request-info",
+  requireRole("admin"),
+  wrapAsync(adminController.requestInfo)
+);
+
 module.exports = router;
