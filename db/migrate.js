@@ -195,6 +195,36 @@ async function migrate() {
       console.log("Step 8: 'wishlists' table already exists - skipped.");
     }
 
+    // Step 9: Owner verification documents & info_requested status
+    const [statusCol] = await conn.query(
+      `SELECT COLUMN_TYPE FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'owner_profile' AND COLUMN_NAME = 'verification_status'`,
+      [dbName]
+    );
+    if (statusCol.length > 0 && !statusCol[0].COLUMN_TYPE.includes("info_requested")) {
+      await conn.query(
+        `ALTER TABLE owner_profile
+         MODIFY COLUMN verification_status ENUM('pending','approved','rejected','info_requested') NOT NULL DEFAULT 'pending'`
+      );
+      console.log("Step 9a: Updated 'verification_status' ENUM to include 'info_requested'.");
+    }
+
+    const [ownerCols] = await conn.query(
+      `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'owner_profile'
+         AND COLUMN_NAME IN ('verification_note', 'documents')`,
+      [dbName]
+    );
+    const existingOwnerCols = new Set(ownerCols.map((r) => r.COLUMN_NAME));
+    if (!existingOwnerCols.has("verification_note")) {
+      await conn.query(`ALTER TABLE owner_profile ADD COLUMN verification_note VARCHAR(500) NULL AFTER rejection_reason`);
+      console.log("Step 9b: Added 'verification_note' column to owner_profile.");
+    }
+    if (!existingOwnerCols.has("documents")) {
+      await conn.query(`ALTER TABLE owner_profile ADD COLUMN documents JSON NULL AFTER verification_note`);
+      console.log("Step 9c: Added 'documents' column to owner_profile.");
+    }
+
     console.log("Migration complete.");
   } finally {
     await conn.end();

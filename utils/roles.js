@@ -31,10 +31,11 @@ const BUSINESS_TYPES = {
 
 /** Owner approval status labels shown to users. */
 const OWNER_STATUS_LABELS = {
-  pending:  "Pending approval",
-  approved: "Approved",
-  rejected: "Not approved",
-  none:     "Application not submitted",
+  pending:        "Pending approval",
+  approved:       "Approved",
+  rejected:       "Not approved",
+  info_requested: "Info requested",
+  none:           "Application not submitted",
 };
 
 module.exports = { ROLES, SELF_REGISTER_ROLES, ROLE_LABELS, BUSINESS_TYPES, OWNER_STATUS_LABELS };
