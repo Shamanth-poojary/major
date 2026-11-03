@@ -516,14 +516,13 @@ module.exports = function runOwnerApprovalTests(getFixtures) {
       assert.match(statusPage.text, /Account created/i);
     });
 
-    it("A2: Owner signup with invalid phone -> error flash, redirect /signup?role=owner, no user row", async () => {
+    it("A2: Owner signup with invalid phone -> 400 re-render, error flash, no user row", async () => {
       const ag = agent();
       const res = await ag
         .post("/signup")
         .send("username=a2bad&email=a2bad@example.com&password=password123&role=owner&business_name=Bad&business_type=hotel_owner&phone=123")
         .redirects(0);
-      assert.equal(res.status, 302);
-      assert.match(res.headers.location, /\/signup\?role=owner/);
+      assert.equal(res.status, 400);
 
       const [users] = await dbConn.query("SELECT * FROM users WHERE username='a2bad'");
       assert.equal(users.length, 0);

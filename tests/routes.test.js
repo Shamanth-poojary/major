@@ -1003,15 +1003,14 @@ describe("Section 11.3 Role and landing tests", () => {
   });
 
   // R9: POST /signup with role=admin
-  it("R9: POST /signup with role=admin -> redirect /signup, error flash, no row", async () => {
+  it("R9: POST /signup with role=admin -> 400 re-render, error flash, no row", async () => {
     const [before] = await dbConn.query("SELECT COUNT(*) as c FROM users WHERE username=?", ["r9admin"]);
     const ag = agent();
     const res = await ag
       .post("/signup")
       .send("username=r9admin&email=r9admin@example.com&password=password99&role=admin")
       .redirects(0);
-    assert.equal(res.status, 302);
-    assert.match(res.headers.location, /\/signup/);
+    assert.equal(res.status, 400);
     const [after] = await dbConn.query("SELECT COUNT(*) as c FROM users WHERE username=?", ["r9admin"]);
     assert.equal(after[0].c, 0); // no row created
   });
@@ -1023,7 +1022,7 @@ describe("Section 11.3 Role and landing tests", () => {
       .post("/signup")
       .send("username=r10a&email=r10a@example.com&password=password99&role=ADMIN")
       .redirects(0);
-    assert.equal(res.status, 302);
+    assert.equal(res.status, 400);
     const [rows] = await dbConn.query("SELECT * FROM users WHERE username=?", ["r10a"]);
     assert.equal(rows.length, 0);
   });
@@ -1034,7 +1033,7 @@ describe("Section 11.3 Role and landing tests", () => {
       .post("/signup")
       .send("username=r10b&email=r10b@example.com&password=password99&role= admin")
       .redirects(0);
-    assert.equal(res.status, 302);
+    assert.equal(res.status, 400);
     const [rows] = await dbConn.query("SELECT * FROM users WHERE username=?", ["r10b"]);
     assert.equal(rows.length, 0);
   });
@@ -1045,7 +1044,7 @@ describe("Section 11.3 Role and landing tests", () => {
       .post("/signup")
       .send("username=r10c&email=r10c@example.com&password=password99&role=")
       .redirects(0);
-    assert.equal(res.status, 302);
+    assert.equal(res.status, 400);
     const [rows] = await dbConn.query("SELECT * FROM users WHERE username=?", ["r10c"]);
     assert.equal(rows.length, 0);
   });
@@ -1056,7 +1055,7 @@ describe("Section 11.3 Role and landing tests", () => {
       .post("/signup")
       .send("username=r10d&email=r10d@example.com&password=password99&role[]=admin")
       .redirects(0);
-    assert.equal(res.status, 302);
+    assert.equal(res.status, 400);
     const [rows] = await dbConn.query("SELECT * FROM users WHERE username=?", ["r10d"]);
     assert.equal(rows.length, 0);
   });
@@ -1081,8 +1080,7 @@ describe("Section 11.3 Role and landing tests", () => {
       .post("/signup")
       .send("username=ab&email=r12@example.com&password=password99&role=customer")
       .redirects(0);
-    assert.equal(res.status, 302);
-    assert.match(res.headers.location, /\/signup/);
+    assert.equal(res.status, 400);
     const [rows] = await dbConn.query("SELECT * FROM users WHERE username=?", ["ab"]);
     assert.equal(rows.length, 0);
   });
@@ -1093,8 +1091,7 @@ describe("Section 11.3 Role and landing tests", () => {
       .post("/signup")
       .send("username=r12buser&email=notanemail&password=password99&role=customer")
       .redirects(0);
-    assert.equal(res.status, 302);
-    assert.match(res.headers.location, /\/signup/);
+    assert.equal(res.status, 400);
     const [rows] = await dbConn.query("SELECT * FROM users WHERE username=?", ["r12buser"]);
     assert.equal(rows.length, 0);
   });
@@ -1105,8 +1102,7 @@ describe("Section 11.3 Role and landing tests", () => {
       .post("/signup")
       .send("username=r12cuser&email=r12c@example.com&password=short7c&role=customer")
       .redirects(0);
-    assert.equal(res.status, 302);
-    assert.match(res.headers.location, /\/signup/);
+    assert.equal(res.status, 400);
     const [rows] = await dbConn.query("SELECT * FROM users WHERE username=?", ["r12cuser"]);
     assert.equal(rows.length, 0);
   });
@@ -1144,6 +1140,41 @@ describe("Section 11.3 Role and landing tests", () => {
 
     // Clean up
     await dbConn.query("DELETE FROM users WHERE username='r13admin'");
+  });
+
+  // Fix A & Fix B: Signup validation and retained form values
+  it("Fix A Checkpoint: Owner signup with short password retains all other fields, owner section visible, no password echoed", async () => {
+    const ag = agent();
+    const res = await ag
+      .post("/signup")
+      .send("role=owner&business_name=Sunset+Villas&business_type=hotel_owner&phone=%2B12345678901&username=testowner&email=owner%40example.com&password=short")
+      .redirects(0);
+
+    assert.equal(res.status, 400);
+    assert.ok(res.text.includes('value="testowner"'), "username should be retained");
+    assert.ok(res.text.includes('value="owner@example.com"'), "email should be retained");
+    assert.ok(res.text.includes('value="Sunset Villas"'), "business_name should be retained");
+    assert.ok(res.text.includes('value="+12345678901"'), "phone should be retained");
+    assert.ok(res.text.includes('value="hotel_owner" selected'), "business_type should be selected");
+    assert.ok(res.text.includes('id="role-owner"') && res.text.includes('checked'), "role owner should be checked");
+    assert.ok(!res.text.includes('value="short"'), "password must never be echoed");
+    assert.ok(res.text.includes("Please re-enter your password"), "re-enter password hint must be shown");
+    assert.ok(!res.text.includes('id="owner-fields" class="p-3 mb-3 rounded-3" style="display: none;'), "owner fields should remain visible");
+  });
+
+  it("Fix A Checkpoint: Customer signup with invalid email retains username and keeps owner section hidden", async () => {
+    const ag = agent();
+    const res = await ag
+      .post("/signup")
+      .send("role=customer&username=testcustomer&email=invalidemail&password=password123")
+      .redirects(0);
+
+    assert.equal(res.status, 400);
+    assert.ok(res.text.includes('value="testcustomer"'), "username should be retained");
+    assert.ok(res.text.includes('value="invalidemail"'), "email input should be retained");
+    assert.ok(res.text.includes('id="role-customer"') && res.text.includes('checked'), "role customer should be checked");
+    assert.ok(res.text.includes('id="owner-fields" class="p-3 mb-3 rounded-3" style="display: none;'), "owner fields should remain hidden for customer");
+    assert.ok(!res.text.includes('value="password123"'), "password must never be echoed");
   });
 
   // R14: Admin login

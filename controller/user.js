@@ -9,7 +9,7 @@ module.exports.renderSignup = (req, res) => {
   const queryRole = req.query.role;
   // Preselect only if it is a valid self-registration role; otherwise default to customer
   const selectedRole = SELF_REGISTER_ROLES.includes(queryRole) ? queryRole : "customer";
-  res.render("users/signup.ejs", { selectedRole, BUSINESS_TYPES });
+  res.render("users/signup.ejs", { selectedRole, BUSINESS_TYPES, values: {}, errors: {} });
 };
 
 // post signup

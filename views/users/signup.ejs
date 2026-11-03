@@ -1,5 +1,11 @@
 <% layout("layouts/boilerplate") -%>
-<% const activeRole = (typeof selectedRole !== "undefined" && selectedRole) ? selectedRole : "customer"; %>
+<%
+  const vals = (typeof values !== "undefined" && values) ? values : {};
+  const errs = (typeof errors !== "undefined" && errors) ? errors : {};
+  const activeRole = (vals.role && (vals.role === "owner" || vals.role === "customer"))
+    ? vals.role
+    : ((typeof selectedRole !== "undefined" && selectedRole) ? selectedRole : "customer");
+%>
 
 <div class="wl-container my-4 my-md-5">
   <div class="wl-auth-container" style="max-width: 1080px;">
@@ -132,6 +138,7 @@
                   name="business_name"
                   placeholder="e.g. Seaside Resort & Villas"
                   class="form-control"
+                  value="<%= vals.business_name || '' %>"
                   <%= activeRole === 'owner' ? 'required' : 'disabled' %>
                   minlength="2"
                   maxlength="100"
@@ -152,7 +159,7 @@
                 <option value="">Select business type...</option>
                 <% if (typeof BUSINESS_TYPES !== "undefined") { %>
                   <% for (const [val, label] of Object.entries(BUSINESS_TYPES)) { %>
-                    <option value="<%= val %>"><%= label %></option>
+                    <option value="<%= val %>" <%= (vals.business_type === val) ? 'selected' : '' %>><%= label %></option>
                   <% } %>
                 <% } %>
               </select>
@@ -170,6 +177,7 @@
                   name="phone"
                   placeholder="+91 98765 43210"
                   class="form-control"
+                  value="<%= vals.phone || '' %>"
                   <%= activeRole === 'owner' ? 'required' : 'disabled' %>
                   pattern="^\+?[0-9]{10,15}$"
                 />
@@ -189,6 +197,7 @@
                 name="username"
                 placeholder="Choose a username"
                 class="form-control"
+                value="<%= vals.username || '' %>"
                 required
               />
             </div>
@@ -206,6 +215,7 @@
                 name="email"
                 placeholder="you@example.com"
                 class="form-control"
+                value="<%= vals.email || '' %>"
                 required
               />
             </div>
@@ -233,6 +243,9 @@
                 <i class="fa-regular fa-eye"></i>
               </button>
             </div>
+            <% if (Object.keys(errs).length > 0) { %>
+              <div class="form-text text-muted small mt-1">Please re-enter your password.</div>
+            <% } %>
             <div class="invalid-feedback">Please enter a password.</div>
           </div>
 

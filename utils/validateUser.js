@@ -44,13 +44,30 @@ module.exports.validateUser = (req, res, next) => {
   });
 
   if (error) {
-    const submittedRole = typeof req.body.role === "string" ? req.body.role : "";
-    const keep = SELF_REGISTER_ROLES.includes(submittedRole) ? `?role=${submittedRole}` : "";
-    const msg = error.details.some((d) => d.path[0] === "role")
-      ? "Please choose a valid account type."
-      : error.details.map((d) => d.message).join(", ");
-    req.flash("error", msg);
-    return res.redirect(`/signup${keep}`);
+    const errors = {};
+    for (const d of error.details) {
+      const field = d.path[0];
+      if (!errors[field]) {
+        if (field === "role") {
+          errors[field] = "Please choose a valid account type.";
+        } else {
+          errors[field] = d.message.replace(/"/g, "");
+        }
+      }
+    }
+
+    const submittedRole = typeof req.body?.role === "string" ? req.body.role : "";
+    const selectedRole = SELF_REGISTER_ROLES.includes(submittedRole) ? submittedRole : "customer";
+    const { password, confirmPassword, ...safeValues } = req.body || {};
+
+    res.locals.error = ["Please fix the highlighted fields."];
+
+    return res.status(400).render("users/signup.ejs", {
+      selectedRole,
+      BUSINESS_TYPES,
+      values: safeValues,
+      errors,
+    });
   }
 
   req.body = value; // only validated fields continue
