@@ -169,7 +169,7 @@
             </div>
 
             <!-- Phone -->
-            <div class="mb-2">
+            <div class="mb-3">
               <label for="phone" class="form-label">Phone Number</label>
               <div class="wl-input-icon-group">
                 <i class="fa-solid fa-phone wl-lead-icon"></i>
@@ -186,6 +186,29 @@
                 />
               </div>
               <p id="phone-error" class="field-error" role="alert" aria-live="polite"><%= errs.phone || '' %></p>
+            </div>
+
+            <!-- Legal Documents -->
+            <div class="mb-2">
+              <label for="legalDocuments" class="form-label">Legal Documents <span aria-hidden="true" class="text-danger">*</span></label>
+              <input
+                type="file"
+                id="legalDocuments"
+                name="legalDocuments"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png"
+                class="form-control <%= errs.legalDocuments ? 'input-invalid' : '' %>"
+                aria-describedby="legalDocuments-error legalDocuments-hint"
+                <%= activeRole === 'owner' ? '' : 'disabled' %>
+              />
+              <p id="legalDocuments-hint" class="field-hint form-text text-muted small mt-1">
+                Business registration, licence, ID proof, property ownership/lease. PDF, JPG or PNG, up to 5 files, 5 MB each.
+              </p>
+              <% if (Object.keys(errs).length > 0 && activeRole === 'owner' && !errs.legalDocuments) { %>
+                <div class="form-text text-muted small mt-1">For security, please re-attach your documents.</div>
+              <% } %>
+              <ul id="legalDocuments-list" class="file-list list-unstyled small text-muted mt-2 mb-1"></ul>
+              <p id="legalDocuments-error" class="field-error" role="alert" aria-live="polite"><%= errs.legalDocuments || '' %></p>
             </div>
           </div>
 

@@ -3,6 +3,7 @@ const pool   = require("../db/pool");
 const User   = require("../models/user");
 const OwnerProfile = require("../models/ownerProfile");
 const { SELF_REGISTER_ROLES, ROLE_LABELS, BUSINESS_TYPES } = require("../utils/roles");
+const { uploadBufferToCloudinary, deleteCloudinaryAsset } = require("../cloudConfig");
 
 // signup routes
 module.exports.renderSignup = (req, res) => {
@@ -16,17 +17,42 @@ module.exports.renderSignup = (req, res) => {
 module.exports.signupUser = async (req, res, next) => {
   // req.body has already been validated and sanitised by validateUser middleware
   const { username, email, password, role, business_name, business_type, phone } = req.body;
-  const profilePictureUrl = req.file ? req.file.path : null;
-  const profilePicturePublicId = req.file ? req.file.filename : null;
+
+  let profilePictureUrl = null;
+  let profilePicturePublicId = null;
+
+  const avatarFile = req.file || (req.files && req.files.profile_picture ? req.files.profile_picture[0] : null);
+  if (avatarFile && avatarFile.buffer) {
+    if (avatarFile.size > 2 * 1024 * 1024) {
+      req.avatarUploadError = "File too large. Max 2 MB allowed.";
+    } else {
+      try {
+        const avatarRes = await uploadBufferToCloudinary(avatarFile, "wanderlust/avatars");
+        profilePictureUrl = avatarRes.url;
+        profilePicturePublicId = avatarRes.publicId;
+      } catch (err) {
+        req.avatarUploadError = "Avatar upload failed.";
+      }
+    }
+  } else if (avatarFile && avatarFile.path) {
+    profilePictureUrl = avatarFile.path;
+    profilePicturePublicId = avatarFile.filename;
+  }
 
   if (req.avatarUploadError) {
     req.flash("info", `Profile picture upload skipped: ${req.avatarUploadError}`);
   }
 
+  let uploadedDocs = [];
   try {
     const passwordHash = await bcrypt.hash(password, 10);
 
     if (role === "owner") {
+      const legalFiles = (req.files && req.files.legalDocuments) ? req.files.legalDocuments : [];
+      uploadedDocs = await Promise.all(
+        legalFiles.map((f) => uploadBufferToCloudinary(f, "wanderlust/owner-documents"))
+      );
+
       // Owner: run user insert + profile insert in a single transaction
       const conn = await pool.getConnection();
       try {
@@ -45,7 +71,12 @@ module.exports.signupUser = async (req, res, next) => {
         );
         await OwnerProfile.create(
           user.id,
-          { businessName: business_name, businessType: business_type, phone },
+          {
+            businessName: business_name,
+            businessType: business_type,
+            phone,
+            documents: uploadedDocs,
+          },
           conn
         );
         await conn.commit();
@@ -57,25 +88,40 @@ module.exports.signupUser = async (req, res, next) => {
         });
       } catch (e) {
         await conn.rollback();
+        if (uploadedDocs.length > 0) {
+          await Promise.all(
+            uploadedDocs.map((doc) => deleteCloudinaryAsset(doc.publicId, doc.resourceType))
+          ).catch(() => {});
+        }
+        if (profilePicturePublicId) {
+          await deleteCloudinaryAsset(profilePicturePublicId, "image").catch(() => {});
+        }
         throw e; // ER_DUP_ENTRY handled below
       } finally {
         conn.release();
       }
     } else {
       // Customer: simple insert
-      const user = await User.create({
-        username,
-        email,
-        passwordHash,
-        role,
-        profilePictureUrl,
-        profilePicturePublicId,
-      });
-      req.login({ id: user.id, username, email, role, ownerStatus: null }, (err) => {
-        if (err) return next(err);
-        req.flash("success", `Welcome to Wanderlust! You are registered as ${ROLE_LABELS[role]}.`);
-        res.redirect("/listings");
-      });
+      try {
+        const user = await User.create({
+          username,
+          email,
+          passwordHash,
+          role,
+          profilePictureUrl,
+          profilePicturePublicId,
+        });
+        req.login({ id: user.id, username, email, role, ownerStatus: null }, (err) => {
+          if (err) return next(err);
+          req.flash("success", `Welcome to Wanderlust! You are registered as ${ROLE_LABELS[role]}.`);
+          res.redirect("/listings");
+        });
+      } catch (e) {
+        if (profilePicturePublicId) {
+          await deleteCloudinaryAsset(profilePicturePublicId, "image").catch(() => {});
+        }
+        throw e;
+      }
     }
   } catch (e) {
     if (e.code === "ER_DUP_ENTRY") {

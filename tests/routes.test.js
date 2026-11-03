@@ -34,6 +34,25 @@ if (!process.env.ADMIN_PASSWORD) process.env.ADMIN_PASSWORD = "adminpass99";
 const Module = require("module");
 const _origLoad = Module._load;
 
+const cloudinary = require("cloudinary").v2;
+cloudinary.uploader.upload_stream = (options, cb) => {
+  const { Writable } = require("stream");
+  const stream = new Writable({
+    write(chunk, encoding, next) {
+      next();
+    },
+  });
+  stream.on("finish", () => {
+    cb(null, {
+      secure_url: "https://res.cloudinary.com/test/raw/upload/v1234567890/doc.pdf",
+      public_id: "wanderlust/owner-documents/stub_doc",
+      resource_type: options && options.resource_type ? options.resource_type : "raw",
+    });
+  });
+  return stream;
+};
+cloudinary.uploader.destroy = async () => ({ result: "ok" });
+
 let geocoderShouldFail = false;
 let geocoderReturnEmpty = false;
 let uploadCount = 0;
@@ -982,7 +1001,14 @@ describe("Section 11.3 Role and landing tests", () => {
     const ag = agent();
     const res = await ag
       .post("/signup")
-      .send("username=r7user&email=r7user@example.com&password=password99&role=owner&business_name=R7+Stays&business_type=property_owner&phone=%2B1234567890")
+      .field("username", "r7user")
+      .field("email", "r7user@example.com")
+      .field("password", "password99")
+      .field("role", "owner")
+      .field("business_name", "R7 Stays")
+      .field("business_type", "property_owner")
+      .field("phone", "+1234567890")
+      .attach("legalDocuments", Buffer.from("%PDF-1.4 test document"), "test_deed.pdf")
       .redirects(0);
     assert.equal(res.status, 302);
     assert.match(res.headers.location, /\/owner\/status/);

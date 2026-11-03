@@ -69,7 +69,9 @@
         ownerFields.style.display = "";
         inputs.forEach((input) => {
           input.disabled = false;
-          input.required = true;
+          if (input.id !== "legalDocuments") {
+            input.required = true;
+          }
         });
       } else {
         ownerFields.style.display = "none";
@@ -162,6 +164,80 @@
       return result === true;
     };
 
+    const legalDocsInput = document.getElementById("legalDocuments");
+    const legalDocsList = document.getElementById("legalDocuments-list");
+
+    const formatBytes = (bytes) => {
+      if (bytes === 0) return "0 Bytes";
+      const k = 1024;
+      const sizes = ["Bytes", "KB", "MB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+    };
+
+    const escapeHtml = (str) => {
+      const p = document.createElement("p");
+      p.textContent = str;
+      return p.innerHTML;
+    };
+
+    const validateLegalDocs = (isSubmit = false) => {
+      if (!isOwnerSelected() || !legalDocsInput) return true;
+      const files = Array.from(legalDocsInput.files || []);
+
+      if (files.length === 0) {
+        if (isSubmit || touched.has("legalDocuments")) {
+          return "Please upload at least one legal document";
+        }
+        return true;
+      }
+      if (files.length > 5) {
+        return "You can upload up to 5 files";
+      }
+
+      const allowedMimes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
+      const allowedExts = /\.(pdf|jpg|jpeg|png)$/i;
+
+      for (const file of files) {
+        const isAllowed = allowedMimes.includes(file.type) || allowedExts.test(file.name);
+        if (!isAllowed) {
+          return "Only PDF, JPG or PNG files are allowed";
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          return "Each file must be 5 MB or smaller";
+        }
+      }
+      return true;
+    };
+
+    const renderLegalDocsList = () => {
+      if (!legalDocsList || !legalDocsInput) return;
+      legalDocsList.innerHTML = "";
+      const files = Array.from(legalDocsInput.files || []);
+      files.forEach((file) => {
+        const li = document.createElement("li");
+        li.className = "d-flex align-items-center gap-2 mb-1";
+        const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+        const iconClass = isPdf ? "fa-file-pdf text-danger" : "fa-file-image text-primary";
+        li.innerHTML = `<i class="fa-regular ${iconClass}"></i> <span>${escapeHtml(file.name)}</span> <span class="text-muted">(${formatBytes(file.size)})</span>`;
+        legalDocsList.appendChild(li);
+      });
+    };
+
+    if (legalDocsInput) {
+      legalDocsInput.addEventListener("change", () => {
+        touched.add("legalDocuments");
+        const result = validateLegalDocs(false);
+        const errorMsg = result === true ? "" : result;
+        show(legalDocsInput, errorMsg);
+        if (result === true && (legalDocsInput.files || []).length > 0) {
+          renderLegalDocsList();
+        } else {
+          if (legalDocsList) legalDocsList.innerHTML = "";
+        }
+      });
+    }
+
     signupForm.querySelectorAll("input, select").forEach((el) => {
       if (rules[el.name]) {
         el.addEventListener("input", () => check(el, false));
@@ -169,10 +245,19 @@
       }
     });
 
-    signupForm.addEventListener("submit", () => {
+    signupForm.addEventListener("submit", (e) => {
       signupForm.querySelectorAll("input, select").forEach((el) => {
         if (rules[el.name]) check(el, true);
       });
+      if (isOwnerSelected() && legalDocsInput) {
+        touched.add("legalDocuments");
+        const docRes = validateLegalDocs(true);
+        if (docRes !== true) {
+          show(legalDocsInput, docRes);
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }
     });
 
     // Clear owner errors if switched to customer
@@ -183,6 +268,11 @@
             const input = signupForm.querySelector(`[name="${name}"]`);
             if (input) show(input, "");
           });
+          if (legalDocsInput) {
+            show(legalDocsInput, "");
+            legalDocsInput.value = "";
+          }
+          if (legalDocsList) legalDocsList.innerHTML = "";
         }
       });
     });

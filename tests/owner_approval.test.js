@@ -497,7 +497,14 @@ module.exports = function runOwnerApprovalTests(getFixtures) {
       const ag = agent();
       const res = await ag
         .post("/signup")
-        .send("username=a1owner&email=a1owner@example.com&password=password123&role=owner&business_name=A1+Hotels&business_type=hotel_owner&phone=%2B12345678901")
+        .field("username", "a1owner")
+        .field("email", "a1owner@example.com")
+        .field("password", "password123")
+        .field("role", "owner")
+        .field("business_name", "A1 Hotels")
+        .field("business_type", "hotel_owner")
+        .field("phone", "+12345678901")
+        .attach("legalDocuments", Buffer.from("%PDF-1.4 test dummy doc"), "deed.pdf")
         .redirects(0);
       assert.equal(res.status, 302);
       assert.equal(res.headers.location, "/owner/status");
@@ -543,7 +550,14 @@ module.exports = function runOwnerApprovalTests(getFixtures) {
         const ag = agent();
         const res = await ag
           .post("/signup")
-          .send("username=a3fail&email=a3fail@example.com&password=password123&role=owner&business_name=A3+Fail&business_type=hotel_owner&phone=%2B12345678901");
+          .field("username", "a3fail")
+          .field("email", "a3fail@example.com")
+          .field("password", "password123")
+          .field("role", "owner")
+          .field("business_name", "A3 Fail")
+          .field("business_type", "hotel_owner")
+          .field("phone", "+12345678901")
+          .attach("legalDocuments", Buffer.from("%PDF-1.4 test dummy doc"), "deed.pdf");
         // Error handler catches it
         assert.ok(res.status >= 400);
 

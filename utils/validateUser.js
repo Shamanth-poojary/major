@@ -43,8 +43,8 @@ module.exports.validateUser = (req, res, next) => {
     stripUnknown: true,
   });
 
+  const errors = {};
   if (error) {
-    const errors = {};
     for (const d of error.details) {
       const field = d.path[0];
       if (!errors[field]) {
@@ -55,7 +55,21 @@ module.exports.validateUser = (req, res, next) => {
         }
       }
     }
+  }
 
+  const role = req.body?.role || value?.role;
+  if (role === "owner") {
+    const files = req.files?.legalDocuments || [];
+    if (req.uploadError) {
+      errors.legalDocuments = req.uploadError;
+    } else if (!files || files.length === 0) {
+      errors.legalDocuments = "Please upload at least one legal document";
+    } else if (files.length > 5) {
+      errors.legalDocuments = "You can upload up to 5 files";
+    }
+  }
+
+  if (Object.keys(errors).length > 0) {
     const submittedRole = typeof req.body?.role === "string" ? req.body.role : "";
     const selectedRole = SELF_REGISTER_ROLES.includes(submittedRole) ? submittedRole : "customer";
     const { password, confirmPassword, ...safeValues } = req.body || {};
