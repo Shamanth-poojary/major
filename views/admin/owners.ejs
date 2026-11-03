@@ -113,6 +113,21 @@
               <!-- Business Name -->
               <td>
                 <span class="fw-medium text-dark"><%= owner.businessName %></span>
+                <div class="mt-1">
+                  <% if (owner.documents && owner.documents.length > 0) { %>
+                    <button
+                      type="button"
+                      class="btn btn-link btn-sm p-0 text-decoration-none text-teal-600 fw-semibold"
+                      style="font-size: 0.78rem;"
+                      data-bs-toggle="modal"
+                      data-bs-target="#docsModal-<%= owner.userId %>"
+                    >
+                      <i class="fa-solid fa-paperclip me-1"></i>View documents (<%= owner.documents.length %>)
+                    </button>
+                  <% } else { %>
+                    <span class="text-muted" style="font-size: 0.78rem;">No documents submitted</span>
+                  <% } %>
+                </div>
               </td>
 
               <!-- Business Type -->
@@ -219,6 +234,75 @@
                       </div>
                     </div>
                   <% } %>
+
+                  <!-- Documents Modal -->
+                  <div
+                    class="modal fade text-start"
+                    id="docsModal-<%= owner.userId %>"
+                    tabindex="-1"
+                    aria-labelledby="docsModalLabel-<%= owner.userId %>"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                      <div class="modal-content border-0 shadow-lg" style="border-radius: var(--wl-radius-lg);">
+                        <div class="modal-header border-bottom">
+                          <h5 class="modal-title fw-bold text-dark" id="docsModalLabel-<%= owner.userId %>">
+                            Verification Documents &middot; <%= owner.businessName %>
+                          </h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                          <div class="text-muted small mb-3">
+                            Submitted by <strong><%= owner.username %></strong> (<%= owner.email %>)
+                          </div>
+                          <% if (!owner.documents || owner.documents.length === 0) { %>
+                            <div class="alert alert-light border text-muted small mb-0">
+                              No documents submitted
+                            </div>
+                          <% } else { %>
+                            <div class="d-flex flex-column gap-2">
+                              <% for (const doc of owner.documents) { %>
+                                <%
+                                  const isPdf = (doc.mimeType === 'application/pdf') || /\.pdf$/i.test(doc.originalName || '') || (doc.resourceType === 'raw');
+                                  const docSize = doc.size ? ((doc.size / (1024 * 1024)).toFixed(2) + ' MB') : 'Unknown size';
+                                  const docDate = doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+                                %>
+                                <div class="d-flex align-items-center justify-content-between p-3 border rounded-3 bg-white">
+                                  <div class="d-flex align-items-center gap-3">
+                                    <% if (isPdf) { %>
+                                      <div class="rounded d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger" style="width: 44px; height: 44px; font-size: 1.4rem; flex-shrink: 0;">
+                                        <i class="fa-regular fa-file-pdf"></i>
+                                      </div>
+                                    <% } else { %>
+                                      <a href="<%= doc.url %>" target="_blank" rel="noopener noreferrer">
+                                        <img src="<%= doc.url %>" alt="<%= doc.originalName || 'Document' %>" class="rounded border" style="width: 44px; height: 44px; object-fit: cover; flex-shrink: 0;" />
+                                      </a>
+                                    <% } %>
+                                    <div>
+                                      <div class="fw-semibold text-dark text-break"><%= doc.originalName || 'Verification Document' %></div>
+                                      <div class="text-muted small">
+                                        <%= docSize %><% if (docDate) { %> &middot; Uploaded <%= docDate %><% } %>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <a href="<%= doc.url %>" target="_blank" rel="noopener noreferrer" class="btn wl-btn-outline btn-sm px-3">
+                                      Open <i class="fa-solid fa-arrow-up-right-from-square ms-1" style="font-size: 0.75rem;"></i>
+                                    </a>
+                                  </div>
+                                </div>
+                              <% } %>
+                            </div>
+                          <% } %>
+                        </div>
+                        <div class="modal-footer border-top bg-light">
+                          <button type="button" class="btn wl-btn-primary btn-sm px-4" data-bs-dismiss="modal">
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </td>
             </tr>
