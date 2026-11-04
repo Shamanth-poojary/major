@@ -167,6 +167,23 @@ async function dbSetup() {
     ) ENGINE=InnoDB
   `);
   await dbConn.query(`
+    CREATE TABLE IF NOT EXISTS owner_documents (
+      document_id   INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+      owner_id      INT UNSIGNED  NOT NULL,
+      file_url      VARCHAR(500)  NOT NULL,
+      public_id     VARCHAR(255)  NULL,
+      original_name VARCHAR(255)  NULL,
+      mime_type     VARCHAR(100)  NULL,
+      file_size     INT UNSIGNED  NULL,
+      resource_type VARCHAR(50)   NULL,
+      uploaded_at   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (document_id),
+      CONSTRAINT fk_owner_documents_owner FOREIGN KEY (owner_id)
+        REFERENCES owner_profile (owner_id) ON DELETE CASCADE,
+      KEY idx_owner_documents_owner (owner_id)
+    ) ENGINE=InnoDB
+  `);
+  await dbConn.query(`
     CREATE TABLE IF NOT EXISTS listings (
       listing_id     INT UNSIGNED  NOT NULL AUTO_INCREMENT,
       owner_id       INT UNSIGNED  NOT NULL,
@@ -237,6 +254,7 @@ async function clearData() {
   await dbConn.query("DELETE FROM wishlists");
   await dbConn.query("DELETE FROM reviews");
   await dbConn.query("DELETE FROM listings");
+  await dbConn.query("DELETE FROM owner_documents");
   await dbConn.query("DELETE FROM owner_profile");
   await dbConn.query("DELETE FROM users");
   await dbConn.query("SET FOREIGN_KEY_CHECKS=1");
@@ -274,6 +292,27 @@ async function createOwnerWithProfile(
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [user.id, businessName, businessType, phone, status, rejectionReason, verificationNote, documents, verifiedAt]
   );
+
+  if (profileData.documents && Array.isArray(profileData.documents)) {
+    for (const d of profileData.documents) {
+      await dbConn.query(
+        `INSERT INTO owner_documents
+           (owner_id, file_url, public_id, original_name, mime_type, file_size, resource_type, uploaded_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))`,
+        [
+          user.id,
+          d.url || d.fileUrl,
+          d.publicId || null,
+          d.originalName || null,
+          d.mimeType || null,
+          d.size || d.fileSize || null,
+          d.resourceType || "image",
+          d.uploadedAt ? new Date(d.uploadedAt) : null,
+        ]
+      );
+    }
+  }
+
   user.ownerStatus = status;
   return user;
 }

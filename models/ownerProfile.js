@@ -1,11 +1,28 @@
 /**
  * models/ownerProfile.js
- * Data-access functions for the owner_profile table.
+ * Data-access functions for the owner_profile and owner_documents tables.
+ *
+ * Fully normalized (1NF compliant): documents are stored in owner_documents child table.
  */
 
 "use strict";
 
 const pool = require("../db/pool");
+
+/**
+ * Format an owner_documents row into the canonical document object shape.
+ */
+function docRowToObject(r) {
+  return {
+    url:          r.file_url,
+    publicId:     r.public_id || null,
+    originalName: r.original_name || null,
+    mimeType:     r.mime_type || null,
+    size:         r.file_size != null ? Number(r.file_size) : null,
+    resourceType: r.resource_type || "image",
+    uploadedAt:   r.uploaded_at ? new Date(r.uploaded_at).toISOString() : new Date().toISOString(),
+  };
+}
 
 /**
  * Parse a raw database row into the canonical owner profile shape.
@@ -42,71 +59,194 @@ function rowToProfile(row) {
 }
 
 /**
- * Insert a new pending profile for an owner.
- * Accepts an optional db argument for transaction use.
+ * Insert a new pending profile for an owner and its documents into owner_documents.
+ * Accepts an optional db argument for external transaction coordination.
  */
 async function create(userId, { businessName, businessType, phone, documents }, db = pool) {
   const id = parseInt(userId, 10);
   if (!id || id < 1) return null;
-  const docsJson = documents && documents.length ? JSON.stringify(documents) : null;
-  await db.execute(
-    `INSERT INTO owner_profile
-       (owner_id, business_name, business_type, phone, verification_status, documents)
-     VALUES (?, ?, ?, ?, 'pending', ?)`,
-    [id, businessName, businessType, phone || null, docsJson]
-  );
+
+  const isExternalTx = db !== pool;
+  const conn = isExternalTx ? db : await pool.getConnection();
+
+  try {
+    if (!isExternalTx) {
+      await conn.beginTransaction();
+    }
+
+    // Check if documents column still exists on owner_profile (during phased migration)
+    const [cols] = await conn.query(
+      `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'owner_profile' AND COLUMN_NAME = 'documents'`
+    );
+    const hasDocsCol = cols.length > 0;
+
+    if (hasDocsCol) {
+      const docsJson = documents && documents.length ? JSON.stringify(documents) : null;
+      await conn.execute(
+        `INSERT INTO owner_profile
+           (owner_id, business_name, business_type, phone, verification_status, documents)
+         VALUES (?, ?, ?, ?, 'pending', ?)`,
+        [id, businessName, businessType, phone || null, docsJson]
+      );
+    } else {
+      await conn.execute(
+        `INSERT INTO owner_profile
+           (owner_id, business_name, business_type, phone, verification_status)
+         VALUES (?, ?, ?, ?, 'pending')`,
+        [id, businessName, businessType, phone || null]
+      );
+    }
+
+    // Insert each document into owner_documents table
+    if (documents && Array.isArray(documents) && documents.length > 0) {
+      for (const d of documents) {
+        await conn.execute(
+          `INSERT INTO owner_documents
+             (owner_id, file_url, public_id, original_name, mime_type, file_size, resource_type, uploaded_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))`,
+          [
+            id,
+            d.url || d.fileUrl,
+            d.publicId || null,
+            d.originalName || null,
+            d.mimeType || null,
+            d.size != null ? d.size : (d.fileSize != null ? d.fileSize : null),
+            d.resourceType || "image",
+            d.uploadedAt ? new Date(d.uploadedAt) : null,
+          ]
+        );
+      }
+    }
+
+    if (!isExternalTx) {
+      await conn.commit();
+    }
+  } catch (err) {
+    if (!isExternalTx) {
+      await conn.rollback();
+    }
+    throw err;
+  } finally {
+    if (!isExternalTx) {
+      conn.release();
+    }
+  }
 }
 
 /**
- * Find a profile by owner user_id.
- * Returns the profile object or null.
+ * Find a profile by owner user_id, including its normalized documents.
+ * Returns the canonical profile object or null.
  */
-async function findByUserId(userId) {
+async function findByUserId(userId, db = pool) {
   const id = parseInt(userId, 10);
   if (!id || id < 1) return null;
-  const [rows] = await pool.execute(
+
+  const [rows] = await db.execute(
     `SELECT * FROM owner_profile WHERE owner_id = ? LIMIT 1`,
     [id]
   );
-  return rowToProfile(rows[0] || null);
+  if (!rows[0]) return null;
+
+  const profile = rowToProfile(rows[0]);
+
+  // Load normalized documents from owner_documents child table
+  const [docRows] = await db.execute(
+    `SELECT * FROM owner_documents WHERE owner_id = ? ORDER BY document_id`,
+    [id]
+  );
+
+  if (docRows && docRows.length > 0) {
+    profile.documents = docRows.map(docRowToObject);
+  }
+
+  return profile;
 }
 
 /**
  * Update profile details and reset status to 'pending'.
  * Only proceeds when the current status is 'rejected' or 'info_requested'.
+ * Writes new documents to owner_documents inside a single transaction.
  * Returns the number of affected rows.
  */
 async function reapply(userId, { businessName, businessType, phone, documents }) {
   const id = parseInt(userId, 10);
   if (!id || id < 1) return 0;
 
-  let docsJson = null;
-  if (documents && documents.length) {
-    const existing = await findByUserId(id);
-    const existingList = (existing && existing.documents) || [];
-    const existingIds = new Set(existingList.map((d) => d.publicId || d.url));
-    const newItems = documents.filter((d) => !existingIds.has(d.publicId || d.url));
-    const merged = [...existingList, ...newItems];
-    docsJson = JSON.stringify(merged);
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    // Check if documents column still exists on owner_profile
+    const [cols] = await conn.query(
+      `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'owner_profile' AND COLUMN_NAME = 'documents'`
+    );
+    const hasDocsCol = cols.length > 0;
+
+    let mergedDocsJson = null;
+    if (hasDocsCol && documents && documents.length) {
+      const existing = await findByUserId(id, conn);
+      const existingList = (existing && existing.documents) || [];
+      const existingIds = new Set(existingList.map((d) => d.publicId || d.url));
+      const newItems = documents.filter((d) => !existingIds.has(d.publicId || d.url));
+      const merged = [...existingList, ...newItems];
+      mergedDocsJson = JSON.stringify(merged);
+    }
+
+    const sql = (hasDocsCol && mergedDocsJson)
+      ? `UPDATE owner_profile
+         SET business_name = ?, business_type = ?, phone = ?,
+             verification_status = 'pending', rejection_reason = NULL, verification_note = NULL, verified_at = NULL,
+             documents = ?
+         WHERE owner_id = ? AND verification_status IN ('rejected', 'info_requested')`
+      : `UPDATE owner_profile
+         SET business_name = ?, business_type = ?, phone = ?,
+             verification_status = 'pending', rejection_reason = NULL, verification_note = NULL, verified_at = NULL
+         WHERE owner_id = ? AND verification_status IN ('rejected', 'info_requested')`;
+
+    const params = (hasDocsCol && mergedDocsJson)
+      ? [businessName, businessType, phone || null, mergedDocsJson, id]
+      : [businessName, businessType, phone || null, id];
+
+    const [result] = await conn.execute(sql, params);
+
+    // Insert new documents into owner_documents table
+    if (result.affectedRows > 0 && documents && Array.isArray(documents) && documents.length > 0) {
+      const [existingRows] = await conn.execute(
+        `SELECT public_id, file_url FROM owner_documents WHERE owner_id = ?`,
+        [id]
+      );
+      const existingKeys = new Set(existingRows.map((r) => r.public_id || r.file_url));
+
+      const newDocs = documents.filter((d) => !existingKeys.has(d.publicId || d.url));
+      for (const d of newDocs) {
+        await conn.execute(
+          `INSERT INTO owner_documents
+             (owner_id, file_url, public_id, original_name, mime_type, file_size, resource_type, uploaded_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))`,
+          [
+            id,
+            d.url || d.fileUrl,
+            d.publicId || null,
+            d.originalName || null,
+            d.mimeType || null,
+            d.size != null ? d.size : (d.fileSize != null ? d.fileSize : null),
+            d.resourceType || "image",
+            d.uploadedAt ? new Date(d.uploadedAt) : null,
+          ]
+        );
+      }
+    }
+
+    await conn.commit();
+    return result.affectedRows;
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
   }
-
-  const sql = docsJson
-    ? `UPDATE owner_profile
-       SET business_name = ?, business_type = ?, phone = ?,
-           verification_status = 'pending', rejection_reason = NULL, verification_note = NULL, verified_at = NULL,
-           documents = ?
-       WHERE owner_id = ? AND verification_status IN ('rejected', 'info_requested')`
-    : `UPDATE owner_profile
-       SET business_name = ?, business_type = ?, phone = ?,
-           verification_status = 'pending', rejection_reason = NULL, verification_note = NULL, verified_at = NULL
-       WHERE owner_id = ? AND verification_status IN ('rejected', 'info_requested')`;
-
-  const params = docsJson
-    ? [businessName, businessType, phone || null, docsJson, id]
-    : [businessName, businessType, phone || null, id];
-
-  const [result] = await pool.execute(sql, params);
-  return result.affectedRows;
 }
 
 /**
@@ -158,8 +298,9 @@ async function setDecision(userId, status, reason) {
 }
 
 /**
- * List profiles joined with user data.
+ * List profiles joined with user data and attached normalized documents.
  * status: 'pending', 'approved', 'rejected', 'info_requested', or 'all'.
+ * Avoids N+1 queries by fetching all documents in one IN query.
  * Returns newest application first.
  */
 async function listByStatus(status) {
@@ -176,7 +317,33 @@ async function listByStatus(status) {
   }
   sql += " ORDER BY op.created_at DESC";
   const [rows] = await pool.execute(sql, params);
-  return rows.map(rowToProfile);
+  if (rows.length === 0) return [];
+
+  const profiles = rows.map(rowToProfile);
+  const ownerIds = profiles.map((p) => p.userId);
+
+  // Fetch all documents for these owners in one single batched query
+  const placeholders = ownerIds.map(() => "?").join(",");
+  const [docRows] = await pool.execute(
+    `SELECT * FROM owner_documents WHERE owner_id IN (${placeholders}) ORDER BY owner_id, document_id`,
+    ownerIds
+  );
+
+  const docsByOwner = new Map();
+  for (const d of docRows) {
+    if (!docsByOwner.has(d.owner_id)) {
+      docsByOwner.set(d.owner_id, []);
+    }
+    docsByOwner.get(d.owner_id).push(docRowToObject(d));
+  }
+
+  for (const p of profiles) {
+    if (docsByOwner.has(p.userId)) {
+      p.documents = docsByOwner.get(p.userId);
+    }
+  }
+
+  return profiles;
 }
 
 /**

@@ -1,5 +1,5 @@
 CREATE DATABASE IF NOT EXISTS wanderlust
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE wanderlust;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS owner_profile (
   verification_status ENUM('pending','approved','rejected','info_requested') NOT NULL DEFAULT 'pending',
   rejection_reason    VARCHAR(500) NULL,
   verification_note   VARCHAR(500) NULL,
-  documents           JSON         NULL,
   verified_at         TIMESTAMP    NULL,
   created_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -36,6 +35,22 @@ CREATE TABLE IF NOT EXISTS owner_profile (
   CONSTRAINT fk_owner_profile_user FOREIGN KEY (owner_id)
     REFERENCES users (user_id) ON DELETE CASCADE,
   KEY idx_owner_profile_status (verification_status)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS owner_documents (
+  document_id   INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  owner_id      INT UNSIGNED  NOT NULL,
+  file_url      VARCHAR(500)  NOT NULL,
+  public_id     VARCHAR(255)  NULL,
+  original_name VARCHAR(255)  NULL,
+  mime_type     VARCHAR(100)  NULL,
+  file_size     INT UNSIGNED  NULL,
+  resource_type VARCHAR(50)   NULL,
+  uploaded_at   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (document_id),
+  CONSTRAINT fk_owner_documents_owner FOREIGN KEY (owner_id)
+    REFERENCES owner_profile (owner_id) ON DELETE CASCADE,
+  KEY idx_owner_documents_owner (owner_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS listings (
@@ -53,6 +68,8 @@ CREATE TABLE IF NOT EXISTS listings (
   created_at     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (listing_id),
   CONSTRAINT chk_listing_price CHECK (price >= 0),
+  CONSTRAINT chk_listing_lat CHECK (latitude IS NULL OR latitude BETWEEN -90 AND 90),
+  CONSTRAINT chk_listing_lng CHECK (longitude IS NULL OR longitude BETWEEN -180 AND 180),
   CONSTRAINT fk_listing_owner FOREIGN KEY (owner_id)
     REFERENCES users (user_id) ON DELETE RESTRICT,
   KEY idx_listings_owner (owner_id)
@@ -85,6 +102,5 @@ CREATE TABLE IF NOT EXISTS wishlists (
     REFERENCES users (user_id) ON DELETE CASCADE,
   CONSTRAINT fk_wishlist_listing FOREIGN KEY (listing_id)
     REFERENCES listings (listing_id) ON DELETE CASCADE,
-  KEY idx_wishlists_user (user_id),
   KEY idx_wishlists_listing (listing_id)
 ) ENGINE=InnoDB;

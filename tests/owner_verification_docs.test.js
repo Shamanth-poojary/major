@@ -73,7 +73,8 @@ module.exports = function runVerificationDocsTests(getFixtures) {
       assert.equal(profiles.length, 1);
       assert.equal(profiles[0].verification_status, "pending");
 
-      const rawDocs = profiles[0].documents;
+      const [docRows] = await dbConn.query("SELECT * FROM owner_documents WHERE owner_id=?", [users[0].user_id]);
+      const rawDocs = profiles[0].documents || docRows.map(r => ({ url: r.file_url, publicId: r.public_id, originalName: r.original_name, mimeType: r.mime_type, size: r.file_size, resourceType: r.resource_type }));
       const docs = Array.isArray(rawDocs) ? rawDocs : JSON.parse(rawDocs);
       assert.equal(Array.isArray(docs), true);
       assert.equal(docs.length, 2);
@@ -452,7 +453,8 @@ module.exports = function runVerificationDocsTests(getFixtures) {
       assert.equal(profiles[0].verification_note, null);
       assert.equal(profiles[0].business_name, "Resubmit Retreat Updated");
 
-      const rawDocs = profiles[0].documents;
+      const [docRows] = await dbConn.query("SELECT * FROM owner_documents WHERE owner_id=?", [owner.id]);
+      const rawDocs = profiles[0].documents || docRows.map(r => ({ url: r.file_url, publicId: r.public_id, originalName: r.original_name, mimeType: r.mime_type, size: r.file_size, resourceType: r.resource_type }));
       const docs = Array.isArray(rawDocs) ? rawDocs : JSON.parse(rawDocs);
       assert.equal(docs.length, 1);
       assert.equal(docs[0].originalName, "lease.pdf");

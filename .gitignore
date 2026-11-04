@@ -16,3 +16,6 @@ build/
 # IDE/editor stuff
 .vscode/
 .DS_Store
+
+# DB backups
+backups/*.sql
