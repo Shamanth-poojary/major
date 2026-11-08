@@ -336,3 +336,4 @@ module.exports = {
   getDefaultPaymentPolicy,
   roundPrice,
 };
+

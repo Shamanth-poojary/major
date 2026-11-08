@@ -1,0 +1,108 @@
+<% layout("layouts/boilerplate") -%>
+
+<div class="wl-container py-4 py-md-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-9 col-lg-7">
+      <% if (isSuccess) { %>
+        <!-- SUCCESS CARD -->
+        <div class="wl-card p-4 p-md-5 text-center shadow-sm border-0">
+          <div class="mb-3">
+            <span class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle" style="width: 80px; height: 80px;">
+              <i class="fa-solid fa-check fs-1"></i>
+            </span>
+          </div>
+
+          <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 mb-2">
+            Reservation Confirmed
+          </span>
+          <h2 class="h3 fw-bold text-dark mb-1">You're all set!</h2>
+          <p class="text-muted mb-4">Your stay has been confirmed and scheduled with the host.</p>
+
+          <div class="bg-light p-4 rounded-3 border text-start mb-4">
+            <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
+              <div>
+                <span class="text-muted small">Booking Reference</span>
+                <div class="h5 fw-bold text-dark font-monospace mb-0"><%= booking.booking_ref %></div>
+              </div>
+              <span class="badge bg-primary text-uppercase px-2 py-1"><%= booking.payment_status %></span>
+            </div>
+
+            <div class="row g-3 small text-muted mb-3">
+              <div class="col-6">
+                <span class="d-block text-muted">Property</span>
+                <strong class="text-dark"><%= booking.listing_title %></strong>
+              </div>
+              <div class="col-6">
+                <span class="d-block text-muted">Location</span>
+                <strong class="text-dark"><%= booking.listing_location %>, <%= booking.listing_country %></strong>
+              </div>
+              <div class="col-6">
+                <span class="d-block text-muted">Dates</span>
+                <strong class="text-dark"><%= new Date(booking.check_in).toLocaleDateString("en-IN") %> &rarr; <%= new Date(booking.check_out).toLocaleDateString("en-IN") %></strong>
+              </div>
+              <div class="col-6">
+                <span class="d-block text-muted">Guests</span>
+                <strong class="text-dark"><%= booking.adults %> Adults<% if (booking.children) { %>, <%= booking.children %> Children<% } %></strong>
+              </div>
+            </div>
+
+            <hr class="my-3" />
+
+            <div class="d-flex justify-content-between mb-1 small">
+              <span class="text-muted">Total Reservation Amount</span>
+              <span class="fw-bold text-dark">&#8377;<%= Number(booking.total_amount).toLocaleString("en-IN") %></span>
+            </div>
+            <div class="d-flex justify-content-between mb-1 small text-success">
+              <span>Amount Paid</span>
+              <span class="fw-bold">&#8377;<%= Number(booking.amount_paid).toLocaleString("en-IN") %></span>
+            </div>
+            <div class="d-flex justify-content-between small <%= Number(booking.balance_due) > 0 ? 'text-warning-emphasis' : 'text-muted' %>">
+              <span>Remaining Balance Due</span>
+              <span class="fw-bold">&#8377;<%= Number(booking.balance_due).toLocaleString("en-IN") %></span>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <a href="/bookings/<%= booking.booking_id %>" class="btn btn-primary px-4 py-2">
+              <i class="fa-solid fa-file-invoice me-1"></i>View Booking Details
+            </a>
+            <a href="/bookings/<%= booking.booking_id %>/receipt" target="_blank" class="btn btn-outline-secondary px-3 py-2">
+              <i class="fa-solid fa-print me-1"></i>Print Receipt
+            </a>
+            <a href="/dashboard/bookings" class="btn btn-light border px-3 py-2">
+              <i class="fa-solid fa-calendar-check me-1"></i>My Bookings
+            </a>
+          </div>
+        </div>
+      <% } else { %>
+        <!-- FAILURE CARD -->
+        <div class="wl-card p-4 p-md-5 text-center shadow-sm border-0">
+          <div class="mb-3">
+            <span class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle" style="width: 80px; height: 80px;">
+              <i class="fa-solid fa-xmark fs-1"></i>
+            </span>
+          </div>
+
+          <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 mb-2">
+            Payment Incomplete
+          </span>
+          <h2 class="h3 fw-bold text-dark mb-1">Payment was not successful</h2>
+          <p class="text-muted mb-4"><%= failureReason || "The payment transaction could not be completed." %></p>
+
+          <div class="alert alert-warning text-start small mb-4">
+            <i class="fa-solid fa-clock me-1"></i>Your slot hold is still temporarily active. You can retry with another payment card, UPI ID, or netbanking account.
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <a href="/bookings/<%= booking.booking_id %>/payment" class="btn btn-primary px-4 py-2">
+              <i class="fa-solid fa-rotate-right me-1"></i>Retry Payment
+            </a>
+            <a href="/dashboard/bookings" class="btn btn-light border px-3 py-2">
+              Return to Bookings
+            </a>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>

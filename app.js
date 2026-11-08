@@ -112,6 +112,15 @@ app.use("/listings/:id/reviews", reviewRoutes);
 const ownerRoutes = require("./routes/owner");
 app.use("/owner", ownerRoutes);
 
+const ownerRoomRoutes = require("./routes/ownerRooms");
+app.use("/owner", ownerRoomRoutes);
+
+const bookingRoutes = require("./routes/booking");
+app.use("/bookings", bookingRoutes);
+
+const mockGatewayRoutes = require("./routes/mockGateway");
+app.use("/", mockGatewayRoutes);
+
 const adminRoutes = require("./routes/admin");
 app.use("/admin", adminRoutes);
 

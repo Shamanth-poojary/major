@@ -52,7 +52,10 @@ module.exports.showListing = async (req, res) => {
     isWishlisted = await Wishlist.isWishlisted(req.user.id, id);
   }
 
-  res.render("listings/show.ejs", { listing, isWishlisted });
+  const roomService = require("../services/roomService");
+  const rooms = await roomService.getRoomsByListing(id);
+
+  res.render("listings/show.ejs", { listing, isWishlisted, rooms });
 };
 
 // =======================

@@ -10,7 +10,9 @@
     "seed:owners:generate": "node seed/generate-seed.js",
     "migrate": "node db/migrate.js",
     "seed:rooms": "node db/seed/backfillRoomTypes.js",
-    "test": "node --test tests/routes.test.js"
+    "test": "node --test tests/routes.test.js",
+    "test:booking": "node --test tests/booking_flow.test.js",
+    "test:all": "node --test tests/routes.test.js && node --test tests/booking_flow.test.js"
   },
   "keywords": [],
   "author": "",

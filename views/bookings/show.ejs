@@ -1,0 +1,193 @@
+<% layout("layouts/boilerplate") -%>
+
+<div class="wl-container py-4 py-md-5">
+  <!-- Breadcrumb -->
+  <div class="wl-breadcrumb mb-3">
+    <a href="/dashboard/bookings" class="text-muted text-decoration-none">My Bookings</a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+    <span class="text-dark fw-semibold"><%= booking.booking_ref %></span>
+  </div>
+
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <h1 class="h3 fw-bold text-dark mb-0">Booking <%= booking.booking_ref %></h1>
+        <span class="badge <%= booking.booking_status === 'confirmed' ? 'bg-success' : (booking.booking_status === 'pending_payment' ? 'bg-warning text-dark' : 'bg-secondary') %> text-uppercase">
+          <%= booking.booking_status %>
+        </span>
+        <span class="badge <%= booking.payment_status === 'paid' ? 'bg-primary' : (booking.payment_status === 'partially_paid' ? 'bg-info text-dark' : 'bg-danger') %> text-uppercase">
+          <%= booking.payment_status %>
+        </span>
+      </div>
+      <p class="text-muted small mb-0">Reserved on <%= new Date(booking.created_at).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a href="/bookings/<%= booking.booking_id %>/receipt" target="_blank" class="btn btn-outline-secondary btn-sm px-3">
+        <i class="fa-solid fa-print me-1"></i>Print Receipt
+      </a>
+      <a href="/listings/<%= booking.listing_id %>" class="btn btn-outline-primary btn-sm px-3">
+        <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>View Listing
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Reservation Info & Rooms -->
+    <div class="col-12 col-lg-8">
+      <!-- Property & Dates Card -->
+      <div class="wl-card p-4 mb-4">
+        <div class="d-flex gap-3 mb-4">
+          <img
+            src="<%= booking.listing_image_url %>"
+            alt="<%= booking.listing_title %>"
+            class="rounded-3"
+            style="width: 100px; height: 100px; object-fit: cover;"
+          />
+          <div>
+            <h4 class="h5 fw-bold text-dark mb-1"><%= booking.listing_title %></h4>
+            <div class="text-muted small mb-2"><i class="fa-solid fa-location-dot me-1"></i><%= booking.listing_location %>, <%= booking.listing_country %></div>
+            <div class="text-muted small">Hosted by <strong><%= booking.owner_username %></strong> (<%= booking.owner_email %>)</div>
+          </div>
+        </div>
+
+        <div class="row g-3 p-3 bg-light rounded-3 small">
+          <div class="col-6 col-md-3">
+            <span class="d-block text-muted">Check-In</span>
+            <strong class="text-dark fs-6"><%= new Date(booking.check_in).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) %></strong>
+          </div>
+          <div class="col-6 col-md-3">
+            <span class="d-block text-muted">Check-Out</span>
+            <strong class="text-dark fs-6"><%= new Date(booking.check_out).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) %></strong>
+          </div>
+          <div class="col-6 col-md-3">
+            <span class="d-block text-muted">Total Guests</span>
+            <strong class="text-dark"><%= booking.adults %> Adults<% if (booking.children) { %>, <%= booking.children %> Children<% } %></strong>
+          </div>
+          <div class="col-6 col-md-3">
+            <span class="d-block text-muted">Contact Phone</span>
+            <strong class="text-dark"><%= booking.contact_phone %></strong>
+          </div>
+        </div>
+
+        <% if (booking.special_requests) { %>
+          <div class="mt-3 p-3 bg-light rounded-3 border">
+            <span class="fw-bold text-dark small d-block mb-1">Special Requests:</span>
+            <span class="text-muted small"><%= booking.special_requests %></span>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Reserved Rooms Card -->
+      <div class="wl-card p-4 mb-4">
+        <h4 class="h6 fw-bold text-dark text-uppercase letter-spacing mb-3">Booked Rooms & Units</h4>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+              <tr class="small text-muted">
+                <th>Room Type</th>
+                <th>Category</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-end">Price / Nt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (let r of booking.rooms) { %>
+                <tr>
+                  <td class="fw-semibold text-dark"><%= r.name %></td>
+                  <td><span class="badge bg-light text-dark border text-uppercase" style="font-size: 0.65rem;"><%= r.category %></span></td>
+                  <td class="text-center"><%= r.quantity %> unit(s)</td>
+                  <td class="text-end fw-semibold text-dark">&#8377;<%= Number(r.unit_price).toLocaleString("en-IN") %></td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payment Audit History Timeline -->
+      <div class="wl-card p-4">
+        <h4 class="h6 fw-bold text-dark text-uppercase letter-spacing mb-3">Payment History & Transactions</h4>
+
+        <% if (booking.payments && booking.payments.length > 0) { %>
+          <div class="d-flex flex-column gap-3">
+            <% for (let p of booking.payments) { %>
+              <div class="p-3 border rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge <%= p.status === 'success' ? 'bg-success' : (p.status === 'created' ? 'bg-secondary' : 'bg-danger') %> text-uppercase">
+                      <%= p.status %>
+                    </span>
+                    <span class="fw-bold text-dark text-capitalize"><%= p.purpose %> Payment</span>
+                    <span class="text-muted small">&middot; <%= new Date(p.created_at).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) %></span>
+                  </div>
+                  <div class="text-muted small">
+                    Method: <strong class="text-dark text-capitalize"><%= p.method %></strong>
+                    <% if (p.card_network) { %> (<%= p.card_network %> &bull;&bull;&bull;&bull; <%= p.card_last4 %>)<% } %>
+                    &middot; Order ID: <code><%= p.gateway_order_id %></code>
+                  </div>
+                  <% if (p.failure_reason) { %>
+                    <div class="text-danger small mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i><%= p.failure_reason %></div>
+                  <% } %>
+                </div>
+                <div class="h5 fw-bold text-dark mb-0">
+                  &#8377;<%= Number(p.amount).toLocaleString("en-IN") %>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        <% } else { %>
+          <div class="text-muted small py-3 text-center">No payment transactions recorded yet.</div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Right Column: Financial Status & Pay Balance -->
+    <div class="col-12 col-lg-4">
+      <div class="wl-card p-4 sticky-top shadow-sm" style="top: 88px; z-index: 20;">
+        <h4 class="h6 fw-bold text-dark text-uppercase letter-spacing mb-3">Payment Ledger</h4>
+
+        <div class="d-flex justify-content-between text-muted small mb-2">
+          <span>Total Stay Amount</span>
+          <span class="text-dark fw-bold">&#8377;<%= Number(booking.total_amount).toLocaleString("en-IN") %></span>
+        </div>
+
+        <div class="d-flex justify-content-between text-muted small mb-2">
+          <span>Advance Snapshot</span>
+          <span class="text-dark">&#8377;<%= Number(booking.advance_required).toLocaleString("en-IN") %></span>
+        </div>
+
+        <div class="d-flex justify-content-between text-success small mb-2">
+          <span>Amount Paid to Date</span>
+          <span class="fw-bold">&#8377;<%= Number(booking.amount_paid).toLocaleString("en-IN") %></span>
+        </div>
+
+        <hr class="my-3" />
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <span class="fw-bold text-dark">Balance Due</span>
+          <span class="h4 fw-bold <%= Number(booking.balance_due) > 0 ? 'text-danger' : 'text-success' %> mb-0">
+            &#8377;<%= Number(booking.balance_due).toLocaleString("en-IN") %>
+          </span>
+        </div>
+
+        <!-- Pay Balance Action -->
+        <% if (Number(booking.balance_due) > 0 && booking.booking_status !== 'cancelled' && booking.booking_status !== 'expired') { %>
+          <form action="/bookings/<%= booking.booking_id %>/pay-balance" method="POST">
+            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-sm">
+              <i class="fa-solid fa-credit-card me-2"></i>Pay Remaining Balance (&#8377;<%= Number(booking.balance_due).toLocaleString("en-IN") %>)
+            </button>
+            <div class="text-muted small text-center mt-2" style="font-size: 0.75rem;">
+              You can settle the remaining balance anytime before check-in.
+            </div>
+          </form>
+        <% } else if (Number(booking.balance_due) <= 0) { %>
+          <div class="alert alert-success text-center py-2 px-3 small mb-0">
+            <i class="fa-solid fa-circle-check me-1"></i>Reservation is 100% Paid in Full
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

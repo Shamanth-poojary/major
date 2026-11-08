@@ -1,0 +1,411 @@
+<% layout("layouts/boilerplate") -%>
+
+<div class="wl-container py-4 py-md-5">
+  <!-- Breadcrumb -->
+  <div class="wl-breadcrumb mb-3">
+    <a href="/listings" class="text-muted text-decoration-none">Listings</a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+    <a href="/listings/<%= listing.id %>" class="text-muted text-decoration-none text-truncate" style="max-width: 200px;"><%= listing.title %></a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+    <span class="text-dark fw-semibold">Confirm Reservation</span>
+  </div>
+
+  <div class="mb-4">
+    <h1 class="h2 fw-bold text-dark mb-1">Book your stay at <%= listing.title %></h1>
+    <p class="text-muted"><i class="fa-solid fa-location-dot me-1"></i><%= listing.location %>, <%= listing.country %></p>
+  </div>
+
+  <form id="bookingForm" action="/bookings" method="POST">
+    <input type="hidden" name="listingId" value="<%= listing.id %>" />
+    <input type="hidden" name="rooms" id="roomsJsonInput" value="" />
+
+    <div class="row g-4">
+      <!-- Left Column: Steps -->
+      <div class="col-12 col-lg-8">
+        <!-- Step 1: Dates & Guests -->
+        <div class="wl-card p-4 mb-4">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 px-3">1</span>
+            <h4 class="h5 fw-bold text-dark mb-0">Select Dates & Travel Group</h4>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-dark">Check-In Date</label>
+              <input
+                type="date"
+                name="checkIn"
+                id="checkInInput"
+                class="form-control"
+                value="<%= prefill.checkIn %>"
+                required
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-dark">Check-Out Date</label>
+              <input
+                type="date"
+                name="checkOut"
+                id="checkOutInput"
+                class="form-control"
+                value="<%= prefill.checkOut %>"
+                required
+              />
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold text-dark">Adults (12+ yrs)</label>
+              <input
+                type="number"
+                name="adults"
+                id="adultsInput"
+                class="form-control"
+                min="1"
+                max="20"
+                value="<%= prefill.adults %>"
+                required
+              />
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold text-dark">Children (2-11 yrs)</label>
+              <input
+                type="number"
+                name="children"
+                id="childrenInput"
+                class="form-control"
+                min="0"
+                max="10"
+                value="<%= prefill.children %>"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Room Selection -->
+        <div class="wl-card p-4 mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-primary rounded-circle p-2 px-3">2</span>
+              <h4 class="h5 fw-bold text-dark mb-0">Select Room Types</h4>
+            </div>
+            <span id="capacityBadge" class="badge bg-light text-dark border px-2 py-1">
+              Accommodates 0 guests
+            </span>
+          </div>
+
+          <p class="text-muted small mb-3">Choose the number of rooms needed for your stay. Pricing updates automatically.</p>
+
+          <div id="roomsContainer" class="d-flex flex-column gap-3">
+            <% for (let room of rooms) { %>
+              <div class="card border rounded-3 p-3 room-card" data-room-id="<%= room.id %>" data-price="<%= room.price_per_night %>" data-capacity="<%= room.max_guests %>">
+                <div class="row g-3 align-items-center">
+                  <div class="col-12 col-md-2">
+                    <img
+                      src="<%= room.image_url || listing.image.url %>"
+                      alt="<%= room.name %>"
+                      class="rounded-3 w-100"
+                      style="height: 80px; object-fit: cover;"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="d-flex align-items-center gap-2">
+                      <h6 class="fw-bold text-dark mb-0"><%= room.name %></h6>
+                      <span class="badge bg-secondary text-uppercase" style="font-size: 0.65rem;"><%= room.category %></span>
+                    </div>
+                    <div class="text-muted small mt-1">
+                      <span><i class="fa-solid fa-user-group me-1"></i><%= room.max_guests %> guests / room</span>
+                      <% if (room.bed_config) { %>
+                        <span>&middot;</span>
+                        <span><%= room.bed_config %></span>
+                      <% } %>
+                    </div>
+                    <div class="text-primary fw-bold mt-1">
+                      &#8377;<%= room.price_per_night.toLocaleString("en-IN") %> <span class="text-muted small fw-normal">/ night</span>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4 text-md-end">
+                    <div class="d-inline-flex align-items-center border rounded-3 overflow-hidden bg-white">
+                      <button type="button" class="btn btn-sm btn-light px-3 py-1 btn-room-minus" data-room-id="<%= room.id %>">-</button>
+                      <input
+                        type="number"
+                        class="form-control form-control-sm border-0 text-center room-qty-input shadow-none"
+                        style="width: 50px;"
+                        id="qty-<%= room.id %>"
+                        value="0"
+                        min="0"
+                        max="<%= room.total_units %>"
+                        readonly
+                      />
+                      <button type="button" class="btn btn-sm btn-light px-3 py-1 btn-room-plus" data-room-id="<%= room.id %>">+</button>
+                    </div>
+                    <div class="text-muted small mt-1" style="font-size: 0.75rem;">
+                      <span id="avail-<%= room.id %>"><%= room.total_units %> available</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Step 3: Guest & Contact Information -->
+        <div class="wl-card p-4 mb-4">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2 px-3">3</span>
+            <h4 class="h5 fw-bold text-dark mb-0">Guest & Contact Information</h4>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-dark">Primary Guest Name</label>
+              <input
+                type="text"
+                class="form-control"
+                value="<%= currentUser ? currentUser.username : '' %>"
+                readonly
+                disabled
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-dark">Primary Email</label>
+              <input
+                type="email"
+                class="form-control"
+                value="<%= currentUser ? currentUser.email : '' %>"
+                readonly
+                disabled
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-dark">Contact Phone Number <span class="text-danger">*</span></label>
+              <input
+                type="tel"
+                name="contactPhone"
+                class="form-control"
+                placeholder="+91 98765 43210"
+                value="<%= prefill.contactPhone %>"
+                required
+              />
+              <div class="form-text">We'll send booking SMS and WhatsApp confirmations here.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold text-dark">Special Requests (Optional)</label>
+              <textarea
+                name="specialRequests"
+                class="form-control"
+                rows="2"
+                placeholder="Early check-in, quiet room, dietary requests, high floor..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Price & Confirmation Summary -->
+      <div class="col-12 col-lg-4">
+        <div class="wl-card p-4 sticky-top shadow-sm" style="top: 88px; z-index: 20;">
+          <h4 class="h6 fw-bold text-dark text-uppercase letter-spacing mb-3">Price & Policy Summary</h4>
+
+          <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+            <img
+              src="<%= listing.image.url %>"
+              alt="<%= listing.title %>"
+              class="rounded-3"
+              style="width: 70px; height: 70px; object-fit: cover;"
+            />
+            <div>
+              <div class="fw-bold text-dark text-truncate" style="max-width: 180px;"><%= listing.title %></div>
+              <div class="text-muted small"><i class="fa-solid fa-location-dot me-1"></i><%= listing.location %></div>
+            </div>
+          </div>
+
+          <!-- Line items container -->
+          <div id="quoteBreakdown">
+            <div class="text-muted small text-center py-3">
+              <i class="fa-solid fa-bed display-6 d-block mb-2 text-muted"></i>
+              Please select at least one room to calculate the price.
+            </div>
+          </div>
+
+          <div class="p-3 bg-light rounded-3 border my-3">
+            <div class="d-flex justify-content-between text-muted small mb-1">
+              <span>Advance payment policy</span>
+              <span class="text-dark fw-semibold">
+                <% if (policy.allow_advance) { %>
+                  <%= policy.advance_value %><%= policy.advance_type === 'percent' ? '%' : ' INR' %> Advance
+                <% } else { %>
+                  100% Full Payment
+                <% } %>
+              </span>
+            </div>
+            <div class="text-muted small" style="font-size: 0.75rem;">
+              Pay advance now to lock your slot; pay the remainder anytime before check-in.
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            id="submitBookingBtn"
+            class="btn wl-btn-primary w-100 py-3 fw-bold text-center shadow-sm"
+            disabled
+          >
+            <i class="fa-solid fa-lock me-2"></i>Reserve & Proceed to Payment
+          </button>
+
+          <div class="text-center text-muted small mt-2" style="font-size: 0.75rem;">
+            <i class="fa-solid fa-shield-check me-1 text-success"></i>10-minute slot hold upon confirmation
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const checkInEl = document.getElementById("checkInInput");
+  const checkOutEl = document.getElementById("checkOutInput");
+  const adultsEl = document.getElementById("adultsInput");
+  const childrenEl = document.getElementById("childrenInput");
+  const roomsJsonInput = document.getElementById("roomsJsonInput");
+  const submitBtn = document.getElementById("submitBookingBtn");
+  const breakdownEl = document.getElementById("quoteBreakdown");
+  const capacityBadge = document.getElementById("capacityBadge");
+
+  // Dates defaults if not set
+  if (!checkInEl.value) {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayAfter = new Date(today);
+    dayAfter.setDate(dayAfter.getDate() + 2);
+    const toIso = (d) => d.toISOString().split("T")[0];
+    checkInEl.value = toIso(tomorrow);
+    checkOutEl.value = toIso(dayAfter);
+    checkInEl.min = toIso(today);
+    checkOutEl.min = toIso(tomorrow);
+  }
+
+  // Pre-select first room with 1 unit
+  const firstQty = document.querySelector(".room-qty-input");
+  if (firstQty) {
+    firstQty.value = 1;
+  }
+
+  // Stepper buttons
+  document.querySelectorAll(".btn-room-plus").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const rid = btn.dataset.roomId;
+      const input = document.getElementById("qty-" + rid);
+      const max = parseInt(input.max, 10) || 10;
+      let val = parseInt(input.value, 10) || 0;
+      if (val < max) {
+        input.value = val + 1;
+        updateQuote();
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-room-minus").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const rid = btn.dataset.roomId;
+      const input = document.getElementById("qty-" + rid);
+      let val = parseInt(input.value, 10) || 0;
+      if (val > 0) {
+        input.value = val - 1;
+        updateQuote();
+      }
+    });
+  });
+
+  [checkInEl, checkOutEl, adultsEl, childrenEl].forEach((el) => {
+    el.addEventListener("change", updateQuote);
+  });
+
+  async function updateQuote() {
+    const checkIn = checkInEl.value;
+    const checkOut = checkOutEl.value;
+    const adults = parseInt(adultsEl.value, 10) || 1;
+    const children = parseInt(childrenEl.value, 10) || 0;
+    const totalGuests = adults + children;
+
+    const selectedRooms = [];
+    let totalCap = 0;
+
+    document.querySelectorAll(".room-qty-input").forEach((inp) => {
+      const qty = parseInt(inp.value, 10) || 0;
+      if (qty > 0) {
+        const rid = inp.id.replace("qty-", "");
+        const card = inp.closest(".room-card");
+        const cap = parseInt(card.dataset.capacity, 10) || 2;
+        totalCap += cap * qty;
+        selectedRooms.push({ roomTypeId: parseInt(rid, 10), quantity: qty });
+      }
+    });
+
+    roomsJsonInput.value = JSON.stringify(selectedRooms);
+    capacityBadge.textContent = `Accommodates ${totalCap} guests (Group: ${totalGuests})`;
+
+    if (selectedRooms.length === 0) {
+      breakdownEl.innerHTML = `
+        <div class="text-muted small text-center py-3">
+          <i class="fa-solid fa-bed display-6 d-block mb-2 text-muted"></i>
+          Please select at least 1 room.
+        </div>`;
+      submitBtn.disabled = true;
+      return;
+    }
+
+    if (totalCap < totalGuests) {
+      capacityBadge.className = "badge bg-danger text-white px-2 py-1";
+    } else {
+      capacityBadge.className = "badge bg-success text-white px-2 py-1";
+    }
+
+    try {
+      const res = await fetch("/listings/<%= listing.id %>/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ checkIn, checkOut, rooms: selectedRooms }),
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        breakdownEl.innerHTML = `<div class="alert alert-danger py-2 small mb-0">${data.error}</div>`;
+        submitBtn.disabled = true;
+        return;
+      }
+
+      let linesHtml = "";
+      data.lineItems.forEach((item) => {
+        linesHtml += `
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>${item.name} &times; ${item.quantity} (${item.nights} nt)</span>
+            <span class="text-dark fw-semibold">&#8377;${item.lineTotal.toLocaleString("en-IN")}</span>
+          </div>`;
+      });
+
+      breakdownEl.innerHTML = `
+        <div class="py-2 border-bottom mb-2">${linesHtml}</div>
+        <div class="d-flex justify-content-between fw-bold text-dark mb-2">
+          <span>Total Stay Amount</span>
+          <span>&#8377;${data.totalAmount.toLocaleString("en-IN")}</span>
+        </div>
+        <div class="d-flex justify-content-between text-primary fw-bold mb-1">
+          <span>Advance Due Now</span>
+          <span>&#8377;${data.advanceRequired.toLocaleString("en-IN")}</span>
+        </div>
+        <div class="d-flex justify-content-between text-muted small">
+          <span>Remaining Balance</span>
+          <span>&#8377;${data.balanceDue.toLocaleString("en-IN")}</span>
+        </div>`;
+
+      submitBtn.disabled = false;
+    } catch (err) {
+      console.error("Quote fetch error:", err);
+    }
+  }
+
+  // Initial calculation
+  updateQuote();
+});
+</script>

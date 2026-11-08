@@ -9,6 +9,7 @@ const User         = require("../models/user");
 const Listing      = require("../models/listing");
 const Wishlist     = require("../models/wishlist");
 const OwnerProfile = require("../models/ownerProfile");
+const bookingService = require("../services/bookingService");
 const { getSectionsForRole } = require("../config/dashboardSections");
 const { profileSchema } = require("../schema");
 const { deleteCloudinaryAsset } = require("../cloudConfig");
@@ -119,11 +120,41 @@ module.exports.renderWishlist = async (req, res) => {
 };
 
 /**
- * GET /dashboard/bookings (Customer placeholder)
+ * GET /dashboard/bookings (Customer bookings)
  */
-module.exports.renderBookings = (req, res) => {
+module.exports.renderBookings = async (req, res) => {
+  const userId = req.user.id || req.user.user_id;
+  const bookings = await bookingService.getCustomerBookings(userId);
   const sections = getSectionsForRole("customer");
   res.render("dashboard/bookings.ejs", {
+    bookings,
+    sections,
+    activeSection: "bookings",
+  });
+};
+
+/**
+ * GET /dashboard/owner-bookings (Owner bookings)
+ */
+module.exports.renderOwnerBookings = async (req, res) => {
+  const userId = req.user.id || req.user.user_id;
+  const bookings = await bookingService.getOwnerBookings(userId);
+  const sections = getSectionsForRole("owner");
+  res.render("dashboard/owner_bookings.ejs", {
+    bookings,
+    sections,
+    activeSection: "bookings",
+  });
+};
+
+/**
+ * GET /dashboard/admin-bookings (Admin all bookings)
+ */
+module.exports.renderAdminBookings = async (req, res) => {
+  const bookings = await bookingService.getAllBookingsAdmin();
+  const sections = getSectionsForRole("admin");
+  res.render("dashboard/admin_bookings.ejs", {
+    bookings,
     sections,
     activeSection: "bookings",
   });

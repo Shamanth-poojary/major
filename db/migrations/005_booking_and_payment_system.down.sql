@@ -8,3 +8,4 @@ DROP TABLE IF EXISTS room_type_images;
 DROP TABLE IF EXISTS room_type_amenities;
 DROP TABLE IF EXISTS amenities;
 DROP TABLE IF EXISTS room_types;
+

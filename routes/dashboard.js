@@ -42,7 +42,19 @@ router.get(
   "/bookings",
   isLoggedIn,
   requireRole("customer"),
-  dashboardController.renderBookings
+  wrapAsync(dashboardController.renderBookings)
+);
+router.get(
+  "/owner-bookings",
+  isLoggedIn,
+  requireRole("owner"),
+  wrapAsync(dashboardController.renderOwnerBookings)
+);
+router.get(
+  "/admin-bookings",
+  isLoggedIn,
+  requireRole("admin"),
+  wrapAsync(dashboardController.renderAdminBookings)
 );
 
 // 4. Owner & Admin: Listings

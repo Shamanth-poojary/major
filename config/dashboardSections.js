@@ -11,13 +11,15 @@ const sections = {
     { key: "wishlist", label: "Wishlist", icon: "fa-solid fa-heart", path: "/dashboard/wishlist" },
   ],
   customer: [
-    { key: "bookings", label: "My Bookings", icon: "fa-solid fa-calendar-check", path: "/dashboard/bookings", enabled: false },
+    { key: "bookings", label: "My Bookings", icon: "fa-solid fa-calendar-check", path: "/dashboard/bookings", enabled: true },
   ],
   owner: [
     { key: "listings", label: "My Listings", icon: "fa-solid fa-list", path: "/dashboard/listings" },
+    { key: "bookings", label: "Guest Bookings", icon: "fa-solid fa-calendar-check", path: "/dashboard/owner-bookings" },
   ],
   admin: [
     { key: "listings", label: "Manage Listings", icon: "fa-solid fa-hotel", path: "/dashboard/listings" },
+    { key: "bookings", label: "All Bookings", icon: "fa-solid fa-calendar-check", path: "/dashboard/admin-bookings" },
     { key: "approvals", label: "Owner Approvals", icon: "fa-solid fa-user-check", path: "/dashboard/approvals" },
     { key: "users", label: "Users", icon: "fa-solid fa-users", path: "/dashboard/users" },
   ],

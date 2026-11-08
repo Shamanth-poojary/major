@@ -187,3 +187,4 @@ INSERT IGNORE INTO amenities (name, icon) VALUES
   ('Pro PA Sound & Stage Lighting', 'fa-solid fa-volume-high'),
   ('Raised Speaker Stage & Podium', 'fa-solid fa-chalkboard-user'),
   ('Banquet Catering Kitchen & Dining', 'fa-solid fa-champagne-glasses');
+

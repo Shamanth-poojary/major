@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receipt - <%= booking.booking_ref %> - WanderLust</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+  <style>
+    body {
+      background-color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1e293b;
+      padding: 2rem 0;
+    }
+    .receipt-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 3rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .receipt-container {
+        box-shadow: none;
+        padding: 1.5rem;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt-container">
+    <!-- Action buttons (no print) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+      <a href="/bookings/<%= booking.booking_id %>" class="btn btn-outline-secondary btn-sm">
+        <i class="fa-solid fa-arrow-left me-1"></i>Back to Booking Details
+      </a>
+      <button onclick="window.print()" class="btn btn-primary btn-sm px-3">
+        <i class="fa-solid fa-print me-1"></i>Print Receipt
+      </button>
+    </div>
+
+    <!-- Receipt Header -->
+    <div class="d-flex justify-content-between align-items-start pb-4 border-bottom mb-4">
+      <div>
+        <h2 class="fw-bold text-primary mb-1">
+          <i class="fa-solid fa-compass me-2"></i>WanderLust
+        </h2>
+        <p class="text-muted small mb-0">Official Booking Confirmation & Receipt</p>
+      </div>
+      <div class="text-end">
+        <h4 class="h5 fw-bold text-dark mb-1">RECEIPT</h4>
+        <div class="text-muted small">Ref: <strong><%= booking.booking_ref %></strong></div>
+        <div class="text-muted small">Date: <%= new Date().toLocaleDateString("en-IN") %></div>
+      </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="row g-4 mb-4">
+      <div class="col-6">
+        <h6 class="text-uppercase text-muted small fw-bold mb-2">Guest Information</h6>
+        <div class="fw-bold text-dark"><%= booking.customer_username %></div>
+        <div class="text-muted small"><%= booking.customer_email %></div>
+        <div class="text-muted small"><%= booking.contact_phone %></div>
+      </div>
+      <div class="col-6 text-end">
+        <h6 class="text-uppercase text-muted small fw-bold mb-2">Property & Host</h6>
+        <div class="fw-bold text-dark"><%= booking.listing_title %></div>
+        <div class="text-muted small"><%= booking.listing_location %>, <%= booking.listing_country %></div>
+        <div class="text-muted small">Host: <%= booking.owner_username %> (<%= booking.owner_email %>)</div>
+      </div>
+    </div>
+
+    <!-- Reservation Timeline -->
+    <div class="p-3 bg-light rounded-3 mb-4 small">
+      <div class="row text-center">
+        <div class="col-4 border-end">
+          <span class="text-muted d-block">Check-In</span>
+          <strong class="text-dark"><%= new Date(booking.check_in).toLocaleDateString("en-IN", { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) %></strong>
+        </div>
+        <div class="col-4 border-end">
+          <span class="text-muted d-block">Check-Out</span>
+          <strong class="text-dark"><%= new Date(booking.check_out).toLocaleDateString("en-IN", { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) %></strong>
+        </div>
+        <div class="col-4">
+          <span class="text-muted d-block">Guests</span>
+          <strong class="text-dark"><%= booking.adults %> Adults<% if (booking.children) { %>, <%= booking.children %> Children<% } %></strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rooms Table -->
+    <div class="table-responsive mb-4">
+      <table class="table align-middle">
+        <thead class="table-light small text-uppercase">
+          <tr>
+            <th>Description</th>
+            <th class="text-center">Units</th>
+            <th class="text-end">Nightly Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let r of booking.rooms) { %>
+            <tr>
+              <td>
+                <div class="fw-bold text-dark"><%= r.name %></div>
+                <div class="text-muted small text-uppercase"><%= r.category %> &middot; <%= r.bed_config || 'Standard' %></div>
+              </td>
+              <td class="text-center"><%= r.quantity %></td>
+              <td class="text-end fw-semibold text-dark">&#8377;<%= Number(r.unit_price).toLocaleString("en-IN") %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Summary Totals -->
+    <div class="row justify-content-end mb-4">
+      <div class="col-12 col-md-6">
+        <div class="d-flex justify-content-between py-1 small">
+          <span class="text-muted">Total Reservation Amount</span>
+          <span class="fw-bold text-dark">&#8377;<%= Number(booking.total_amount).toLocaleString("en-IN") %></span>
+        </div>
+        <div class="d-flex justify-content-between py-1 small text-success">
+          <span>Amount Paid to Date</span>
+          <span class="fw-bold">&#8377;<%= Number(booking.amount_paid).toLocaleString("en-IN") %></span>
+        </div>
+        <div class="d-flex justify-content-between py-2 border-top border-bottom my-1">
+          <span class="fw-bold text-dark">Balance Due</span>
+          <span class="fw-bold <%= Number(booking.balance_due) > 0 ? 'text-danger' : 'text-success' %>">
+            &#8377;<%= Number(booking.balance_due).toLocaleString("en-IN") %>
+          </span>
+        </div>
+        <div class="d-flex justify-content-between py-1 small">
+          <span class="text-muted">Payment Status</span>
+          <span class="badge bg-primary text-uppercase"><%= booking.payment_status %></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Notice -->
+    <div class="border-top pt-4 text-center text-muted small">
+      <p class="mb-1">Thank you for traveling with WanderLust!</p>
+      <p class="mb-0" style="font-size: 0.75rem;">This is a computer-generated receipt for transaction <%= booking.booking_ref %>.</p>
+    </div>
+  </div>
+</body>
+</html>

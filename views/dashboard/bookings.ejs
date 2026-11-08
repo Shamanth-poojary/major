@@ -5,21 +5,112 @@
     <h3 class="fw-bold mb-1">
       <i class="fa-solid fa-calendar-check me-2 text-primary"></i>My Bookings
     </h3>
-    <p class="text-muted mb-0">Track and manage your upcoming reservations and travel history.</p>
+    <p class="text-muted mb-0">Track and manage your upcoming reservations, stay history, and payments.</p>
   </div>
-</div>
-
-<div class="card border-0 shadow-sm text-center py-5">
-  <div class="card-body">
-    <div class="mb-3">
-      <i class="fa-solid fa-plane-departure text-muted display-4"></i>
-    </div>
-    <h4 class="fw-bold text-dark">Bookings Feature Coming Soon</h4>
-    <p class="text-muted mx-auto" style="max-width: 480px;">
-      Direct booking reservations, payment processing, and calendar availability are currently under development. Stay tuned!
-    </p>
-    <a href="/listings" class="btn btn-outline-primary px-4 mt-2">
-      <i class="fa-solid fa-compass me-2"></i>Browse Vacation Listings
+  <div>
+    <a href="/listings" class="btn btn-outline-primary btn-sm px-3">
+      <i class="fa-solid fa-plus me-1"></i>Explore More Stays
     </a>
   </div>
 </div>
+
+<% if (typeof bookings !== 'undefined' && bookings && bookings.length > 0) { %>
+  <div class="d-flex flex-column gap-3">
+    <% for (let b of bookings) { %>
+      <div class="card border rounded-3 p-3 shadow-sm hover-shadow transition">
+        <div class="row g-3 align-items-center">
+          <!-- Thumbnail -->
+          <div class="col-12 col-md-3 col-lg-2">
+            <img
+              src="<%= b.listing_image_url %>"
+              alt="<%= b.listing_title %>"
+              class="rounded-3 w-100"
+              style="height: 100px; object-fit: cover;"
+            />
+          </div>
+
+          <!-- Stay Details -->
+          <div class="col-12 col-md-5 col-lg-6">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.75rem;"><%= b.booking_ref %></span>
+              <span class="badge <%= b.booking_status === 'confirmed' ? 'bg-success' : (b.booking_status === 'pending_payment' ? 'bg-warning text-dark' : 'bg-secondary') %> text-uppercase" style="font-size: 0.65rem;">
+                <%= b.booking_status %>
+              </span>
+              <span class="badge <%= b.payment_status === 'paid' ? 'bg-primary' : (b.payment_status === 'partially_paid' ? 'bg-info text-dark' : 'bg-danger') %> text-uppercase" style="font-size: 0.65rem;">
+                <%= b.payment_status %>
+              </span>
+            </div>
+
+            <h5 class="fw-bold text-dark mb-1">
+              <a href="/bookings/<%= b.booking_id %>" class="text-decoration-none text-dark"><%= b.listing_title %></a>
+            </h5>
+
+            <div class="text-muted small mb-1">
+              <i class="fa-solid fa-location-dot me-1"></i><%= b.listing_location %>, <%= b.listing_country %>
+            </div>
+
+            <div class="text-muted small">
+              <i class="fa-regular fa-calendar me-1"></i>
+              <strong><%= new Date(b.check_in).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) %></strong>
+              &rarr;
+              <strong><%= new Date(b.check_out).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) %></strong>
+              &middot; <%= b.adults %> Guests
+            </div>
+          </div>
+
+          <!-- Financials & Actions -->
+          <div class="col-12 col-md-4 col-lg-4 text-md-end border-start-md pt-2 pt-md-0">
+            <div class="text-muted small">Total: <strong>&#8377;<%= Number(b.total_amount).toLocaleString("en-IN") %></strong></div>
+            <div class="text-success small">Paid: <strong>&#8377;<%= Number(b.amount_paid).toLocaleString("en-IN") %></strong></div>
+
+            <% if (Number(b.balance_due) > 0) { %>
+              <div class="text-danger fw-semibold small mb-2">
+                Balance Due: &#8377;<%= Number(b.balance_due).toLocaleString("en-IN") %>
+              </div>
+            <% } else { %>
+              <div class="text-muted small mb-2">Fully Settled</div>
+            <% } %>
+
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+              <a href="/bookings/<%= b.booking_id %>" class="btn btn-outline-primary btn-sm px-2">
+                Details
+              </a>
+
+              <% if (Number(b.balance_due) > 0 && b.booking_status !== 'cancelled' && b.booking_status !== 'expired') { %>
+                <form action="/bookings/<%= b.booking_id %>/pay-balance" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-primary btn-sm px-2">
+                    Pay Balance
+                  </button>
+                </form>
+              <% } else if (b.booking_status === 'pending_payment') { %>
+                <a href="/bookings/<%= b.booking_id %>/payment" class="btn btn-warning btn-sm px-2">
+                  Complete Pay
+                </a>
+              <% } %>
+
+              <a href="/bookings/<%= b.booking_id %>/receipt" target="_blank" class="btn btn-light border btn-sm px-2" title="Print Receipt">
+                <i class="fa-solid fa-print"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+<% } else { %>
+  <!-- Empty State -->
+  <div class="card border-0 shadow-sm text-center py-5">
+    <div class="card-body">
+      <div class="mb-3">
+        <i class="fa-solid fa-plane-departure text-muted display-4"></i>
+      </div>
+      <h4 class="fw-bold text-dark">No Bookings Yet</h4>
+      <p class="text-muted mx-auto" style="max-width: 480px;">
+        When you reserve stays and properties on WanderLust, your reservation details, slot holds, and payment receipts will appear right here. (Coming Soon features now live!)
+      </p>
+      <a href="/listings" class="btn btn-primary px-4 mt-2">
+        <i class="fa-solid fa-compass me-2"></i>Explore Vacation Listings
+      </a>
+    </div>
+  </div>
+<% } %>

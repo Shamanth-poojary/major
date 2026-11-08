@@ -1,0 +1,171 @@
+<% layout("layouts/boilerplate") -%>
+
+<div class="wl-container py-4 py-md-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-7">
+      <!-- Breadcrumb -->
+      <div class="wl-breadcrumb mb-3">
+        <a href="/listings" class="text-muted text-decoration-none">Listings</a>
+        <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+        <a href="/listings/<%= booking.listing_id %>" class="text-muted text-decoration-none"><%= booking.listing_title %></a>
+        <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+        <span class="text-dark fw-semibold">Payment</span>
+      </div>
+
+      <!-- Hold Timer Alert -->
+      <div class="alert alert-warning border-warning d-flex align-items-center justify-content-between p-3 rounded-3 shadow-sm mb-4">
+        <div class="d-flex align-items-center gap-2">
+          <i class="fa-solid fa-stopwatch fs-4 text-warning"></i>
+          <div>
+            <div class="fw-bold text-dark">Slot Reserved! Complete Payment to Confirm</div>
+            <div class="text-muted small">Your selected rooms are held temporarily for you.</div>
+          </div>
+        </div>
+        <div class="text-end">
+          <span class="badge bg-dark fs-6 font-monospace px-3 py-2" id="holdTimer">10:00</span>
+        </div>
+      </div>
+
+      <!-- Booking Card Overview -->
+      <div class="wl-card p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between pb-3 border-bottom mb-3">
+          <div>
+            <span class="badge bg-primary px-2 py-1 mb-1">Ref: <%= booking.booking_ref %></span>
+            <h4 class="h5 fw-bold text-dark mb-0"><%= booking.listing_title %></h4>
+            <div class="text-muted small"><i class="fa-solid fa-location-dot me-1"></i><%= booking.listing_location %>, <%= booking.listing_country %></div>
+          </div>
+          <div class="text-end">
+            <div class="text-muted small">Total Stay</div>
+            <div class="h4 fw-bold text-dark mb-0">&#8377;<%= Number(booking.total_amount).toLocaleString("en-IN") %></div>
+          </div>
+        </div>
+
+        <div class="row g-2 text-muted small mb-3">
+          <div class="col-6 col-md-3">
+            <span class="d-block text-muted">Check-In</span>
+            <strong class="text-dark"><%= new Date(booking.check_in).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) %></strong>
+          </div>
+          <div class="col-6 col-md-3">
+            <span class="d-block text-muted">Check-Out</span>
+            <strong class="text-dark"><%= new Date(booking.check_out).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' }) %></strong>
+          </div>
+          <div class="col-6 col-md-3">
+            <span class="d-block text-muted">Guests</span>
+            <strong class="text-dark"><%= booking.adults %> Adults<% if (booking.children) { %>, <%= booking.children %> Children<% } %></strong>
+          </div>
+          <div class="col-6 col-md-3">
+            <span class="d-block text-muted">Contact</span>
+            <strong class="text-dark"><%= booking.contact_phone %></strong>
+          </div>
+        </div>
+
+        <!-- Rooms List -->
+        <% if (booking.rooms && booking.rooms.length > 0) { %>
+          <div class="p-3 bg-light rounded-3 small">
+            <div class="fw-bold text-dark mb-1">Booked Rooms:</div>
+            <% for (let r of booking.rooms) { %>
+              <div class="d-flex justify-content-between text-muted py-1 border-bottom">
+                <span><%= r.name %> &times; <%= r.quantity %> unit(s)</span>
+                <span class="text-dark fw-semibold">&#8377;<%= (r.unit_price * r.quantity).toLocaleString("en-IN") %> / nt</span>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Choose Payment Option Form -->
+      <form action="/bookings/<%= booking.booking_id %>/pay" method="POST">
+        <h4 class="h5 fw-bold text-dark mb-3">Choose Payment Option</h4>
+
+        <div class="d-flex flex-column gap-3 mb-4">
+          <!-- Option A: Pay Advance (if allowed) -->
+          <% if (policy.allow_advance && Number(booking.advance_required) < Number(booking.total_amount)) { %>
+            <label class="card border p-3 rounded-3 cursor-pointer hover-shadow transition" style="cursor: pointer;">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                  <input
+                    type="radio"
+                    name="purpose"
+                    value="advance"
+                    class="form-check-input mt-0 fs-5"
+                    checked
+                  />
+                  <div>
+                    <div class="fw-bold text-dark">
+                      Pay Advance Only (Lock Slot)
+                      <span class="badge bg-success ms-1">Recommended</span>
+                    </div>
+                    <div class="text-muted small">
+                      Pay &#8377;<%= Number(booking.advance_required).toLocaleString("en-IN") %> now. Remaining &#8377;<%= Number(booking.total_amount - booking.advance_required).toLocaleString("en-IN") %> payable anytime before check-in.
+                    </div>
+                  </div>
+                </div>
+                <div class="h4 fw-bold text-primary mb-0">
+                  &#8377;<%= Number(booking.advance_required).toLocaleString("en-IN") %>
+                </div>
+              </div>
+            </label>
+          <% } %>
+
+          <!-- Option B: Pay Full Amount -->
+          <label class="card border p-3 rounded-3 cursor-pointer hover-shadow transition" style="cursor: pointer;">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-3">
+                <input
+                  type="radio"
+                  name="purpose"
+                  value="full"
+                  class="form-check-input mt-0 fs-5"
+                  <%= !policy.allow_advance || Number(booking.advance_required) >= Number(booking.total_amount) ? 'checked' : '' %>
+                />
+                <div>
+                  <div class="fw-bold text-dark">Pay Full Amount (100% Paid)</div>
+                  <div class="text-muted small">
+                    Pay full total of &#8377;<%= Number(booking.total_amount).toLocaleString("en-IN") %> now. No future balance or checkout steps.
+                  </div>
+                </div>
+              </div>
+              <div class="h4 fw-bold text-dark mb-0">
+                &#8377;<%= Number(booking.total_amount).toLocaleString("en-IN") %>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <button type="submit" class="btn wl-btn-primary w-100 py-3 fw-bold text-center shadow-sm">
+          <i class="fa-solid fa-credit-card me-2"></i>Proceed to Secure Payment Gateway
+        </button>
+
+        <div class="text-center text-muted small mt-3">
+          <i class="fa-solid fa-shield-halved me-1 text-primary"></i>Protected by WanderLust Dummy Mock Payment Gateway (Test Mode)
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// 10-Minute Hold Countdown
+document.addEventListener("DOMContentLoaded", () => {
+  const expiresAt = new Date("<%= booking.hold_expires_at ? booking.hold_expires_at : new Date(Date.now() + 10 * 60 * 1000).toISOString() %>").getTime();
+  const timerEl = document.getElementById("holdTimer");
+
+  const interval = setInterval(() => {
+    const now = new Date().getTime();
+    const distance = expiresAt - now;
+
+    if (distance <= 0) {
+      clearInterval(interval);
+      timerEl.textContent = "EXPIRED";
+      timerEl.className = "badge bg-danger fs-6 px-3 py-2";
+      alert("Your reservation hold has expired. Please select your dates and book again.");
+      window.location.href = "/listings/<%= booking.listing_id %>";
+      return;
+    }
+
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    timerEl.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  }, 1000);
+});
+</script>

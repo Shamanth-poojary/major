@@ -1,0 +1,89 @@
+<% layout("dashboard/layout") -%>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-1">
+      <i class="fa-solid fa-calendar-check me-2 text-primary"></i>All Platform Bookings
+    </h3>
+    <p class="text-muted mb-0">Platform-wide overview of all customer reservations, slot holds, and transactions.</p>
+  </div>
+</div>
+
+<% if (typeof bookings !== 'undefined' && bookings && bookings.length > 0) { %>
+  <div class="card border-0 shadow-sm overflow-hidden">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light small text-uppercase">
+          <tr>
+            <th>Booking Ref</th>
+            <th>Property</th>
+            <th>Host / Owner</th>
+            <th>Customer</th>
+            <th>Dates</th>
+            <th>Booking</th>
+            <th>Payment</th>
+            <th class="text-end">Total</th>
+            <th class="text-end">Paid</th>
+            <th class="text-end">Balance</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let b of bookings) { %>
+            <tr>
+              <td>
+                <span class="font-monospace fw-semibold"><%= b.booking_ref %></span>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark text-truncate" style="max-width: 160px;"><%= b.listing_title %></div>
+                <div class="text-muted small"><%= b.listing_location %></div>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border"><%= b.owner_name %></span>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark"><%= b.customer_name %></div>
+                <div class="text-muted small"><%= b.customer_email %></div>
+              </td>
+              <td class="small">
+                <%= new Date(b.check_in).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) %>
+                &rarr;
+                <%= new Date(b.check_out).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' }) %>
+              </td>
+              <td>
+                <span class="badge <%= b.booking_status === 'confirmed' ? 'bg-success' : 'bg-warning text-dark' %> text-uppercase" style="font-size: 0.65rem;">
+                  <%= b.booking_status %>
+                </span>
+              </td>
+              <td>
+                <span class="badge <%= b.payment_status === 'paid' ? 'bg-primary' : (b.payment_status === 'partially_paid' ? 'bg-info text-dark' : 'bg-danger') %> text-uppercase" style="font-size: 0.65rem;">
+                  <%= b.payment_status %>
+                </span>
+              </td>
+              <td class="text-end fw-semibold text-dark">&#8377;<%= Number(b.total_amount).toLocaleString("en-IN") %></td>
+              <td class="text-end text-success fw-semibold">&#8377;<%= Number(b.amount_paid).toLocaleString("en-IN") %></td>
+              <td class="text-end text-danger fw-semibold">&#8377;<%= Number(b.balance_due).toLocaleString("en-IN") %></td>
+              <td class="text-end">
+                <a href="/bookings/<%= b.booking_id %>" class="btn btn-outline-primary btn-sm">
+                  View
+                </a>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="card border-0 shadow-sm text-center py-5">
+    <div class="card-body">
+      <div class="mb-3">
+        <i class="fa-solid fa-calendar-xmark text-muted display-4"></i>
+      </div>
+      <h4 class="fw-bold text-dark">No Bookings Recorded</h4>
+      <p class="text-muted mx-auto" style="max-width: 480px;">
+        There are currently no customer bookings across the platform.
+      </p>
+    </div>
+  </div>
+<% } %>
