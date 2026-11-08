@@ -9,6 +9,7 @@
     "seed:owners": "node seed/generate-seed.js && node seed/apply-seed.js",
     "seed:owners:generate": "node seed/generate-seed.js",
     "migrate": "node db/migrate.js",
+    "seed:rooms": "node db/seed/backfillRoomTypes.js",
     "test": "node --test tests/routes.test.js"
   },
   "keywords": [],
