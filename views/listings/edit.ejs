@@ -19,6 +19,23 @@
     <!-- Left: Edit Form Column -->
     <div class="col-12 col-lg-7">
       <div class="wl-card p-4">
+        <!-- Suites & Booking Rules Action Card -->
+        <div class="alert alert-primary border-primary d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 mb-4">
+          <div class="d-flex align-items-center gap-3">
+            <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+              <i class="fa-solid fa-bed"></i>
+            </div>
+            <div>
+              <div class="fw-bold text-dark">Suites, Inventory & Booking Policies</div>
+              <div class="text-muted small">Alter room rates, add or remove suites, set available units, and manage deposit policies.</div>
+            </div>
+          </div>
+          <a href="/owner/listings/<%= listing.id %>/rooms" class="btn btn-primary btn-sm px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Manage Suites & Pricing</span>
+          </a>
+        </div>
+
         <form
           method="POST"
           action="/listings/<%= listing.id %>?_method=PUT"

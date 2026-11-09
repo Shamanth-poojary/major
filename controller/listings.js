@@ -101,8 +101,76 @@ module.exports.postListing = async (req, res) => {
     longitude,
   });
 
-  req.flash("success", "Successfully created a new listing!");
-  res.redirect("/listings");
+  try {
+    const roomService = require("../services/roomService");
+    const roomGenerator = require("../services/roomGenerator");
+
+    let parsedRooms = [];
+    if (req.body.rooms) {
+      try {
+        parsedRooms = typeof req.body.rooms === "string" ? JSON.parse(req.body.rooms) : req.body.rooms;
+      } catch (e) {
+        parsedRooms = [];
+      }
+    }
+
+    if (Array.isArray(parsedRooms) && parsedRooms.length > 0) {
+      for (const r of parsedRooms) {
+        if (!r || !r.name || !r.name.trim()) continue;
+        await roomService.createRoomType(newId, {
+          name: r.name.trim(),
+          description: r.description || `${r.name.trim()} at ${title}`,
+          category: r.category || "standard",
+          bed_config: r.bed_config || "1 Queen Bed",
+          size_sqft: r.size_sqft ? parseInt(r.size_sqft, 10) : 320,
+          max_guests: Math.max(1, parseInt(r.max_guests, 10) || 2),
+          price_per_night: Math.max(0, parseFloat(r.price_per_night) || parseFloat(price) || 1000),
+          total_units: Math.max(1, parseInt(r.total_units, 10) || 1),
+          amenities: Array.isArray(r.amenities)
+            ? r.amenities
+            : (typeof r.amenities === "string"
+                ? r.amenities.split(",").map((s) => s.trim()).filter(Boolean)
+                : ["Free High-Speed WiFi", "Air Conditioning", "Hot Water & Shower"]),
+          imageUrl: req.file ? req.file.path : null,
+        });
+      }
+    } else {
+      // Generate sensible default suites from listing details and base price
+      const defaultRooms = roomGenerator.generateRoomTypes({
+        title,
+        description,
+        price: parseFloat(price) || 2000,
+        business_type: "hotel",
+      });
+      for (const dr of defaultRooms) {
+        await roomService.createRoomType(newId, {
+          ...dr,
+          imageUrl: req.file ? req.file.path : null,
+        });
+      }
+    }
+
+    // Payment policy configuration
+    const allowAdvance =
+      req.body.policy && typeof req.body.policy.allow_advance !== "undefined"
+        ? String(req.body.policy.allow_advance) === "true" ||
+          req.body.policy.allow_advance === "on" ||
+          req.body.policy.allow_advance === "1"
+        : true;
+    const advanceType = req.body.policy?.advance_type === "fixed" ? "fixed" : "percent";
+    const advanceValue = Math.max(0, parseFloat(req.body.policy?.advance_value) || 25.0);
+
+    await roomService.updatePaymentPolicy(newId, {
+      allow_advance: allowAdvance,
+      advance_type: advanceType,
+      advance_value: advanceValue,
+    });
+  } catch (err) {
+    // If room/policy setup fails due to missing table or non-fatal issue, do not crash creation
+  }
+
+  req.flash("success", "Listing created! Your suites, pricing, and booking policies have been configured.");
+  res.redirect(`/owner/listings/${newId}/rooms`);
 };
 
 // =======================

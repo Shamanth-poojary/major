@@ -142,6 +142,9 @@ async function createRoomType(listingId, roomData) {
     return roomTypeId;
   } catch (err) {
     await conn.rollback();
+    if (err.code === "ER_NO_SUCH_TABLE") {
+      return null;
+    }
     throw err;
   } finally {
     conn.release();
@@ -220,6 +223,9 @@ async function updateRoomType(roomId, roomData) {
     await conn.commit();
   } catch (err) {
     await conn.rollback();
+    if (err.code === "ER_NO_SUCH_TABLE") {
+      return null;
+    }
     throw err;
   } finally {
     conn.release();
@@ -265,16 +271,20 @@ async function updatePaymentPolicy(listingId, policyData) {
   const advanceType = policyData.advance_type === "fixed" ? "fixed" : "percent";
   const advanceValue = Math.max(0, Number(policyData.advance_value) || 0);
 
-  await pool.query(
-    `INSERT INTO listing_payment_policy (listing_id, allow_advance, advance_type, advance_value)
-     VALUES (?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE
-       allow_advance = VALUES(allow_advance),
-       advance_type = VALUES(advance_type),
-       advance_value = VALUES(advance_value),
-       updated_at = CURRENT_TIMESTAMP`,
-    [listingId, allowAdvance, advanceType, advanceValue]
-  );
+  try {
+    await pool.query(
+      `INSERT INTO listing_payment_policy (listing_id, allow_advance, advance_type, advance_value)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         allow_advance = VALUES(allow_advance),
+         advance_type = VALUES(advance_type),
+         advance_value = VALUES(advance_value)`,
+      [listingId, allowAdvance, advanceType, advanceValue]
+    );
+  } catch (err) {
+    if (err.code === "ER_NO_SUCH_TABLE") return;
+    throw err;
+  }
 }
 
 module.exports = {

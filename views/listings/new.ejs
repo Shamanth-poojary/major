@@ -155,9 +155,208 @@
             <div class="invalid-feedback">Please select a photo for the listing.</div>
           </div>
 
+          <!-- STEP 2: SUITES & ROOM TYPES CONFIGURATION -->
+          <div class="border-top pt-4 mt-4">
+            <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+              <div>
+                <h4 class="h5 fw-bold text-dark mb-0">
+                  <i class="fa-solid fa-bed text-primary me-2"></i>Suites & Room Types
+                </h4>
+                <div class="text-muted small">
+                  Define the suites or room categories guests can book, their individual prices, and available units.
+                </div>
+              </div>
+              <button
+                type="button"
+                id="btnAutoGenerateSuites"
+                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                title="Populate standard suites based on base price"
+              >
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Auto-Populate Suites</span>
+              </button>
+            </div>
+
+            <div id="suitesContainer" class="d-flex flex-column gap-3 mb-3">
+              <!-- Initial Suite Card 1 -->
+              <div class="suite-card card border rounded-3 p-3 bg-light shadow-sm" data-index="0">
+                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                  <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                    <span class="badge bg-primary suite-badge">Suite #1</span>
+                    <span class="suite-title-display">Standard Classic Room</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm py-0 px-2 btn-remove-suite"
+                    style="display: none;"
+                    title="Remove this suite"
+                  >
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+
+                <div class="row g-2">
+                  <div class="col-12 col-md-7">
+                    <label class="form-label small fw-semibold text-muted mb-1">Suite / Room Name</label>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm suite-name-input"
+                      placeholder="e.g. Standard Classic Room"
+                      value="Standard Classic Room"
+                      required
+                    />
+                  </div>
+                  <div class="col-12 col-md-5">
+                    <label class="form-label small fw-semibold text-muted mb-1">Category</label>
+                    <select class="form-select form-select-sm suite-category-select">
+                      <option value="standard" selected>Standard Room</option>
+                      <option value="deluxe">Deluxe Suite</option>
+                      <option value="suite">Executive Suite</option>
+                      <option value="family">Family Suite</option>
+                      <option value="villa">Private Villa</option>
+                      <option value="hall">Banquet / Event Hall</option>
+                    </select>
+                  </div>
+
+                  <div class="col-6 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Price / night</label>
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-white">&#8377;</span>
+                      <input
+                        type="number"
+                        class="form-control suite-price-input"
+                        placeholder="2500"
+                        min="0"
+                        step="1"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-6 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Suites Available</label>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm suite-units-input"
+                      value="2"
+                      min="1"
+                      max="100"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-6 col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Max Guests</label>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm suite-guests-input"
+                      value="2"
+                      min="1"
+                      max="50"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-6 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">Bed Configuration</label>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm suite-bed-input"
+                      placeholder="e.g. 1 Queen Bed"
+                      value="1 Queen Bed"
+                    />
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label small fw-semibold text-muted mb-1">Key Amenities</label>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm suite-amenities-input"
+                      placeholder="WiFi, Air Conditioning, TV"
+                      value="Free High-Speed WiFi, Air Conditioning, Hot Water"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add Suite Button -->
+            <button
+              type="button"
+              id="btnAddSuite"
+              class="btn btn-outline-secondary btn-sm w-100 py-2 border-dashed d-flex align-items-center justify-content-center gap-2 mb-4"
+              style="border-style: dashed !important; border-width: 2px !important;"
+            >
+              <i class="fa-solid fa-plus text-primary"></i>
+              <span class="fw-semibold text-dark">Add Another Suite / Room Type</span>
+            </button>
+          </div>
+
+          <!-- STEP 3: ADVANCE BOOKING POLICY -->
+          <div class="border-top pt-4 mt-2 mb-4">
+            <h4 class="h5 fw-bold text-dark mb-1">
+              <i class="fa-solid fa-shield-halved text-primary me-2"></i>Advance Booking & Payment Policy
+            </h4>
+            <p class="text-muted small mb-3">
+              Allow guests to lock their reservation by paying a partial advance now, with the remainder payable before check-in.
+            </p>
+
+            <div class="card border rounded-3 p-3 bg-light">
+              <div class="form-check form-switch mb-3">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="allowAdvance"
+                  name="policy[allow_advance]"
+                  value="true"
+                  checked
+                />
+                <label class="form-check-label fw-bold text-dark" for="allowAdvance">
+                  Allow guests to pay an advance deposit to lock reservation
+                </label>
+              </div>
+
+              <div id="advanceConfigSection" class="row g-3 align-items-center">
+                <div class="col-12 col-sm-6">
+                  <label class="form-label small fw-semibold text-muted mb-1">Advance Type</label>
+                  <select class="form-select form-select-sm" name="policy[advance_type]" id="advanceType">
+                    <option value="percent" selected>Percentage of Total Stay (%)</option>
+                    <option value="fixed">Fixed Deposit Amount (&#8377;)</option>
+                  </select>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <label class="form-label small fw-semibold text-muted mb-1">Advance Value</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white" id="advanceSymbol">%</span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      name="policy[advance_value]"
+                      id="advanceValue"
+                      value="25"
+                      min="1"
+                      step="1"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="alert alert-info py-2 px-3 rounded-2 small mb-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-calculator text-primary"></i>
+                    <span id="advanceExample">Example: For a &#8377;10,000 reservation, guest pays &#8377;2,500 now to lock slot; remaining &#8377;7,500 before check-in.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden JSON input populated on submit -->
+          <input type="hidden" name="rooms" id="roomsJsonInput" value="" />
+
           <!-- Submit Button -->
-          <button class="btn wl-btn-primary w-100 py-3" type="submit">
-            Create Listing
+          <button class="btn wl-btn-primary w-100 py-3" type="submit" id="btnSubmitListing">
+            <i class="fa-solid fa-check me-2"></i>Create Listing & Publish Suites
           </button>
         </form>
       </div>
@@ -205,3 +404,389 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector(".needs-validation");
+  const priceInput = document.getElementById("price");
+  const suitesContainer = document.getElementById("suitesContainer");
+  const btnAddSuite = document.getElementById("btnAddSuite");
+  const btnAutoGenerateSuites = document.getElementById("btnAutoGenerateSuites");
+  const roomsJsonInput = document.getElementById("roomsJsonInput");
+
+  // Advance policy controls
+  const allowAdvanceSwitch = document.getElementById("allowAdvance");
+  const advanceConfigSection = document.getElementById("advanceConfigSection");
+  const advanceTypeSelect = document.getElementById("advanceType");
+  const advanceValueInput = document.getElementById("advanceValue");
+  const advanceSymbol = document.getElementById("advanceSymbol");
+  const advanceExample = document.getElementById("advanceExample");
+
+  // Keep suite 1 price synced with base price if empty or same
+  let previousBasePrice = "";
+  if (priceInput) {
+    priceInput.addEventListener("input", () => {
+      const currentBase = priceInput.value.trim();
+      const firstPriceInput = suitesContainer.querySelector(".suite-price-input");
+      if (firstPriceInput && (!firstPriceInput.value || firstPriceInput.value === previousBasePrice)) {
+        firstPriceInput.value = currentBase;
+      }
+      previousBasePrice = currentBase;
+      updateAdvanceExample();
+    });
+  }
+
+  // Update suite badges and remove buttons visibility
+  function updateSuiteBadges() {
+    const cards = suitesContainer.querySelectorAll(".suite-card");
+    cards.forEach((card, idx) => {
+      card.setAttribute("data-index", idx);
+      const badge = card.querySelector(".suite-badge");
+      if (badge) badge.textContent = `Suite #${idx + 1}`;
+      const removeBtn = card.querySelector(".btn-remove-suite");
+      if (removeBtn) {
+        removeBtn.style.display = cards.length > 1 ? "inline-block" : "none";
+      }
+    });
+  }
+
+  // Bind live name change to header
+  function bindSuiteEvents(card) {
+    const nameInput = card.querySelector(".suite-name-input");
+    const displayTitle = card.querySelector(".suite-title-display");
+    if (nameInput && displayTitle) {
+      nameInput.addEventListener("input", () => {
+        displayTitle.textContent = nameInput.value.trim() || "Untitled Suite / Room";
+      });
+    }
+
+    const removeBtn = card.querySelector(".btn-remove-suite");
+    if (removeBtn) {
+      removeBtn.addEventListener("click", () => {
+        if (suitesContainer.querySelectorAll(".suite-card").length > 1) {
+          card.remove();
+          updateSuiteBadges();
+        }
+      });
+    }
+  }
+
+  // Initialize existing card
+  document.querySelectorAll(".suite-card").forEach(bindSuiteEvents);
+
+  // Add Suite
+  if (btnAddSuite) {
+    btnAddSuite.addEventListener("click", () => {
+      const idx = suitesContainer.querySelectorAll(".suite-card").length;
+      const basePrice = (priceInput && priceInput.value.trim()) || "3000";
+      const card = document.createElement("div");
+      card.className = "suite-card card border rounded-3 p-3 bg-light shadow-sm";
+      card.setAttribute("data-index", idx);
+      card.innerHTML = `
+        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+          <div class="fw-bold text-dark d-flex align-items-center gap-2">
+            <span class="badge bg-primary suite-badge">Suite #${idx + 1}</span>
+            <span class="suite-title-display">Deluxe Suite</span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-outline-danger btn-sm py-0 px-2 btn-remove-suite"
+            title="Remove this suite"
+          >
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+        <div class="row g-2">
+          <div class="col-12 col-md-7">
+            <label class="form-label small fw-semibold text-muted mb-1">Suite / Room Name</label>
+            <input
+              type="text"
+              class="form-control form-control-sm suite-name-input"
+              placeholder="e.g. Deluxe Suite"
+              value="Deluxe Suite"
+              required
+            />
+          </div>
+          <div class="col-12 col-md-5">
+            <label class="form-label small fw-semibold text-muted mb-1">Category</label>
+            <select class="form-select form-select-sm suite-category-select">
+              <option value="standard">Standard Room</option>
+              <option value="deluxe" selected>Deluxe Suite</option>
+              <option value="suite">Executive Suite</option>
+              <option value="family">Family Suite</option>
+              <option value="villa">Private Villa</option>
+              <option value="hall">Banquet / Event Hall</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-4">
+            <label class="form-label small fw-semibold text-muted mb-1">Price / night</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white">&#8377;</span>
+              <input
+                type="number"
+                class="form-control suite-price-input"
+                placeholder="3500"
+                value="${Math.round(Number(basePrice) * 1.25)}"
+                min="0"
+                step="1"
+                required
+              />
+            </div>
+          </div>
+          <div class="col-6 col-md-4">
+            <label class="form-label small fw-semibold text-muted mb-1">Suites Available</label>
+            <input
+              type="number"
+              class="form-control form-control-sm suite-units-input"
+              value="2"
+              min="1"
+              max="100"
+              required
+            />
+          </div>
+          <div class="col-6 col-md-4">
+            <label class="form-label small fw-semibold text-muted mb-1">Max Guests</label>
+            <input
+              type="number"
+              class="form-control form-control-sm suite-guests-input"
+              value="2"
+              min="1"
+              max="50"
+              required
+            />
+          </div>
+          <div class="col-6 col-md-6">
+            <label class="form-label small fw-semibold text-muted mb-1">Bed Configuration</label>
+            <input
+              type="text"
+              class="form-control form-control-sm suite-bed-input"
+              placeholder="e.g. 1 King Bed"
+              value="1 King Bed"
+            />
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label small fw-semibold text-muted mb-1">Key Amenities</label>
+            <input
+              type="text"
+              class="form-control form-control-sm suite-amenities-input"
+              placeholder="WiFi, Air Conditioning, TV"
+              value="Free High-Speed WiFi, Air Conditioning, Smart TV, Hot Water"
+            />
+          </div>
+        </div>
+      `;
+      suitesContainer.appendChild(card);
+      bindSuiteEvents(card);
+      updateSuiteBadges();
+    });
+  }
+
+  // Auto-generate 3 suites based on price
+  if (btnAutoGenerateSuites) {
+    btnAutoGenerateSuites.addEventListener("click", () => {
+      const base = parseFloat(priceInput.value) || 3000;
+      const presets = [
+        {
+          name: "Standard Classic Room",
+          category: "standard",
+          price: Math.round(base),
+          units: 4,
+          guests: 2,
+          bed: "1 Queen Bed",
+          amenities: "Free High-Speed WiFi, Air Conditioning, Hot Water",
+        },
+        {
+          name: "Deluxe City / Nature View Suite",
+          category: "deluxe",
+          price: Math.round(base * 1.3),
+          units: 2,
+          guests: 2,
+          bed: "1 King Bed",
+          amenities: "Free High-Speed WiFi, Air Conditioning, Smart TV, Balcony",
+        },
+        {
+          name: "Executive Luxury Suite",
+          category: "suite",
+          price: Math.round(base * 1.75),
+          units: 1,
+          guests: 4,
+          bed: "1 King Bed + 1 Sofa Bed",
+          amenities: "Free High-Speed WiFi, Air Conditioning, Smart TV, Living Lounge, Jacuzzi",
+        },
+      ];
+
+      suitesContainer.innerHTML = "";
+      presets.forEach((p, idx) => {
+        const card = document.createElement("div");
+        card.className = "suite-card card border rounded-3 p-3 bg-light shadow-sm";
+        card.setAttribute("data-index", idx);
+        card.innerHTML = `
+          <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+            <div class="fw-bold text-dark d-flex align-items-center gap-2">
+              <span class="badge bg-primary suite-badge">Suite #${idx + 1}</span>
+              <span class="suite-title-display">${p.name}</span>
+            </div>
+            <button
+              type="button"
+              class="btn btn-outline-danger btn-sm py-0 px-2 btn-remove-suite"
+              title="Remove this suite"
+            >
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+          <div class="row g-2">
+            <div class="col-12 col-md-7">
+              <label class="form-label small fw-semibold text-muted mb-1">Suite / Room Name</label>
+              <input
+                type="text"
+                class="form-control form-control-sm suite-name-input"
+                value="${p.name}"
+                required
+              />
+            </div>
+            <div class="col-12 col-md-5">
+              <label class="form-label small fw-semibold text-muted mb-1">Category</label>
+              <select class="form-select form-select-sm suite-category-select">
+                <option value="standard" ${p.category === 'standard' ? 'selected' : ''}>Standard Room</option>
+                <option value="deluxe" ${p.category === 'deluxe' ? 'selected' : ''}>Deluxe Suite</option>
+                <option value="suite" ${p.category === 'suite' ? 'selected' : ''}>Executive Suite</option>
+                <option value="family" ${p.category === 'family' ? 'selected' : ''}>Family Suite</option>
+                <option value="villa" ${p.category === 'villa' ? 'selected' : ''}>Private Villa</option>
+                <option value="hall" ${p.category === 'hall' ? 'selected' : ''}>Banquet / Event Hall</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-4">
+              <label class="form-label small fw-semibold text-muted mb-1">Price / night</label>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white">&#8377;</span>
+                <input
+                  type="number"
+                  class="form-control suite-price-input"
+                  value="${p.price}"
+                  min="0"
+                  step="1"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-6 col-md-4">
+              <label class="form-label small fw-semibold text-muted mb-1">Suites Available</label>
+              <input
+                type="number"
+                class="form-control form-control-sm suite-units-input"
+                value="${p.units}"
+                min="1"
+                max="100"
+                required
+              />
+            </div>
+            <div class="col-6 col-md-4">
+              <label class="form-label small fw-semibold text-muted mb-1">Max Guests</label>
+              <input
+                type="number"
+                class="form-control form-control-sm suite-guests-input"
+                value="${p.guests}"
+                min="1"
+                max="50"
+                required
+              />
+            </div>
+            <div class="col-6 col-md-6">
+              <label class="form-label small fw-semibold text-muted mb-1">Bed Configuration</label>
+              <input
+                type="text"
+                class="form-control form-control-sm suite-bed-input"
+                value="${p.bed}"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold text-muted mb-1">Key Amenities</label>
+              <input
+                type="text"
+                class="form-control form-control-sm suite-amenities-input"
+                value="${p.amenities}"
+              />
+            </div>
+          </div>
+        `;
+        suitesContainer.appendChild(card);
+        bindSuiteEvents(card);
+      });
+      updateSuiteBadges();
+    });
+  }
+
+  // Advance policy calculations
+  function updateAdvanceExample() {
+    if (!advanceConfigSection) return;
+    const isAllowed = allowAdvanceSwitch ? allowAdvanceSwitch.checked : true;
+    advanceConfigSection.style.display = isAllowed ? "flex" : "none";
+
+    const type = advanceTypeSelect.value;
+    const val = parseFloat(advanceValueInput.value) || 0;
+    if (advanceSymbol) {
+      advanceSymbol.textContent = type === "fixed" ? "₹" : "%";
+    }
+
+    if (advanceExample) {
+      if (!isAllowed) {
+        advanceExample.textContent = "Guests will pay 100% full amount when booking.";
+      } else if (type === "percent") {
+        const advAmt = Math.round(10000 * (val / 100));
+        const remAmt = 10000 - advAmt;
+        advanceExample.textContent = `Example: For a ₹10,000 reservation, guest pays ₹${advAmt.toLocaleString("en-IN")} (${val}%) now to lock slot; remaining ₹${remAmt.toLocaleString("en-IN")} before check-in.`;
+      } else {
+        const advAmt = Math.min(10000, val);
+        const remAmt = Math.max(0, 10000 - advAmt);
+        advanceExample.textContent = `Example: For a ₹10,000 reservation, guest pays ₹${advAmt.toLocaleString("en-IN")} fixed deposit now; remaining ₹${remAmt.toLocaleString("en-IN")} before check-in.`;
+      }
+    }
+  }
+
+  if (allowAdvanceSwitch) {
+    allowAdvanceSwitch.addEventListener("change", updateAdvanceExample);
+  }
+  if (advanceTypeSelect) {
+    advanceTypeSelect.addEventListener("change", updateAdvanceExample);
+  }
+  if (advanceValueInput) {
+    advanceValueInput.addEventListener("input", updateAdvanceExample);
+  }
+
+  // Package suites to JSON before submitting
+  if (form) {
+    form.addEventListener("submit", (e) => {
+      const cards = suitesContainer.querySelectorAll(".suite-card");
+      const suites = [];
+      const basePrice = (priceInput && priceInput.value.trim()) || "2000";
+
+      cards.forEach((card) => {
+        const name = (card.querySelector(".suite-name-input")?.value || "").trim();
+        const category = card.querySelector(".suite-category-select")?.value || "standard";
+        const price = parseFloat(card.querySelector(".suite-price-input")?.value) || parseFloat(basePrice) || 2000;
+        const units = parseInt(card.querySelector(".suite-units-input")?.value, 10) || 1;
+        const guests = parseInt(card.querySelector(".suite-guests-input")?.value, 10) || 2;
+        const bed = (card.querySelector(".suite-bed-input")?.value || "").trim();
+        const amenitiesRaw = (card.querySelector(".suite-amenities-input")?.value || "").trim();
+        const amenities = amenitiesRaw ? amenitiesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+        if (name) {
+          suites.push({
+            name,
+            category,
+            price_per_night: price,
+            total_units: units,
+            max_guests: guests,
+            bed_config: bed,
+            amenities,
+          });
+        }
+      });
+
+      if (roomsJsonInput) {
+        roomsJsonInput.value = JSON.stringify(suites);
+      }
+    });
+  }
+});
+</script>
