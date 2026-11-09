@@ -167,12 +167,12 @@ async function createBooking(data) {
 
     const bookingId = insertResult.insertId;
 
-    // 7. Insert booking_rooms snapshots
+    // 7. Insert booking_rooms snapshots (with listing_id for compound FK consistency)
     for (const item of quote.lineItems) {
       await conn.query(
-        `INSERT INTO booking_rooms (booking_id, room_type_id, quantity, unit_price)
-         VALUES (?, ?, ?, ?)`,
-        [bookingId, item.roomTypeId, item.quantity, item.unitPrice]
+        `INSERT INTO booking_rooms (booking_id, room_type_id, listing_id, quantity, unit_price)
+         VALUES (?, ?, ?, ?, ?)`,
+        [bookingId, item.roomTypeId, listingId, item.quantity, item.unitPrice]
       );
     }
 

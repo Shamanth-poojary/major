@@ -63,8 +63,14 @@ describe("Booking and Mock Payment Gateway Integration Suite", { concurrency: 1 
   });
 
   after(async () => {
-    // Cleanup test data
+    // Cleanup test data (delete child payments first due to ON DELETE RESTRICT)
     if (customerId || ownerId) {
+      await pool.query(
+        `DELETE p FROM payments p 
+         JOIN bookings b ON b.id = p.booking_id 
+         WHERE b.customer_id IN (?, ?) OR b.listing_id = ?`,
+        [customerId, ownerId, listingId]
+      );
       await pool.query("DELETE FROM bookings WHERE customer_id IN (?, ?) OR listing_id = ?", [
         customerId,
         ownerId,

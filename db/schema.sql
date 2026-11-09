@@ -121,11 +121,14 @@ CREATE TABLE IF NOT EXISTS room_types (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
+  UNIQUE KEY uq_room_types_id_listing (id, listing_id),
+  UNIQUE KEY uq_room_types_listing_name (listing_id, name),
   CONSTRAINT fk_room_types_listing FOREIGN KEY (listing_id)
     REFERENCES listings (listing_id) ON DELETE CASCADE,
   CONSTRAINT chk_room_types_price CHECK (price_per_night >= 0),
-  CONSTRAINT chk_room_types_units CHECK (total_units >= 0),
+  CONSTRAINT chk_rt_units CHECK (total_units > 0),
   CONSTRAINT chk_room_types_guests CHECK (max_guests > 0),
+  CONSTRAINT chk_rt_size CHECK (size_sqft IS NULL OR size_sqft > 0),
   KEY idx_room_types_listing (listing_id),
   KEY idx_room_types_active (is_active)
 ) ENGINE=InnoDB;
@@ -172,7 +175,10 @@ CREATE TABLE IF NOT EXISTS listing_payment_policy (
   PRIMARY KEY (listing_id),
   CONSTRAINT fk_lpp_listing FOREIGN KEY (listing_id)
     REFERENCES listings (listing_id) ON DELETE CASCADE,
-  CONSTRAINT chk_lpp_advance_val CHECK (advance_value >= 0)
+  CONSTRAINT chk_lpp CHECK (
+    (allow_advance = 0 AND advance_value >= 0)
+    OR (allow_advance = 1 AND advance_value > 0 AND (advance_type <> 'percent' OR advance_value <= 100))
+  )
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS bookings (
@@ -194,29 +200,33 @@ CREATE TABLE IF NOT EXISTS bookings (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_bookings_ref (booking_ref),
+  UNIQUE KEY uq_bookings_id_listing (id, listing_id),
   CONSTRAINT chk_bookings_dates CHECK (check_out > check_in),
-  CONSTRAINT chk_bookings_amounts CHECK (total_amount >= 0 AND advance_required >= 0),
+  CONSTRAINT chk_bk_guests CHECK (adults >= 1 AND children >= 0),
+  CONSTRAINT chk_bk_amounts CHECK (total_amount >= 0 AND advance_required >= 0 AND advance_required <= total_amount),
   CONSTRAINT fk_bookings_customer FOREIGN KEY (customer_id)
     REFERENCES users (user_id) ON DELETE RESTRICT,
   CONSTRAINT fk_bookings_listing FOREIGN KEY (listing_id)
     REFERENCES listings (listing_id) ON DELETE RESTRICT,
   KEY idx_bookings_dates (listing_id, check_in, check_out),
   KEY idx_bookings_customer (customer_id),
-  KEY idx_bookings_status (status)
+  KEY idx_bookings_status (status),
+  KEY idx_bookings_status_hold (status, hold_expires_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS booking_rooms (
   booking_id INT UNSIGNED NOT NULL,
   room_type_id INT UNSIGNED NOT NULL,
+  listing_id INT UNSIGNED NOT NULL,
   quantity INT UNSIGNED NOT NULL DEFAULT 1,
   unit_price DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (booking_id, room_type_id),
   CONSTRAINT chk_booking_rooms_qty CHECK (quantity > 0),
   CONSTRAINT chk_booking_rooms_price CHECK (unit_price >= 0),
-  CONSTRAINT fk_br_booking FOREIGN KEY (booking_id)
-    REFERENCES bookings (id) ON DELETE CASCADE,
-  CONSTRAINT fk_br_room_type FOREIGN KEY (room_type_id)
-    REFERENCES room_types (id) ON DELETE RESTRICT
+  CONSTRAINT fk_br_booking_listing FOREIGN KEY (booking_id, listing_id)
+    REFERENCES bookings (id, listing_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_br_roomtype_listing FOREIGN KEY (room_type_id, listing_id)
+    REFERENCES room_types (id, listing_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS payments (
@@ -237,9 +247,15 @@ CREATE TABLE IF NOT EXISTS payments (
   PRIMARY KEY (id),
   UNIQUE KEY uq_payments_order (gateway_order_id),
   UNIQUE KEY uq_payments_idempotency (idempotency_key),
-  CONSTRAINT chk_payments_amount CHECK (amount >= 0),
+  UNIQUE KEY uq_payments_gateway_payment_id (gateway_payment_id),
+  CONSTRAINT chk_pay_amount CHECK (amount > 0),
+  CONSTRAINT chk_pay_last4 CHECK (card_last4 IS NULL OR card_last4 REGEXP '^[0-9]{4}$'),
+  CONSTRAINT chk_pay_card CHECK (
+    (method <> 'card' AND card_network IS NULL AND card_last4 IS NULL)
+    OR (method = 'card')
+  ),
   CONSTRAINT fk_payments_booking FOREIGN KEY (booking_id)
-    REFERENCES bookings (id) ON DELETE CASCADE,
+    REFERENCES bookings (id) ON DELETE RESTRICT ON UPDATE CASCADE,
   KEY idx_payments_booking (booking_id),
   KEY idx_payments_status (status)
 ) ENGINE=InnoDB;

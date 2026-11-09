@@ -329,6 +329,7 @@ async function dbSetup() {
     CREATE TABLE IF NOT EXISTS booking_rooms (
       booking_id INT UNSIGNED NOT NULL,
       room_type_id INT UNSIGNED NOT NULL,
+      listing_id INT UNSIGNED NOT NULL DEFAULT 1,
       quantity INT UNSIGNED NOT NULL DEFAULT 1,
       unit_price DECIMAL(10,2) NOT NULL,
       PRIMARY KEY (booking_id, room_type_id)
