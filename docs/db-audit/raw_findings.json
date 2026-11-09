@@ -1,0 +1,267 @@
+{
+  "orphanResults": [
+    {
+      "table": "booking_rooms",
+      "col": "booking_id",
+      "refTable": "bookings",
+      "refCol": "id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `booking_rooms` c\n               LEFT JOIN `bookings` p\n                 ON p.`id` = c.`booking_id`\n               WHERE p.`id` IS NULL AND c.`booking_id` IS NOT NULL"
+    },
+    {
+      "table": "booking_rooms",
+      "col": "room_type_id",
+      "refTable": "room_types",
+      "refCol": "id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `booking_rooms` c\n               LEFT JOIN `room_types` p\n                 ON p.`id` = c.`room_type_id`\n               WHERE p.`id` IS NULL AND c.`room_type_id` IS NOT NULL"
+    },
+    {
+      "table": "bookings",
+      "col": "customer_id",
+      "refTable": "users",
+      "refCol": "user_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `bookings` c\n               LEFT JOIN `users` p\n                 ON p.`user_id` = c.`customer_id`\n               WHERE p.`user_id` IS NULL AND c.`customer_id` IS NOT NULL"
+    },
+    {
+      "table": "bookings",
+      "col": "listing_id",
+      "refTable": "listings",
+      "refCol": "listing_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `bookings` c\n               LEFT JOIN `listings` p\n                 ON p.`listing_id` = c.`listing_id`\n               WHERE p.`listing_id` IS NULL AND c.`listing_id` IS NOT NULL"
+    },
+    {
+      "table": "listing_payment_policy",
+      "col": "listing_id",
+      "refTable": "listings",
+      "refCol": "listing_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `listing_payment_policy` c\n               LEFT JOIN `listings` p\n                 ON p.`listing_id` = c.`listing_id`\n               WHERE p.`listing_id` IS NULL AND c.`listing_id` IS NOT NULL"
+    },
+    {
+      "table": "listings",
+      "col": "owner_id",
+      "refTable": "users",
+      "refCol": "user_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `listings` c\n               LEFT JOIN `users` p\n                 ON p.`user_id` = c.`owner_id`\n               WHERE p.`user_id` IS NULL AND c.`owner_id` IS NOT NULL"
+    },
+    {
+      "table": "owner_documents",
+      "col": "owner_id",
+      "refTable": "owner_profile",
+      "refCol": "owner_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `owner_documents` c\n               LEFT JOIN `owner_profile` p\n                 ON p.`owner_id` = c.`owner_id`\n               WHERE p.`owner_id` IS NULL AND c.`owner_id` IS NOT NULL"
+    },
+    {
+      "table": "owner_profile",
+      "col": "owner_id",
+      "refTable": "users",
+      "refCol": "user_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `owner_profile` c\n               LEFT JOIN `users` p\n                 ON p.`user_id` = c.`owner_id`\n               WHERE p.`user_id` IS NULL AND c.`owner_id` IS NOT NULL"
+    },
+    {
+      "table": "payments",
+      "col": "booking_id",
+      "refTable": "bookings",
+      "refCol": "id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `payments` c\n               LEFT JOIN `bookings` p\n                 ON p.`id` = c.`booking_id`\n               WHERE p.`id` IS NULL AND c.`booking_id` IS NOT NULL"
+    },
+    {
+      "table": "reviews",
+      "col": "listing_id",
+      "refTable": "listings",
+      "refCol": "listing_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `reviews` c\n               LEFT JOIN `listings` p\n                 ON p.`listing_id` = c.`listing_id`\n               WHERE p.`listing_id` IS NULL AND c.`listing_id` IS NOT NULL"
+    },
+    {
+      "table": "reviews",
+      "col": "user_id",
+      "refTable": "users",
+      "refCol": "user_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `reviews` c\n               LEFT JOIN `users` p\n                 ON p.`user_id` = c.`user_id`\n               WHERE p.`user_id` IS NULL AND c.`user_id` IS NOT NULL"
+    },
+    {
+      "table": "room_type_amenities",
+      "col": "amenity_id",
+      "refTable": "amenities",
+      "refCol": "id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `room_type_amenities` c\n               LEFT JOIN `amenities` p\n                 ON p.`id` = c.`amenity_id`\n               WHERE p.`id` IS NULL AND c.`amenity_id` IS NOT NULL"
+    },
+    {
+      "table": "room_type_amenities",
+      "col": "room_type_id",
+      "refTable": "room_types",
+      "refCol": "id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `room_type_amenities` c\n               LEFT JOIN `room_types` p\n                 ON p.`id` = c.`room_type_id`\n               WHERE p.`id` IS NULL AND c.`room_type_id` IS NOT NULL"
+    },
+    {
+      "table": "room_type_images",
+      "col": "room_type_id",
+      "refTable": "room_types",
+      "refCol": "id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `room_type_images` c\n               LEFT JOIN `room_types` p\n                 ON p.`id` = c.`room_type_id`\n               WHERE p.`id` IS NULL AND c.`room_type_id` IS NOT NULL"
+    },
+    {
+      "table": "room_types",
+      "col": "listing_id",
+      "refTable": "listings",
+      "refCol": "listing_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `room_types` c\n               LEFT JOIN `listings` p\n                 ON p.`listing_id` = c.`listing_id`\n               WHERE p.`listing_id` IS NULL AND c.`listing_id` IS NOT NULL"
+    },
+    {
+      "table": "wishlists",
+      "col": "listing_id",
+      "refTable": "listings",
+      "refCol": "listing_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `wishlists` c\n               LEFT JOIN `listings` p\n                 ON p.`listing_id` = c.`listing_id`\n               WHERE p.`listing_id` IS NULL AND c.`listing_id` IS NOT NULL"
+    },
+    {
+      "table": "wishlists",
+      "col": "user_id",
+      "refTable": "users",
+      "refCol": "user_id",
+      "orphans": 0,
+      "query": "SELECT COUNT(*) as c FROM `wishlists` c\n               LEFT JOIN `users` p\n                 ON p.`user_id` = c.`user_id`\n               WHERE p.`user_id` IS NULL AND c.`user_id` IS NOT NULL"
+    }
+  ],
+  "locCountryVariants": [],
+  "locSpellingVariants": [],
+  "countrySpellingVariants": [],
+  "locCoordVariants": [],
+  "repeatLocPairs": [
+    {
+      "location": "bengaluru",
+      "country": "India",
+      "cnt": 2
+    }
+  ],
+  "bTypes": [
+    {
+      "business_type": "hotel_owner",
+      "count": 9
+    },
+    {
+      "business_type": "property_owner",
+      "count": 4
+    },
+    {
+      "business_type": "venue_owner",
+      "count": 2
+    },
+    {
+      "business_type": "event_planner",
+      "count": 1
+    }
+  ],
+  "ownerStatuses": [
+    {
+      "verification_status": "pending",
+      "count": 1,
+      "with_reason": 0
+    },
+    {
+      "verification_status": "approved",
+      "count": 15,
+      "with_reason": 0
+    }
+  ],
+  "opColNames": [
+    "business_name",
+    "business_type",
+    "created_at",
+    "owner_id",
+    "phone",
+    "rejection_reason",
+    "updated_at",
+    "verification_note",
+    "verification_status",
+    "verified_at"
+  ],
+  "usersPics": {
+    "total": 25,
+    "with_url": 2,
+    "with_pub_id": 2
+  },
+  "orphanOwnerProfiles": [],
+  "dupReviews": [],
+  "listingReviewCols": [],
+  "dupWishlists": [],
+  "wishlistPK": [
+    "id"
+  ],
+  "priceCol": {
+    "COLUMN_TYPE": "decimal(10,2)",
+    "IS_NULLABLE": "NO",
+    "COLUMN_DEFAULT": null
+  },
+  "docCols": [
+    {
+      "COLUMN_NAME": "document_id",
+      "COLUMN_TYPE": "int unsigned"
+    },
+    {
+      "COLUMN_NAME": "file_size",
+      "COLUMN_TYPE": "int unsigned"
+    },
+    {
+      "COLUMN_NAME": "file_url",
+      "COLUMN_TYPE": "varchar(500)"
+    },
+    {
+      "COLUMN_NAME": "mime_type",
+      "COLUMN_TYPE": "varchar(100)"
+    },
+    {
+      "COLUMN_NAME": "original_name",
+      "COLUMN_TYPE": "varchar(255)"
+    },
+    {
+      "COLUMN_NAME": "owner_id",
+      "COLUMN_TYPE": "int unsigned"
+    },
+    {
+      "COLUMN_NAME": "public_id",
+      "COLUMN_TYPE": "varchar(255)"
+    },
+    {
+      "COLUMN_NAME": "resource_type",
+      "COLUMN_TYPE": "varchar(50)"
+    },
+    {
+      "COLUMN_NAME": "uploaded_at",
+      "COLUMN_TYPE": "timestamp"
+    }
+  ],
+  "atomicityFindings": [
+    {
+      "table": "listings",
+      "column": "location",
+      "matches": 51
+    },
+    {
+      "table": "users",
+      "column": "bio",
+      "matches": 3
+    }
+  ],
+  "plainPasswords": 0,
+  "grants": [
+    "GRANT CREATE ON *.* TO `wanderlust_user`@`localhost`",
+    "GRANT ALL PRIVILEGES ON `wanderlust`.* TO `wanderlust_user`@`localhost`",
+    "GRANT ALL PRIVILEGES ON `wanderlust_norm`.* TO `wanderlust_user`@`localhost`",
+    "GRANT ALL PRIVILEGES ON `wanderlust_test`.* TO `wanderlust_user`@`localhost`"
+  ]
+}
