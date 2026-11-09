@@ -31,7 +31,8 @@ async function verifyListingOwnership(req, res, next) {
     return res.redirect("/dashboard/listings");
   }
 
-  if (rows[0].owner_id !== req.user.user_id && req.user.role !== "admin") {
+  const currentUserId = req.user?.id || req.user?.user_id;
+  if (Number(rows[0].owner_id) !== Number(currentUserId) && req.user.role !== "admin") {
     req.flash("error", "You do not have permission to manage rooms for this listing.");
     return res.redirect("/dashboard/listings");
   }
@@ -128,7 +129,8 @@ router.post(
     const roomId = parseInt(req.params.roomId, 10);
     const room = await roomService.getRoomById(roomId);
 
-    if (!room || (room.owner_id !== req.user.user_id && req.user.role !== "admin")) {
+    const currentUserId = req.user?.id || req.user?.user_id;
+    if (!room || (Number(room.owner_id) !== Number(currentUserId) && req.user.role !== "admin")) {
       req.flash("error", "Room not found or unauthorized.");
       return res.redirect("/dashboard/listings");
     }
@@ -181,7 +183,8 @@ router.post(
     const roomId = parseInt(req.params.roomId, 10);
     const room = await roomService.getRoomById(roomId);
 
-    if (!room || (room.owner_id !== req.user.user_id && req.user.role !== "admin")) {
+    const currentUserId = req.user?.id || req.user?.user_id;
+    if (!room || (Number(room.owner_id) !== Number(currentUserId) && req.user.role !== "admin")) {
       req.flash("error", "Room not found or unauthorized.");
       return res.redirect("/dashboard/listings");
     }

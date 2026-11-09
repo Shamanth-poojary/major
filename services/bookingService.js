@@ -89,7 +89,7 @@ async function createBooking(data) {
     if (!listingRows.length) {
       throw new Error("Listing not found.");
     }
-    if (listingRows[0].owner_id === customerId) {
+    if (Number(listingRows[0].owner_id) === Number(customerId)) {
       throw new Error("You cannot book your own property.");
     }
 
@@ -229,13 +229,15 @@ async function getBookingById(bookingId, currentUser) {
 
   // Authorization check
   if (currentUser) {
-    const isCustomer = booking.customer_id === currentUser.user_id;
-    const isOwner = booking.owner_id === currentUser.user_id;
+    const currentUserId = Number(currentUser.id || currentUser.user_id);
+    const isCustomer = Number(booking.customer_id) === currentUserId;
+    const isOwner = Number(booking.owner_id) === currentUserId;
     const isAdmin = currentUser.role === "admin";
 
     if (!isCustomer && !isOwner && !isAdmin) {
       const err = new Error("You are not authorized to view this booking.");
       err.status = 403;
+      err.statusCode = 403;
       throw err;
     }
   }

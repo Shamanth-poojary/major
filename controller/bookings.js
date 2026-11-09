@@ -67,7 +67,8 @@ async function renderBookingPage(req, res) {
   }
 
   // Prevent owner from booking own listing
-  if (req.user && req.user.user_id === listing.owner.id) {
+  const currentUserId = req.user?.id || req.user?.user_id;
+  if (currentUserId && Number(currentUserId) === Number(listing.owner?.id)) {
     req.flash("error", "You cannot book your own property.");
     return res.redirect(`/listings/${listingId}`);
   }

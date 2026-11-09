@@ -123,6 +123,19 @@ describe("Booking and Mock Payment Gateway Integration Suite", { concurrency: 1 
     const avail = await availabilityService.getListingAvailability(listingId, checkIn, checkOut);
     const room = avail.find((r) => r.id === roomTypeId);
     assert.equal(room.available_units, 1);
+
+    // Verify authorization works with Passport user shape { id, role }
+    const fetched = await bookingService.getBookingById(booking.id, { id: customerId, role: "customer" });
+    assert.ok(fetched);
+    assert.equal(fetched.booking_id, booking.id);
+
+    // Unauthorized user fails with 403
+    await assert.rejects(
+      async () => {
+        await bookingService.getBookingById(booking.id, { id: 999999, role: "customer" });
+      },
+      { message: /not authorized/ }
+    );
   });
 
   it("4. Concurrency guard: booking more units than available throws availability error", async () => {

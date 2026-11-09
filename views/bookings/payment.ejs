@@ -164,7 +164,8 @@
 <script>
 // 10-Minute Hold Countdown
 document.addEventListener("DOMContentLoaded", () => {
-  const expiresAt = new Date("<%= booking.hold_expires_at ? booking.hold_expires_at : new Date(Date.now() + 10 * 60 * 1000).toISOString() %>").getTime();
+  const rawHold = "<%= booking.hold_expires_at ? (booking.hold_expires_at.toISOString ? booking.hold_expires_at.toISOString() : booking.hold_expires_at) : '' %>";
+  const expiresAt = rawHold ? new Date(rawHold).getTime() : (Date.now() + 10 * 60 * 1000);
   const timerEl = document.getElementById("holdTimer");
 
   const interval = setInterval(() => {
