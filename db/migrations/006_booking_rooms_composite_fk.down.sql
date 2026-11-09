@@ -11,3 +11,4 @@ ALTER TABLE booking_rooms DROP COLUMN listing_id;
 
 ALTER TABLE bookings DROP KEY uq_bookings_id_listing;
 ALTER TABLE room_types DROP KEY uq_room_types_id_listing;
+

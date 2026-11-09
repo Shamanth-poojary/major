@@ -121,3 +121,4 @@
 1. **`booking_rooms.unit_price`**: Historical price snapshot per night at reservation creation.
 2. **`bookings.advance_required` & `bookings.total_amount`**: Financial contractual snapshots agreed upon by traveler and system.
 3. **`listings.price`**: Accepted "starting from" price maintained to optimize search queries, listing previews, and card cards without requiring dynamic aggregation across `room_types`.
+

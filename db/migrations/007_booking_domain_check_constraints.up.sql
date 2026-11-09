@@ -28,3 +28,4 @@ ALTER TABLE listing_payment_policy
     (allow_advance = 0 AND advance_value >= 0)
     OR (allow_advance = 1 AND advance_value > 0 AND (advance_type <> 'percent' OR advance_value <= 100))
   );
+

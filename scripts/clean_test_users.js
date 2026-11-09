@@ -24,3 +24,4 @@ async function clean(dbName) {
 
 const db = process.argv[2] || 'wanderlust_norm';
 clean(db).catch(console.error);
+

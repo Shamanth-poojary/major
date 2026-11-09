@@ -121,3 +121,4 @@ main().catch((err) => {
   console.error('\n❌ Live migration apply failed:', err);
   process.exit(1);
 });
+

@@ -5,3 +5,4 @@ ALTER TABLE room_types ADD CONSTRAINT uq_room_types_listing_name UNIQUE (listing
 
 -- 2. Ensure gateway_payment_id is unique when populated
 ALTER TABLE payments ADD CONSTRAINT uq_payments_gateway_payment_id UNIQUE (gateway_payment_id);
+

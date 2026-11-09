@@ -25,3 +25,4 @@ ALTER TABLE booking_rooms
     REFERENCES bookings (id, listing_id) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT fk_br_roomtype_listing FOREIGN KEY (room_type_id, listing_id) 
     REFERENCES room_types (id, listing_id) ON DELETE RESTRICT ON UPDATE CASCADE;
+

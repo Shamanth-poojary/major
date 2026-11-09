@@ -306,3 +306,4 @@ main().catch((err) => {
   console.error('Findings analysis failed:', err);
   process.exit(1);
 });
+

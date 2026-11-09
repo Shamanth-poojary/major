@@ -14,3 +14,4 @@ ALTER TABLE room_types ADD CONSTRAINT chk_room_types_units CHECK (total_units >=
 ALTER TABLE bookings DROP CHECK chk_bk_amounts;
 ALTER TABLE bookings DROP CHECK chk_bk_guests;
 ALTER TABLE bookings ADD CONSTRAINT chk_bookings_amounts CHECK ((total_amount >= 0) AND (advance_required >= 0));
+

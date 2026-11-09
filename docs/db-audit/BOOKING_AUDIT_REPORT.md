@@ -76,3 +76,4 @@ All 15 hypotheses (B1–B15) were evaluated against `wanderlust_norm`. **Existin
 | **D5** | `RESTRICT` on delete rules for payments | **Apply RESTRICT on `payments -> bookings`** | Ready to migrate |
 | **D6** | Concurrency row lock (`FOR UPDATE`) in booking service | **Report in code review** (Option B recommended) | Documented |
 | **D7** | `UNIQUE (room_type_id, sort_order)` on images | **Option B (Skip to avoid reorder collision)** | Skipped |
+
