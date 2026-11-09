@@ -48,25 +48,13 @@
             <div class="invalid-feedback">Please enter a description.</div>
           </div>
 
-          <!-- Price -->
-          <div class="mb-3">
-            <label for="price" class="form-label">Price per night</label>
-            <div class="input-group">
-              <span class="input-group-text bg-light fw-bold text-dark" style="border-color: var(--wl-border);">&#8377;</span>
-              <input
-                type="number"
-                id="price"
-                name="listing[price]"
-                placeholder="4500"
-                class="form-control"
-                required
-                min="0"
-                step="1"
-                value="<%= typeof listing !== 'undefined' ? listing.price || '' : '' %>"
-              />
-            </div>
-            <div class="invalid-feedback">Please enter a valid price.</div>
-          </div>
+          <!-- Hidden Price field (auto-derived from Suite prices) -->
+          <input
+            type="hidden"
+            id="price"
+            name="listing[price]"
+            value="<%= typeof listing !== 'undefined' ? listing.price || '2500' : '2500' %>"
+          />
 
           <div class="row g-3 mb-3">
             <!-- Location -->
@@ -226,6 +214,7 @@
                         type="number"
                         class="form-control suite-price-input"
                         placeholder="2500"
+                        value="2500"
                         min="0"
                         step="1"
                         required
@@ -422,18 +411,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const advanceSymbol = document.getElementById("advanceSymbol");
   const advanceExample = document.getElementById("advanceExample");
 
-  // Keep suite 1 price synced with base price if empty or same
-  let previousBasePrice = "";
-  if (priceInput) {
-    priceInput.addEventListener("input", () => {
-      const currentBase = priceInput.value.trim();
-      const firstPriceInput = suitesContainer.querySelector(".suite-price-input");
-      if (firstPriceInput && (!firstPriceInput.value || firstPriceInput.value === previousBasePrice)) {
-        firstPriceInput.value = currentBase;
-      }
-      previousBasePrice = currentBase;
-      updateAdvanceExample();
-    });
+  // Sync listing base price and live preview from lowest suite price
+  function syncLowestSuitePrice() {
+    const priceInputs = Array.from(suitesContainer.querySelectorAll(".suite-price-input"))
+      .map((i) => parseFloat(i.value))
+      .filter((v) => !isNaN(v) && v >= 0);
+    const minPrice = priceInputs.length > 0 ? Math.min(...priceInputs) : 2500;
+    if (priceInput) {
+      priceInput.value = minPrice;
+    }
+    const previewPrice = document.getElementById("preview-price");
+    if (previewPrice) {
+      previewPrice.textContent = `₹${minPrice.toLocaleString("en-IN")}`;
+    }
+    updateAdvanceExample();
   }
 
   // Update suite badges and remove buttons visibility
@@ -450,7 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Bind live name change to header
+  // Bind live name change and price change to header & preview
   function bindSuiteEvents(card) {
     const nameInput = card.querySelector(".suite-name-input");
     const displayTitle = card.querySelector(".suite-title-display");
@@ -460,19 +451,26 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    const priceField = card.querySelector(".suite-price-input");
+    if (priceField) {
+      priceField.addEventListener("input", syncLowestSuitePrice);
+    }
+
     const removeBtn = card.querySelector(".btn-remove-suite");
     if (removeBtn) {
       removeBtn.addEventListener("click", () => {
         if (suitesContainer.querySelectorAll(".suite-card").length > 1) {
           card.remove();
           updateSuiteBadges();
+          syncLowestSuitePrice();
         }
       });
     }
   }
 
-  // Initialize existing card
+  // Initialize existing card and initial price sync
   document.querySelectorAll(".suite-card").forEach(bindSuiteEvents);
+  syncLowestSuitePrice();
 
   // Add Suite
   if (btnAddSuite) {
@@ -578,6 +576,7 @@ document.addEventListener("DOMContentLoaded", () => {
       suitesContainer.appendChild(card);
       bindSuiteEvents(card);
       updateSuiteBadges();
+      syncLowestSuitePrice();
     });
   }
 
@@ -713,6 +712,7 @@ document.addEventListener("DOMContentLoaded", () => {
         bindSuiteEvents(card);
       });
       updateSuiteBadges();
+      syncLowestSuitePrice();
     });
   }
 

@@ -27,6 +27,25 @@ const listingSchema = Joi.object({
 });
 
 module.exports = function validateListing(req, res, next) {
+  if (req.body.listing && (req.body.listing.price === undefined || req.body.listing.price === "")) {
+    let parsedRooms = req.body.rooms;
+    if (typeof parsedRooms === "string") {
+      try {
+        parsedRooms = JSON.parse(parsedRooms);
+      } catch (e) {
+        parsedRooms = [];
+      }
+    }
+    if (Array.isArray(parsedRooms) && parsedRooms.length > 0) {
+      const suitePrices = parsedRooms
+        .map((r) => parseFloat(r.price_per_night))
+        .filter((p) => !isNaN(p) && p >= 0);
+      if (suitePrices.length > 0) {
+        req.body.listing.price = Math.min(...suitePrices);
+      }
+    }
+  }
+
   const { error, value } = listingSchema.validate(req.body.listing || {}, {
     abortEarly: false,
     stripUnknown: true,
