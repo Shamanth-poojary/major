@@ -22,3 +22,4 @@ router.get("/:id", isLoggedIn, wrapAsync(bookingController.showBooking));
 router.post("/", isLoggedIn, requireRole("customer"), wrapAsync(bookingController.postBooking));
 
 module.exports = router;
+

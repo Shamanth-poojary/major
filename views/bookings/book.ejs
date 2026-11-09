@@ -1,18 +1,24 @@
 <% layout("layouts/boilerplate") -%>
 
 <div class="wl-container py-4 py-md-5">
-  <!-- Breadcrumb -->
-  <div class="wl-breadcrumb mb-3">
-    <a href="/listings" class="text-muted text-decoration-none">Listings</a>
-    <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
-    <a href="/listings/<%= listing.id %>" class="text-muted text-decoration-none text-truncate" style="max-width: 200px;"><%= listing.title %></a>
-    <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
-    <span class="text-dark fw-semibold">Confirm Reservation</span>
-  </div>
+  <!-- Breadcrumbs -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="/listings" class="text-decoration-none text-muted">Listings</a></li>
+      <li class="breadcrumb-item"><a href="/listings/<%= listing.id %>" class="text-decoration-none text-muted text-truncate" style="max-width: 180px;"><%= listing.title %></a></li>
+      <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">Confirm Reservation</li>
+    </ol>
+  </nav>
 
+  <!-- Title & Location Header -->
   <div class="mb-4">
+    <span class="badge bg-light text-primary border border-primary-subtle px-3 py-1 mb-2 fw-semibold">
+      <i class="fa-solid fa-shield-check me-1"></i>Direct Host Booking
+    </span>
     <h1 class="h2 fw-bold text-dark mb-1">Book your stay at <%= listing.title %></h1>
-    <p class="text-muted"><i class="fa-solid fa-location-dot me-1"></i><%= listing.location %>, <%= listing.country %></p>
+    <div class="text-muted small">
+      <i class="fa-solid fa-location-dot me-1 text-danger"></i><%= listing.location %>, <%= listing.country %>
+    </div>
   </div>
 
   <form id="bookingForm" action="/bookings" method="POST">
@@ -20,216 +26,293 @@
     <input type="hidden" name="rooms" id="roomsJsonInput" value="" />
 
     <div class="row g-4">
-      <!-- Left Column: Steps -->
+      <!-- Left Column: Sequential Stepper -->
       <div class="col-12 col-lg-8">
-        <!-- Step 1: Dates & Guests -->
-        <div class="wl-card p-4 mb-4">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="badge bg-primary rounded-circle p-2 px-3">1</span>
-            <h4 class="h5 fw-bold text-dark mb-0">Select Dates & Travel Group</h4>
+        
+        <!-- STEP 1: Dates & Travel Group -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge rounded-circle p-2 px-3 fw-bold" style="background-color: var(--wl-teal-600, #137580); color: #fff;">1</span>
+              <h5 class="fw-bold text-dark mb-0">Select Dates & Travel Group</h5>
+            </div>
+            <span id="stayNightsBadge" class="badge bg-light text-dark border px-3 py-1 small fw-semibold">
+              <i class="fa-solid fa-moon me-1 text-primary"></i>1 Night
+            </span>
           </div>
 
           <div class="row g-3">
             <div class="col-12 col-md-6">
-              <label class="form-label small fw-bold text-dark">Check-In Date</label>
+              <label class="form-label small fw-bold text-dark mb-1">
+                <i class="fa-regular fa-calendar-check me-1 text-muted"></i>Check-In Date
+              </label>
               <input
                 type="date"
                 name="checkIn"
                 id="checkInInput"
-                class="form-control"
+                class="form-control form-control-lg fs-6"
                 value="<%= prefill.checkIn %>"
                 required
               />
             </div>
             <div class="col-12 col-md-6">
-              <label class="form-label small fw-bold text-dark">Check-Out Date</label>
+              <label class="form-label small fw-bold text-dark mb-1">
+                <i class="fa-regular fa-calendar-xmark me-1 text-muted"></i>Check-Out Date
+              </label>
               <input
                 type="date"
                 name="checkOut"
                 id="checkOutInput"
-                class="form-control"
+                class="form-control form-control-lg fs-6"
                 value="<%= prefill.checkOut %>"
                 required
               />
             </div>
-            <div class="col-6">
-              <label class="form-label small fw-bold text-dark">Adults (12+ yrs)</label>
-              <input
-                type="number"
-                name="adults"
-                id="adultsInput"
-                class="form-control"
-                min="1"
-                max="20"
-                value="<%= prefill.adults %>"
-                required
-              />
+
+            <div class="col-6 col-md-6">
+              <label class="form-label small fw-bold text-dark mb-1">
+                <i class="fa-solid fa-user me-1 text-muted"></i>Adults (12+ yrs)
+              </label>
+              <select name="adults" id="adultsInput" class="form-select form-select-lg fs-6">
+                <% for (let i = 1; i <= 10; i++) { %>
+                  <option value="<%= i %>" <%= prefill.adults == i ? 'selected' : '' %>><%= i %> Adult<%= i > 1 ? 's' : '' %></option>
+                <% } %>
+              </select>
             </div>
-            <div class="col-6">
-              <label class="form-label small fw-bold text-dark">Children (2-11 yrs)</label>
-              <input
-                type="number"
-                name="children"
-                id="childrenInput"
-                class="form-control"
-                min="0"
-                max="10"
-                value="<%= prefill.children %>"
-              />
+            <div class="col-6 col-md-6">
+              <label class="form-label small fw-bold text-dark mb-1">
+                <i class="fa-solid fa-child me-1 text-muted"></i>Children (2-11 yrs)
+              </label>
+              <select name="children" id="childrenInput" class="form-select form-select-lg fs-6">
+                <% for (let i = 0; i <= 6; i++) { %>
+                  <option value="<%= i %>" <%= prefill.children == i ? 'selected' : '' %>><%= i %> <%= i === 1 ? 'Child' : 'Children' %></option>
+                <% } %>
+              </select>
             </div>
           </div>
         </div>
 
-        <!-- Step 2: Room Selection -->
-        <div class="wl-card p-4 mb-4">
-          <div class="d-flex align-items-center justify-content-between mb-3">
+        <!-- STEP 2: Room Selection -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
-              <span class="badge bg-primary rounded-circle p-2 px-3">2</span>
-              <h4 class="h5 fw-bold text-dark mb-0">Select Room Types</h4>
+              <span class="badge rounded-circle p-2 px-3 fw-bold" style="background-color: var(--wl-teal-600, #137580); color: #fff;">2</span>
+              <h5 class="fw-bold text-dark mb-0">Select Room Types & Quantities</h5>
             </div>
-            <span id="capacityBadge" class="badge bg-light text-dark border px-2 py-1">
-              Accommodates 0 guests
+            <span id="capacityBadge" class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-semibold">
+              <i class="fa-solid fa-circle-check me-1"></i>Accommodates 2 guests
             </span>
           </div>
 
-          <p class="text-muted small mb-3">Choose the number of rooms needed for your stay. Pricing updates automatically.</p>
+          <p class="text-muted small mb-3">
+            Choose how many units of each room type you require. Nightly totals update live on your summary.
+          </p>
 
           <div id="roomsContainer" class="d-flex flex-column gap-3">
-            <% for (let room of rooms) { %>
-              <div class="card border rounded-3 p-3 room-card" data-room-id="<%= room.id %>" data-price="<%= room.price_per_night %>" data-capacity="<%= room.max_guests %>">
+            <% rooms.forEach((room, idx) => { %>
+              <div
+                class="card border rounded-3 p-3 room-card transition <%= idx === 0 ? 'border-primary shadow-sm bg-white' : 'bg-white' %>"
+                id="room-card-<%= room.id %>"
+                data-room-id="<%= room.id %>"
+                data-price="<%= room.price_per_night %>"
+                data-capacity="<%= room.max_guests %>"
+                style="border-width: 1.5px !important;"
+              >
                 <div class="row g-3 align-items-center">
-                  <div class="col-12 col-md-2">
+                  <!-- Thumbnail -->
+                  <div class="col-12 col-sm-3 col-md-2">
                     <img
                       src="<%= room.image_url || listing.image.url %>"
                       alt="<%= room.name %>"
                       class="rounded-3 w-100"
-                      style="height: 80px; object-fit: cover;"
+                      style="height: 85px; object-fit: cover;"
                     />
                   </div>
-                  <div class="col-12 col-md-6">
-                    <div class="d-flex align-items-center gap-2">
+
+                  <!-- Details -->
+                  <div class="col-12 col-sm-5 col-md-6">
+                    <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
                       <h6 class="fw-bold text-dark mb-0"><%= room.name %></h6>
-                      <span class="badge bg-secondary text-uppercase" style="font-size: 0.65rem;"><%= room.category %></span>
+                      <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle text-uppercase" style="font-size: 0.65rem;">
+                        <%= room.category %>
+                      </span>
+                      <span class="badge bg-primary text-white d-none selected-badge" id="selected-badge-<%= room.id %>" style="font-size: 0.65rem;">
+                        Selected
+                      </span>
                     </div>
+
                     <div class="text-muted small mt-1">
-                      <span><i class="fa-solid fa-user-group me-1"></i><%= room.max_guests %> guests / room</span>
+                      <span><i class="fa-solid fa-users me-1"></i>Up to <%= room.max_guests %> guests / room</span>
                       <% if (room.bed_config) { %>
-                        <span>&middot;</span>
-                        <span><%= room.bed_config %></span>
+                        <span class="mx-1">&middot;</span>
+                        <span><i class="fa-solid fa-bed me-1"></i><%= room.bed_config %></span>
                       <% } %>
                     </div>
-                    <div class="text-primary fw-bold mt-1">
-                      &#8377;<%= room.price_per_night.toLocaleString("en-IN") %> <span class="text-muted small fw-normal">/ night</span>
+
+                    <div class="mt-1">
+                      <span class="text-primary fw-bold fs-6">&#8377;<%= Number(room.price_per_night).toLocaleString("en-IN") %></span>
+                      <span class="text-muted small">/ night</span>
                     </div>
+
+                    <% if (room.amenities && room.amenities.length > 0) { %>
+                      <div class="d-flex flex-wrap gap-1 mt-2">
+                        <% for (let a of room.amenities.slice(0, 3)) { %>
+                          <span class="badge bg-light text-muted border" style="font-size: 0.68rem;"><%= a %></span>
+                        <% } %>
+                      </div>
+                    <% } %>
                   </div>
-                  <div class="col-12 col-md-4 text-md-end">
-                    <div class="d-inline-flex align-items-center border rounded-3 overflow-hidden bg-white">
-                      <button type="button" class="btn btn-sm btn-light px-3 py-1 btn-room-minus" data-room-id="<%= room.id %>">-</button>
-                      <input
-                        type="number"
-                        class="form-control form-control-sm border-0 text-center room-qty-input shadow-none"
-                        style="width: 50px;"
+
+                  <!-- Stepper Controls -->
+                  <div class="col-12 col-sm-4 col-md-4 text-sm-end">
+                    <div class="d-inline-flex align-items-center bg-light border border-2 rounded-pill p-1 shadow-sm">
+                      <button
+                        type="button"
+                        class="btn btn-sm rounded-circle shadow-none btn-room-minus d-flex align-items-center justify-content-center border"
+                        style="width: 32px; height: 32px; background: #fff;"
+                        data-room-id="<%= room.id %>"
+                        title="Decrease units"
+                      >
+                        <i class="fa-solid fa-minus text-secondary" style="font-size: 0.75rem;"></i>
+                      </button>
+
+                      <span
+                        class="room-qty-display fw-bold text-dark text-center px-2 user-select-none"
+                        style="min-width: 40px; font-size: 1.15rem;"
                         id="qty-<%= room.id %>"
-                        value="0"
-                        min="0"
-                        max="<%= room.total_units %>"
-                        readonly
-                      />
-                      <button type="button" class="btn btn-sm btn-light px-3 py-1 btn-room-plus" data-room-id="<%= room.id %>">+</button>
+                      ><%= idx === 0 ? '1' : '0' %></span>
+
+                      <button
+                        type="button"
+                        class="btn btn-sm rounded-circle shadow-none btn-room-plus d-flex align-items-center justify-content-center border"
+                        style="width: 32px; height: 32px; background: #fff;"
+                        data-room-id="<%= room.id %>"
+                        title="Increase units"
+                      >
+                        <i class="fa-solid fa-plus text-primary" style="font-size: 0.75rem;"></i>
+                      </button>
                     </div>
+
+                    <input
+                      type="hidden"
+                      class="room-qty-hidden"
+                      id="qty-val-<%= room.id %>"
+                      value="<%= idx === 0 ? '1' : '0' %>"
+                      data-max="<%= room.total_units %>"
+                      data-room-id="<%= room.id %>"
+                    />
+
                     <div class="text-muted small mt-1" style="font-size: 0.75rem;">
-                      <span id="avail-<%= room.id %>"><%= room.total_units %> available</span>
+                      <span class="text-success"><%= room.total_units %> units available</span>
                     </div>
                   </div>
                 </div>
               </div>
-            <% } %>
+            <% }); %>
           </div>
         </div>
 
-        <!-- Step 3: Guest & Contact Information -->
-        <div class="wl-card p-4 mb-4">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="badge bg-primary rounded-circle p-2 px-3">3</span>
-            <h4 class="h5 fw-bold text-dark mb-0">Guest & Contact Information</h4>
+        <!-- STEP 3: Guest & Contact Information -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+          <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+            <span class="badge rounded-circle p-2 px-3 fw-bold" style="background-color: var(--wl-teal-600, #137580); color: #fff;">3</span>
+            <h5 class="fw-bold text-dark mb-0">Primary Guest & Contact Information</h5>
           </div>
 
           <div class="row g-3">
             <div class="col-12 col-md-6">
-              <label class="form-label small fw-bold text-dark">Primary Guest Name</label>
+              <label class="form-label small fw-bold text-dark mb-1">Primary Guest Name</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-user"></i></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  value="<%= currentUser ? currentUser.username : 'Guest' %>"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-dark mb-1">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-envelope"></i></span>
+                <input
+                  type="email"
+                  class="form-control"
+                  value="<%= currentUser ? currentUser.email : '' %>"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-dark mb-1">
+                Contact Phone Number <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-phone"></i></span>
+                <input
+                  type="tel"
+                  name="contactPhone"
+                  id="contactPhoneInput"
+                  class="form-control"
+                  placeholder="+91 98765 43210"
+                  value="<%= prefill.contactPhone || (currentUser && currentUser.phone) || '+91 98765 43210' %>"
+                  required
+                />
+              </div>
+              <div class="form-text text-muted small">
+                Booking vouchers and instant check-in instructions are delivered here.
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold text-dark mb-1">Special Requests (Optional)</label>
               <input
                 type="text"
-                class="form-control"
-                value="<%= currentUser ? currentUser.username : '' %>"
-                readonly
-                disabled
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-bold text-dark">Primary Email</label>
-              <input
-                type="email"
-                class="form-control"
-                value="<%= currentUser ? currentUser.email : '' %>"
-                readonly
-                disabled
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-bold text-dark">Contact Phone Number <span class="text-danger">*</span></label>
-              <input
-                type="tel"
-                name="contactPhone"
-                class="form-control"
-                placeholder="+91 98765 43210"
-                value="<%= prefill.contactPhone %>"
-                required
-              />
-              <div class="form-text">We'll send booking SMS and WhatsApp confirmations here.</div>
-            </div>
-            <div class="col-12">
-              <label class="form-label small fw-bold text-dark">Special Requests (Optional)</label>
-              <textarea
                 name="specialRequests"
                 class="form-control"
-                rows="2"
-                placeholder="Early check-in, quiet room, dietary requests, high floor..."
-              ></textarea>
+                placeholder="Quiet room, late check-in, ground floor..."
+              />
             </div>
           </div>
         </div>
+
       </div>
 
-      <!-- Right Column: Live Price & Confirmation Summary -->
+      <!-- Right Column: Sticky Price & Policy Summary -->
       <div class="col-12 col-lg-4">
-        <div class="wl-card p-4 sticky-top shadow-sm" style="top: 88px; z-index: 20;">
-          <h4 class="h6 fw-bold text-dark text-uppercase letter-spacing mb-3">Price & Policy Summary</h4>
+        <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 88px; z-index: 10;">
+          <h5 class="fw-bold text-dark mb-3">Price & Policy Summary</h5>
 
-          <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+          <!-- Property Header -->
+          <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-3">
             <img
               src="<%= listing.image.url %>"
               alt="<%= listing.title %>"
-              class="rounded-3"
-              style="width: 70px; height: 70px; object-fit: cover;"
+              class="rounded-3 shadow-sm"
+              style="width: 64px; height: 64px; object-fit: cover;"
             />
-            <div>
-              <div class="fw-bold text-dark text-truncate" style="max-width: 180px;"><%= listing.title %></div>
-              <div class="text-muted small"><i class="fa-solid fa-location-dot me-1"></i><%= listing.location %></div>
+            <div class="overflow-hidden">
+              <div class="fw-bold text-dark text-truncate" style="max-width: 200px;"><%= listing.title %></div>
+              <div class="text-muted small text-truncate"><%= listing.location %>, <%= listing.country %></div>
             </div>
           </div>
 
-          <!-- Line items container -->
+          <!-- Dynamic Breakdown Container -->
           <div id="quoteBreakdown">
-            <div class="text-muted small text-center py-3">
-              <i class="fa-solid fa-bed display-6 d-block mb-2 text-muted"></i>
-              Please select at least one room to calculate the price.
+            <div class="text-center py-3 text-muted small">
+              <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+              <div>Calculating stay quote...</div>
             </div>
           </div>
 
+          <!-- Policy Callout -->
           <div class="p-3 bg-light rounded-3 border my-3">
-            <div class="d-flex justify-content-between text-muted small mb-1">
-              <span>Advance payment policy</span>
-              <span class="text-dark fw-semibold">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="small text-muted">Advance Deposit Policy</span>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
                 <% if (policy.allow_advance) { %>
                   <%= policy.advance_value %><%= policy.advance_type === 'percent' ? '%' : ' INR' %> Advance
                 <% } else { %>
@@ -237,22 +320,31 @@
                 <% } %>
               </span>
             </div>
-            <div class="text-muted small" style="font-size: 0.75rem;">
-              Pay advance now to lock your slot; pay the remainder anytime before check-in.
+            <div class="text-muted small" style="font-size: 0.76rem;">
+              Pay advance now to confirm your reservation. Balance payable anytime before check-in.
             </div>
           </div>
 
+          <!-- Submit Button -->
           <button
             type="submit"
             id="submitBookingBtn"
-            class="btn wl-btn-primary w-100 py-3 fw-bold text-center shadow-sm"
-            disabled
+            class="btn wl-btn-primary w-100 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
           >
-            <i class="fa-solid fa-lock me-2"></i>Reserve & Proceed to Payment
+            <i class="fa-solid fa-lock"></i>
+            <span>Reserve & Proceed to Payment</span>
           </button>
 
-          <div class="text-center text-muted small mt-2" style="font-size: 0.75rem;">
-            <i class="fa-solid fa-shield-check me-1 text-success"></i>10-minute slot hold upon confirmation
+          <!-- Trust Badges -->
+          <div class="mt-3 pt-3 border-top text-center text-muted small" style="font-size: 0.78rem;">
+            <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
+              <i class="fa-solid fa-stopwatch text-warning"></i>
+              <span>10-minute temporary slot hold</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-2">
+              <i class="fa-solid fa-shield-halved text-success"></i>
+              <span>Verified property &middot; Instant confirmation</span>
+            </div>
           </div>
         </div>
       </div>
@@ -270,36 +362,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitBtn = document.getElementById("submitBookingBtn");
   const breakdownEl = document.getElementById("quoteBreakdown");
   const capacityBadge = document.getElementById("capacityBadge");
+  const stayNightsBadge = document.getElementById("stayNightsBadge");
 
-  // Dates defaults if not set
+  // Date setup defaults if not set
+  const toIso = (d) => d.toISOString().split("T")[0];
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const dayAfter = new Date(today);
+  dayAfter.setDate(dayAfter.getDate() + 2);
+
   if (!checkInEl.value) {
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const dayAfter = new Date(today);
-    dayAfter.setDate(dayAfter.getDate() + 2);
-    const toIso = (d) => d.toISOString().split("T")[0];
     checkInEl.value = toIso(tomorrow);
+  }
+  if (!checkOutEl.value) {
     checkOutEl.value = toIso(dayAfter);
-    checkInEl.min = toIso(today);
-    checkOutEl.min = toIso(tomorrow);
   }
-
-  // Pre-select first room with 1 unit
-  const firstQty = document.querySelector(".room-qty-input");
-  if (firstQty) {
-    firstQty.value = 1;
-  }
+  checkInEl.min = toIso(today);
+  checkOutEl.min = toIso(tomorrow);
 
   // Stepper buttons
   document.querySelectorAll(".btn-room-plus").forEach((btn) => {
     btn.addEventListener("click", () => {
       const rid = btn.dataset.roomId;
-      const input = document.getElementById("qty-" + rid);
-      const max = parseInt(input.max, 10) || 10;
-      let val = parseInt(input.value, 10) || 0;
+      const hiddenInput = document.getElementById("qty-val-" + rid);
+      const displaySpan = document.getElementById("qty-" + rid);
+      const max = parseInt(hiddenInput.dataset.max, 10) || 10;
+      let val = parseInt(hiddenInput.value, 10) || 0;
       if (val < max) {
-        input.value = val + 1;
+        val += 1;
+        hiddenInput.value = val;
+        displaySpan.textContent = val;
+        updateCardHighlight(rid, val);
         updateQuote();
       }
     });
@@ -308,18 +402,57 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".btn-room-minus").forEach((btn) => {
     btn.addEventListener("click", () => {
       const rid = btn.dataset.roomId;
-      const input = document.getElementById("qty-" + rid);
-      let val = parseInt(input.value, 10) || 0;
+      const hiddenInput = document.getElementById("qty-val-" + rid);
+      const displaySpan = document.getElementById("qty-" + rid);
+      let val = parseInt(hiddenInput.value, 10) || 0;
       if (val > 0) {
-        input.value = val - 1;
+        val -= 1;
+        hiddenInput.value = val;
+        displaySpan.textContent = val;
+        updateCardHighlight(rid, val);
         updateQuote();
       }
     });
   });
 
-  [checkInEl, checkOutEl, adultsEl, childrenEl].forEach((el) => {
-    el.addEventListener("change", updateQuote);
+  function updateCardHighlight(rid, val) {
+    const card = document.getElementById("room-card-" + rid);
+    const badge = document.getElementById("selected-badge-" + rid);
+    if (!card) return;
+    if (val > 0) {
+      card.classList.add("border-primary", "shadow-sm");
+      if (badge) {
+        badge.classList.remove("d-none");
+        badge.textContent = `${val} Selected`;
+      }
+    } else {
+      card.classList.remove("border-primary", "shadow-sm");
+      if (badge) badge.classList.add("d-none");
+    }
+  }
+
+  // Initial card highlights
+  document.querySelectorAll(".room-qty-hidden").forEach((inp) => {
+    const val = parseInt(inp.value, 10) || 0;
+    updateCardHighlight(inp.dataset.roomId, val);
   });
+
+  // Date change listeners
+  checkInEl.addEventListener("change", () => {
+    if (checkInEl.value) {
+      const d = new Date(checkInEl.value);
+      d.setDate(d.getDate() + 1);
+      checkOutEl.min = toIso(d);
+      if (checkOutEl.value <= checkInEl.value) {
+        checkOutEl.value = toIso(d);
+      }
+      updateQuote();
+    }
+  });
+
+  checkOutEl.addEventListener("change", updateQuote);
+  adultsEl.addEventListener("change", updateQuote);
+  childrenEl.addEventListener("change", updateQuote);
 
   async function updateQuote() {
     const checkIn = checkInEl.value;
@@ -328,14 +461,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const children = parseInt(childrenEl.value, 10) || 0;
     const totalGuests = adults + children;
 
+    // Calculate nights
+    const d1 = new Date(checkIn);
+    const d2 = new Date(checkOut);
+    const diffTime = d2.getTime() - d1.getTime();
+    const nights = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    if (stayNightsBadge) {
+      stayNightsBadge.innerHTML = `<i class="fa-solid fa-moon me-1 text-primary"></i>${nights} Night${nights > 1 ? 's' : ''}`;
+    }
+
     const selectedRooms = [];
     let totalCap = 0;
 
-    document.querySelectorAll(".room-qty-input").forEach((inp) => {
+    document.querySelectorAll(".room-qty-hidden").forEach((inp) => {
       const qty = parseInt(inp.value, 10) || 0;
       if (qty > 0) {
-        const rid = inp.id.replace("qty-", "");
-        const card = inp.closest(".room-card");
+        const rid = inp.dataset.roomId;
+        const card = document.getElementById("room-card-" + rid);
         const cap = parseInt(card.dataset.capacity, 10) || 2;
         totalCap += cap * qty;
         selectedRooms.push({ roomTypeId: parseInt(rid, 10), quantity: qty });
@@ -343,22 +485,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     roomsJsonInput.value = JSON.stringify(selectedRooms);
-    capacityBadge.textContent = `Accommodates ${totalCap} guests (Group: ${totalGuests})`;
+
+    // Update capacity badge
+    if (totalCap >= totalGuests && totalCap > 0) {
+      capacityBadge.className = "badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-semibold";
+      capacityBadge.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i>Accommodates ${totalCap} guests (Group: ${totalGuests})`;
+    } else if (totalCap > 0) {
+      capacityBadge.className = "badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 fw-semibold";
+      capacityBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i>Capacity: ${totalCap} / ${totalGuests} guests`;
+    } else {
+      capacityBadge.className = "badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fw-semibold";
+      capacityBadge.innerHTML = `<i class="fa-solid fa-circle-xmark me-1"></i>Please select at least 1 room`;
+    }
 
     if (selectedRooms.length === 0) {
       breakdownEl.innerHTML = `
-        <div class="text-muted small text-center py-3">
-          <i class="fa-solid fa-bed display-6 d-block mb-2 text-muted"></i>
-          Please select at least 1 room.
+        <div class="text-center py-4 text-muted small">
+          <i class="fa-solid fa-bed display-6 d-block mb-2 text-muted opacity-50"></i>
+          <div>Please select at least one room.</div>
         </div>`;
       submitBtn.disabled = true;
       return;
-    }
-
-    if (totalCap < totalGuests) {
-      capacityBadge.className = "badge bg-danger text-white px-2 py-1";
-    } else {
-      capacityBadge.className = "badge bg-success text-white px-2 py-1";
     }
 
     try {
@@ -378,21 +525,24 @@ document.addEventListener("DOMContentLoaded", () => {
       let linesHtml = "";
       data.lineItems.forEach((item) => {
         linesHtml += `
-          <div class="d-flex justify-content-between small text-muted mb-1">
-            <span>${item.name} &times; ${item.quantity} (${item.nights} nt)</span>
-            <span class="text-dark fw-semibold">&#8377;${item.lineTotal.toLocaleString("en-IN")}</span>
+          <div class="d-flex justify-content-between small text-muted mb-2">
+            <div>
+              <span class="text-dark fw-semibold">${item.name}</span>
+              <div class="text-muted" style="font-size: 0.75rem;">${item.quantity} unit(s) &times; ${item.nights} nt</div>
+            </div>
+            <span class="text-dark fw-bold">&#8377;${item.lineTotal.toLocaleString("en-IN")}</span>
           </div>`;
       });
 
       breakdownEl.innerHTML = `
-        <div class="py-2 border-bottom mb-2">${linesHtml}</div>
+        <div class="py-2 border-bottom mb-3">${linesHtml}</div>
         <div class="d-flex justify-content-between fw-bold text-dark mb-2">
           <span>Total Stay Amount</span>
-          <span>&#8377;${data.totalAmount.toLocaleString("en-IN")}</span>
+          <span class="fs-5">&#8377;${data.totalAmount.toLocaleString("en-IN")}</span>
         </div>
         <div class="d-flex justify-content-between text-primary fw-bold mb-1">
           <span>Advance Due Now</span>
-          <span>&#8377;${data.advanceRequired.toLocaleString("en-IN")}</span>
+          <span class="fs-6">&#8377;${data.advanceRequired.toLocaleString("en-IN")}</span>
         </div>
         <div class="d-flex justify-content-between text-muted small">
           <span>Remaining Balance</span>
@@ -401,11 +551,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       submitBtn.disabled = false;
     } catch (err) {
-      console.error("Quote fetch error:", err);
+      console.error("Error fetching live quote:", err);
     }
   }
 
-  // Initial calculation
+  // Calculate quote immediately on load
   updateQuote();
 });
 </script>

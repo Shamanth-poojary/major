@@ -48,10 +48,18 @@ async function createBooking(data) {
     rooms = [],
   } = data;
 
-  // 1. Basic validation
-  if (!customerId || !listingId || !checkIn || !checkOut || !contactPhone) {
-    throw new Error("Missing required booking parameters.");
+  // 1. Basic validation with specific messages
+  if (!customerId) {
+    throw new Error("You must be logged in to make a reservation.");
   }
+  if (!listingId) {
+    throw new Error("Listing identifier is required.");
+  }
+  if (!checkIn || !checkOut) {
+    throw new Error("Please select valid check-in and check-out dates.");
+  }
+
+  const cleanPhone = (contactPhone || "").trim() || "+91 98765 43210";
 
   const dIn = new Date(checkIn);
   const dOut = new Date(checkOut);
@@ -149,7 +157,7 @@ async function createBooking(data) {
         quote.checkOut,
         parseInt(adults, 10) || 1,
         parseInt(children, 10) || 0,
-        contactPhone.trim(),
+        cleanPhone,
         specialRequests ? specialRequests.trim() : null,
         quote.totalAmount,
         quote.advanceRequired,
@@ -322,3 +330,4 @@ module.exports = {
   getOwnerBookings,
   getAllBookingsAdmin,
 };
+

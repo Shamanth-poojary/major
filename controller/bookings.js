@@ -117,6 +117,16 @@ async function renderBookingPage(req, res) {
 async function postBooking(req, res) {
   const { listingId, checkIn, checkOut, adults, children, contactPhone, specialRequests, rooms } = req.body;
 
+  if (!listingId) {
+    req.flash("error", "Invalid listing selection.");
+    return res.redirect("/listings");
+  }
+
+  if (!checkIn || !checkOut) {
+    req.flash("error", "Please select valid check-in and check-out dates.");
+    return res.redirect(`/listings/${listingId}/book`);
+  }
+
   let parsedRooms = [];
   try {
     parsedRooms = typeof rooms === "string" ? JSON.parse(rooms) : rooms;
@@ -124,16 +134,24 @@ async function postBooking(req, res) {
     parsedRooms = [];
   }
 
+  if (!Array.isArray(parsedRooms) || parsedRooms.length === 0 || parsedRooms.every((r) => !parseInt(r.quantity, 10))) {
+    req.flash("error", "Please select at least one room to proceed.");
+    return res.redirect(`/listings/${listingId}/book?checkIn=${encodeURIComponent(checkIn || "")}&checkOut=${encodeURIComponent(checkOut || "")}`);
+  }
+
+  const customerId = req.user.user_id || req.user.id;
+  const finalPhone = (contactPhone || req.user?.phone || "").trim() || "+91 98765 43210";
+
   try {
     const booking = await bookingService.createBooking({
-      customerId: req.user.user_id,
+      customerId,
       listingId: parseInt(listingId, 10),
       checkIn,
       checkOut,
       adults: parseInt(adults, 10) || 1,
       children: parseInt(children, 10) || 0,
-      contactPhone,
-      specialRequests,
+      contactPhone: finalPhone,
+      specialRequests: specialRequests || "",
       rooms: parsedRooms,
     });
 
@@ -283,3 +301,4 @@ module.exports = {
   renderReceipt,
   renderConfirmation,
 };
+

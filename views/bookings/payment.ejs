@@ -80,7 +80,7 @@
         <div class="d-flex flex-column gap-3 mb-4">
           <!-- Option A: Pay Advance (if allowed) -->
           <% if (policy.allow_advance && Number(booking.advance_required) < Number(booking.total_amount)) { %>
-            <label class="card border p-3 rounded-3 cursor-pointer hover-shadow transition" style="cursor: pointer;">
+            <label class="card border rounded-4 p-3 cursor-pointer hover-shadow transition payment-option-card border-primary bg-primary-subtle" style="cursor: pointer; border-width: 2px !important;">
               <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-3">
                   <input
@@ -89,6 +89,7 @@
                     value="advance"
                     class="form-check-input mt-0 fs-5"
                     checked
+                    onchange="updateSelectedCard(this)"
                   />
                   <div>
                     <div class="fw-bold text-dark">
@@ -108,7 +109,7 @@
           <% } %>
 
           <!-- Option B: Pay Full Amount -->
-          <label class="card border p-3 rounded-3 cursor-pointer hover-shadow transition" style="cursor: pointer;">
+          <label class="card border rounded-4 p-3 cursor-pointer hover-shadow transition payment-option-card <%= !policy.allow_advance || Number(booking.advance_required) >= Number(booking.total_amount) ? 'border-primary bg-primary-subtle' : 'bg-white' %>" style="cursor: pointer; border-width: 2px !important;">
             <div class="d-flex align-items-center justify-content-between">
               <div class="d-flex align-items-center gap-3">
                 <input
@@ -117,11 +118,12 @@
                   value="full"
                   class="form-check-input mt-0 fs-5"
                   <%= !policy.allow_advance || Number(booking.advance_required) >= Number(booking.total_amount) ? 'checked' : '' %>
+                  onchange="updateSelectedCard(this)"
                 />
                 <div>
                   <div class="fw-bold text-dark">Pay Full Amount (100% Paid)</div>
                   <div class="text-muted small">
-                    Pay full total of &#8377;<%= Number(booking.total_amount).toLocaleString("en-IN") %> now. No future balance or checkout steps.
+                    Pay full total of &#8377;<%= Number(booking.total_amount).toLocaleString("en-IN") %> now. Settle entire reservation in one go.
                   </div>
                 </div>
               </div>
@@ -132,9 +134,24 @@
           </label>
         </div>
 
-        <button type="submit" class="btn wl-btn-primary w-100 py-3 fw-bold text-center shadow-sm">
-          <i class="fa-solid fa-credit-card me-2"></i>Proceed to Secure Payment Gateway
+        <button type="submit" class="btn wl-btn-primary w-100 py-3 fw-bold text-center shadow d-flex align-items-center justify-content-center gap-2">
+          <i class="fa-solid fa-lock"></i>
+          <span>Proceed to Secure Mock Payment Gateway</span>
         </button>
+
+        <script>
+          function updateSelectedCard(radio) {
+            document.querySelectorAll('.payment-option-card').forEach(c => {
+              c.classList.remove('border-primary', 'bg-primary-subtle');
+              c.classList.add('bg-white');
+            });
+            const card = radio.closest('.payment-option-card');
+            if (card) {
+              card.classList.remove('bg-white');
+              card.classList.add('border-primary', 'bg-primary-subtle');
+            }
+          }
+        </script>
 
         <div class="text-center text-muted small mt-3">
           <i class="fa-solid fa-shield-halved me-1 text-primary"></i>Protected by WanderLust Dummy Mock Payment Gateway (Test Mode)
@@ -169,3 +186,4 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 1000);
 });
 </script>
+
